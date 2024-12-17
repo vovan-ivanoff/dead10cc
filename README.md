@@ -28,4 +28,5 @@
 
 Результат: Конкретная модель для персональных рекомендаций
 
-
+Trello: [Тык](https://trello.com/b/PQ9zAdJZ/dead10cc)
+Miro: [Тык](https://miro.com/app/board/uXjVL3Wywzs=/?share_link_id=865311933063)
