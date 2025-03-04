@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: "postgres:16"
+    container_name: "postgres"
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "user=postgres password=postgres dbname=postgres"]
+      interval: 5s
+      timeout: 90s
+      retries: 300
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data1:/var/lib/postgresql/data
+    
+  fastapi_app:
+    container_name: "fastapi"
+    build:
+      dockerfile: ./Dockerfile
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+        
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data1:
