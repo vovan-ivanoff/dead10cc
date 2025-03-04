@@ -2,9 +2,9 @@ from pydantic import BaseModel
 
 
 class CartSchema(BaseModel):
-    user_id: int
-    products: list
+    id: int
+    products: dict
 
 
 class CartInfoSchema(BaseModel):
-    products: list
+    products: dict

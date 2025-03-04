@@ -8,8 +8,9 @@ from domain.usecases.user import AbstractUserUseCase
 from schemas.auth import UserInfoSchema, UserLoginSchema, UserRegisterSchema
 from schemas.exceptions import (AccessForbiddenException,
                                 UserIsAlreadyModeratorException)
-from services.auth.dependencies import get_current_user_id
+
 from services.users import UsersService
+from services.carts import CartsService
 from utils.dependencies import UOWDep
 
 
@@ -21,6 +22,7 @@ class UserUseCase(AbstractUserUseCase):
     async def registrate(self, user: UserRegisterSchema, response: Response) -> int:
         async with self.uow:
             user_id = await UsersService.register_user(self.uow, user, response)
+            await CartsService.create_cart(self.uow, user_id)
 
             await self.uow.commit()
         return user_id

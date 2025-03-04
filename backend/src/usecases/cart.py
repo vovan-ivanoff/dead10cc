@@ -21,27 +21,68 @@ class CartUseCase(AbstractCartUseCase):
     def __init__(self, uow: UOWDep):
         self.uow = uow
 
-    async def get_by_current_user(self, user_id: int) -> List[BaseModel]:
-        pass
-
-    async def get_by_user(
-        self, target_user_id: int, user_id: int
-    ) -> List[BaseModel]:
+    async def get(
+        self, user_id: int, target_user_id: int,
+    ) -> CartInfoSchema:
         async with self.uow:
             if not await UsersService.user_is_moderator(self.uow, user_id):
                 raise AccessForbiddenException
-            pass
+            return await CartsService.get_cart(self.uow, user_id)
 
-    async def get_list(self, user_id: int) -> List[BaseModel]:
+    async def get_my(self, user_id: int) -> CartInfoSchema:
+        async with self.uow:
+            return await CartsService.get_cart(self.uow, user_id)
+
+    async def add_product(
+            self, user_id: int, target_user_id: int, product_id: int, count: int
+    ):
         async with self.uow:
             if not await UsersService.user_is_moderator(self.uow, user_id):
                 raise AccessForbiddenException
-            carts_list = await CartsService.get_carts_list(self.uow)
+            await CartsService.add_product(self.uow, target_user_id, product_id, count)
+
             await self.uow.commit()
 
-        return carts_list
+    async def add_product_my(
+            self, user_id: int, product_id: int, count: int
+    ):
+        async with self.uow:
+            await CartsService.add_product(self.uow, user_id, product_id, count)
 
-    async def add_product_to_cart(
+            await self.uow.commit()
+
+    async def delete_product(
+            self, user_id: int, target_user_id: int, product_id: int, count: int
+    ):
+        async with self.uow:
+            if not await UsersService.user_is_moderator(self.uow, user_id):
+                raise AccessForbiddenException
+            await CartsService.delete_product(self.uow, target_user_id, product_id, count)
+
+            await self.uow.commit()
+
+    async def delete_product_my(
+            self, user_id: int, product_id: int, count: int
+    ):
+        async with self.uow:
+            await CartsService.delete_product(self.uow, user_id, product_id, count)
+
+            await self.uow.commit()
+
+    async def clear(
+            self, user_id: int, target_user_id: int
+    ):
+        async with self.uow:
+            if not await UsersService.user_is_moderator(self.uow, user_id):
+                raise AccessForbiddenException
+            await CartsService.clear_cart(self.uow, target_user_id)
+
+            await self.uow.commit()
+
+    async def clear_my(
             self, user_id: int
     ):
-        pass
+        async with self.uow:
+            await CartsService.clear_cart(self.uow, user_id)
+
+            await self.uow.commit()

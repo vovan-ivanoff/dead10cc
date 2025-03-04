@@ -23,6 +23,7 @@ class AbstractUserUseCase(ABC):
     @abstractmethod
     async def get_my_info(self, user_id: int): ...
 
+    @abstractmethod
     async def is_moderator(self, user_id: int): ...
 
     @abstractmethod

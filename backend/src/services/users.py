@@ -24,7 +24,7 @@ class UsersService:
             raise UserAlreadyExistException
         hashed_password = get_password_hash(user.password)
         user_id = await uow.users.add_one(
-            email=user.email, name=user.name, hashed_password=hashed_password
+            email=user.email, name=user.name, hashed_password=hashed_password, is_moderator=False
         )
 
         cls.setup_access_token(user_id=user_id, response=response)
