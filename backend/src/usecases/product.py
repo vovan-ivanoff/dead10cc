@@ -5,9 +5,12 @@ from pydantic import BaseModel
 from domain.usecases.product import AbstractProductUseCase
 from schemas.products import ProductAddSchema, ProductInfoSchema
 from schemas.exceptions import AccessForbiddenException
+from schemas.actions import VIEWED
 from services.products import ProductsService
+from services.stats import NotesService
 from services.users import UsersService
 from utils.dependencies import UOWDep
+from math import ceil
 
 
 class ProductUseCase(AbstractProductUseCase):
@@ -21,10 +24,12 @@ class ProductUseCase(AbstractProductUseCase):
 
         return products_list
 
-    async def get_info(self, product_id: int) -> ProductInfoSchema:
+    async def get_info(self, user_id: int, product_id: int) -> ProductInfoSchema:
         async with self.uow:
             product = await ProductsService.get_product_info(self.uow, product_id)
+            await NotesService.add_note(self.uow, user_id, product_id, VIEWED)
 
+            await self.uow.commit()
         return product
 
     async def add(
@@ -55,3 +60,21 @@ class ProductUseCase(AbstractProductUseCase):
             await ProductsService.edit_product_info(self.uow, product_id, **changes)
 
             await self.uow.commit()
+
+    async def add_review(self, user_id: int, product_id: int, mark: float):
+        mark = min(mark, 10.0)
+        mark = max(mark, 0.0)
+        new_rating = mark
+
+        async with self.uow:
+            product = await ProductsService.get_product_info(self.uow, product_id)
+            if product.reviews > 0:
+                new_rating += product.reviews * product.rating
+                new_rating /= product.reviews + 1
+                new_rating = new_rating.__round__(2)
+
+            await ProductsService.edit_product_info(self.uow, product_id,
+                                                    reviews=product.reviews+1,
+                                                    rating=new_rating)
+            await self.uow.commit()
+

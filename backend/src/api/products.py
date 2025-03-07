@@ -20,9 +20,10 @@ async def get_list(
 @router.get("/{product_id}")
 async def get(
     product_case: ProductCase,
-    product_id: int
+    product_id: int,
+    user_id: int = Depends(get_current_user_id)
 ):
-    return await product_case.get_info(product_id)
+    return await product_case.get_info(user_id, product_id)
 
 
 @router.post("/")
@@ -53,4 +54,14 @@ async def delete(
     user_id: int = Depends(get_current_user_id),
 ):
     await product_case.delete(user_id, product_id)
+    return {"status": "OK"}
+
+@router.patch("/review/{product_id}")
+async def create_review(
+        product_case: ProductCase,
+        product_id: int,
+        mark: float,
+        user_id: int = Depends(get_current_user_id)
+):
+    await product_case.add_review(user_id, product_id, mark)
     return {"status": "OK"}

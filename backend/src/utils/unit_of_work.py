@@ -3,6 +3,7 @@ from domain.utils.unit_of_work import AbstractUOW
 from repositories.products import ProductsRepo
 from repositories.carts import CartsRepo
 from repositories.users import UsersRepo
+from repositories.stats import StatsRepo
 
 
 class UOW(AbstractUOW):
@@ -11,6 +12,7 @@ class UOW(AbstractUOW):
         self.users = UsersRepo(self.session)
         self.products = ProductsRepo(self.session)
         self.carts = CartsRepo(self.session)
+        self.stats = StatsRepo(self.session)
 
     async def __aexit__(self, *args):
         await self.rollback()

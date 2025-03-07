@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 from repositories.products import ProductsRepo
 from repositories.carts import CartsRepo
+from repositories.stats import StatsRepo
 from repositories.users import UsersRepo
 
 
@@ -9,6 +10,7 @@ class AbstractUOW(ABC):
     users: UsersRepo
     products: ProductsRepo
     carts: CartsRepo
+    stats: StatsRepo
 
     @abstractmethod
     async def __aenter__(self): ...

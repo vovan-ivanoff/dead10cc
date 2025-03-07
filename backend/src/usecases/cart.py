@@ -1,18 +1,12 @@
-import datetime
-from typing import List
-
-from pydantic import BaseModel
-
 from domain.usecases.cart import AbstractCartUseCase
-from domain.utils.unit_of_work import AbstractUOW
 from schemas.carts import CartInfoSchema
 from schemas.exceptions import (AccessForbiddenException,
                                 CheckIsNotPayedException,
                                 RefundDeclinedException)
+from schemas.actions import ADDED_TO_CART
 from services.carts import CartsService
-from services.products import ProductsService
 from services.users import UsersService
-from utils.date_manager import DateManager as Dm
+from services.stats import NotesService
 from utils.dependencies import UOWDep
 
 
@@ -48,6 +42,7 @@ class CartUseCase(AbstractCartUseCase):
     ):
         async with self.uow:
             await CartsService.add_product(self.uow, user_id, product_id, count)
+            await NotesService.add_note(self.uow, user_id, product_id, ADDED_TO_CART)
 
             await self.uow.commit()
 
