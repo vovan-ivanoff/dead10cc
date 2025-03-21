@@ -1,0 +1,193 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input::placeholder {
+  opacity: 0.9;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-BookItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-BookItalic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-Hairline.woff2') format('woff2'),
+  url('/fonts/ALSHauss-Hairline.woff') format('woff');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-HairlineItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-HairlineItalic.woff') format('woff');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-Light.woff2') format('woff2'),
+  url('/fonts/ALSHauss-Light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-LightItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-LightItalic.woff') format('woff');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-Medium.woff2') format('woff2'),
+  url('/fonts/ALSHauss-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-MediumItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-MediumItalic.woff') format('woff');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-Regular.woff2') format('woff2'),
+  url('/fonts/ALSHauss-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-RegularItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-RegularItalic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-Thin.woff2') format('woff2'),
+  url('/fonts/ALSHauss-Thin.woff') format('woff');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-ThinItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-ThinItalic.woff') format('woff');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Стили для активной точки (выбранного слайда) */
+.swiper-pagination-bullet-active {
+  background-color: #C800A1 !important; /* Фиолетовый */
+  width: 12px;
+  height: 12px;
+}
+
+/* Стили для неактивных точек */
+.swiper-pagination-bullet {
+  background-color: #ffffff !important; /* Белый */
+  opacity: 0.6;
+  width: 8px;
+  height: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Увеличение точки при наведении */
+.swiper-pagination-bullet:hover {
+  background-color: #981E97 !important;
+  opacity: 1;
+}

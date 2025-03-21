@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "name": "Беспроводные наушники",
+    "description": "Качественный звук и удобная посадка",
+    "price": "3499",
+    "oldPrice": "4999",
+    "image": "/pictures/headphones.png",
+    "author": "TechSound"
+  },
+  {
+    "id": 2,
+    "name": "Смарт-часы",
+    "description": "Отслеживание активности и уведомления",
+    "price": "5999",
+    "oldPrice": "7999",
+    "image": "/pictures/smartwatch.png",
+    "author": "TimeTech"
+  },
+  {
+    "id": 3,
+    "name": "Игровая клавиатура",
+    "description": "RGB подсветка и механические переключатели",
+    "price": "4499",
+    "oldPrice": "5999",
+    "image": "/pictures/keyboard.png",
+    "author": "GamerGear"
+  },
+  {
+    "id": 4,
+    "name": "Беспроводная мышь",
+    "description": "Эргономичный дизайн и высокая точность",
+    "price": "2499",
+    "oldPrice": "3499",
+    "image": "/pictures/mouse.png",
+    "author": "ClickMaster"
+  },
+  {
+    "id": 5,
+    "name": "Внешний аккумулятор",
+    "description": "Большая емкость и быстрая зарядка",
+    "price": "2999",
+    "oldPrice": "3999",
+    "image": "/pictures/powerbank.png",
+    "author": "ChargePro"
+  },
+  {
+    "id": 6,
+    "name": "Планшет",
+    "description": "Мощный процессор и яркий экран",
+    "price": "15999",
+    "oldPrice": "18999",
+    "image": "/pictures/tab.png",
+    "author": "SmartTab"
+  },
+  {
+    "id": 7,
+    "name": "Ноутбук",
+    "description": "Легкий и производительный для работы",
+    "price": "49999",
+    "oldPrice": "54999",
+    "image": "/pictures/laptop.png",
+    "author": "UltraBook"
+  },
+  {
+    "id": 8,
+    "name": "Футболка",
+    "description": "Качественный хлопок",
+    "price": "1999",
+    "oldPrice": "3999",
+    "image": "/pictures/tshirt.png",
+    "author": "Hlopok"
+  },
+  {
+    "id": 9,
+    "name": "Чехол",
+    "description": "Качественная кожа",
+    "price": "799",
+    "oldPrice": "1399",
+    "image": "/pictures/case.png",
+    "author": "CasesRu"
+  },
+  {
+    "id": 10,
+    "name": "Микрофон",
+    "description": "Чистая передача голоса без шумов",
+    "price": "3999",
+    "oldPrice": "5499",
+    "image": "/pictures/microphone.png",
+    "author": "VoiceTech"
+  },
+  {
+    "id": 11,
+    "name": "Веб-камера",
+    "description": "Full HD качество для видеозвонков",
+    "price": "3499",
+    "oldPrice": "4499",
+    "image": "/pictures/webcam.png",
+    "author": "CamPro"
+  },
+  {
+    "id": 12,
+    "name": "Геймпад",
+    "description": "Беспроводной с высокой чувствительностью",
+    "price": "2999",
+    "oldPrice": "3999",
+    "image": "/pictures/gamepad.png",
+    "author": "PlayMaster"
+  }
+]
