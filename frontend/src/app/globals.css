@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background:rgb(255, 255, 255);
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+}
+
+input::placeholder {
+  opacity: 0.9;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-BookItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-BookItalic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-Hairline.woff2') format('woff2'),
+  url('/fonts/ALSHauss-Hairline.woff') format('woff');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-HairlineItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-HairlineItalic.woff') format('woff');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-Light.woff2') format('woff2'),
+  url('/fonts/ALSHauss-Light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-LightItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-LightItalic.woff') format('woff');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-Medium.woff2') format('woff2'),
+  url('/fonts/ALSHauss-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-MediumItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-MediumItalic.woff') format('woff');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-Regular.woff2') format('woff2'),
+  url('/fonts/ALSHauss-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-RegularItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-RegularItalic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-Thin.woff2') format('woff2'),
+  url('/fonts/ALSHauss-Thin.woff') format('woff');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/fonts/ALSHauss-ThinItalic.woff2') format('woff2'),
+  url('/fonts/ALSHauss-ThinItalic.woff') format('woff');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
