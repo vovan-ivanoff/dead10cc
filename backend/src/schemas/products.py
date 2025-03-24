@@ -10,6 +10,7 @@ class ProductSchema(BaseModel):
     seller: str
     rating: float
     reviews: int
+    description: str
 
 
 class ProductInfoSchema(BaseModel):
@@ -20,6 +21,7 @@ class ProductInfoSchema(BaseModel):
     seller: str
     rating: float
     reviews: int
+    description: str
 
 
 class ProductAddSchema(BaseModel):
@@ -33,3 +35,7 @@ class ProductAddSchema(BaseModel):
     seller: str = Field(examples=["OZON"])
     rating: float
     reviews: int
+    description: str = Field(
+        max_length=1024,
+        examples=["Для жеского кайфа"],
+    )

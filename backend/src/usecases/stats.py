@@ -30,3 +30,12 @@ class NoteUseCase(AbstractNoteUseCase):
             note = await NotesService.get_note_info(self.uow, note_id)
 
         return note
+
+    async def get_products_by_user(self, user_id: int) -> List[int]:
+        products = set()
+        async with self.uow:
+            notes = await NotesService.get_notes_list(self.uow, user_id=user_id)
+            for note in notes:
+                products.add(note.product_id)
+
+        return list(products)
