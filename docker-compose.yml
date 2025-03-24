@@ -30,6 +30,16 @@ services:
         
     ports:
       - "8000:8000"
+  recomender:
+    container_name: "recomender"
+    volumes:
+      - model_data:/app/model
+    build:
+      context: recomendations
+      dockerfile: Dockerfile
+    ports:
+      - "5100:5100"
 
 volumes:
   postgres_data1:
+  model_data:
