@@ -78,4 +78,4 @@ def get_recomendations(count: int):
     return jsonify({'recomended': recomended}), 201
 
 
-app.run(port=8080, host='0.0.0.0')
+app.run(port=5100, host='0.0.0.0')

@@ -12,7 +12,7 @@ RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
 RUN pip install -r requirements.txt
 # Make port 80 available to the world outside this container
 COPY . /src
-EXPOSE 8080
+EXPOSE 5100
 
 # Run app.py when the container launches
 CMD ["python", "main.py"]
