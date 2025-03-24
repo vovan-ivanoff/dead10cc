@@ -1,72 +1,158 @@
+"use client";
+
 import Link from 'next/link';
-import React from 'react';
+import Image from 'next/image';
+import React, { useState, useEffect, useRef } from 'react';
 import Container from './Container';
+import AuthModal from './ui/AuthModal';
+import SideMenu from './ui/SideMenu';
+import { motion, AnimatePresence } from 'framer-motion';
 import '../app/globals.css';
+import '../app/header.css';
+import { useZoom } from './hooks/useZoom';
+import MenuButton from './ui/MenuButton';
+import RightIcons from './ui/RightIcons';
+import { sideMenuVariants } from '../lib/animation';
 
 const Header: React.FC = () => {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [isZoom200OrGreater, setIsZoom200OrGreater] = useState(false);
+  const [isSticky, setIsSticky] = useState(false);
+  const [currentZoom, setCurrentZoom] = useState(100);
+
+  useZoom();
+
+  useEffect(() => {
+    const headerElement = headerRef.current;
+
+    if (!headerElement) return;
+
+    const checkZoom = () => {
+      const zoomLevel = Math.round(window.devicePixelRatio * 100);
+      setCurrentZoom(zoomLevel);
+      setIsZoom200OrGreater(zoomLevel >= 200);
+    };
+
+    const observer = new MutationObserver((mutationsList) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          checkZoom();
+        }
+      }
+    });
+
+    observer.observe(headerElement, {
+      attributes: true,
+    });
+
+    checkZoom();
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const headerElement = headerRef.current;
+      if (!headerElement) return;
+
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      setIsSticky(scrollTop > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const getHeaderHeight = (zoom: number) => {
+    switch (zoom) {
+      case 200:
+        return 64;
+      default:
+        return 114;
+    }
+  };
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleLoginClick = () => {
+    setIsAuthModalOpen(true);
+  };
+
+  const handleCloseAuthModal = () => {
+    setIsAuthModalOpen(false);
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    document.body.classList.toggle('overflow-hidden', isMenuOpen);
+  };
+
   return (
-    <header className="w-full h-[115px] bg-gradient-to-t from-[#FF49D6] via-[#E93FDD] to-[#9012F3]">
-      <Container>
-        <div className="flex items-center justify-between py-10">
-          {/* Логотип и кнопка */}
-          <div className="flex items-center">
-            <div className="flex-shrink-0 transform -translate-y-1">
-              <Link href="/">
-                <img
-                  src="/logo.svg"
-                  alt="Логотип"
-                  className="h-[38px] w-[240px]"
-                />
-              </Link>
-            </div>
-
-            {/* Кнопка с квадратом */}
-            <button className="ml-[18px] relative w-[60px] h-[60px] group appearance-none focus:outline-none min-w-[60px] min-h-[60px]">
-              <div
-                className="w-full h-full rounded-[15px] border border-white opacity-35 group-hover:opacity-100 transition-opacity"
-                style={{ borderWidth: '1px' }}
-              />
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className="w-[25px] h-[3px] bg-white rounded-full" />
-                <div className="w-[25px] h-[3px] bg-white rounded-full mt-[6px]" />
-                <div className="w-[25px] h-[3px] bg-white rounded-full mt-[6px]" />
+    <div className="header-wrapper" id="header-wrapper">
+      <header className="header" id="header" ref={headerRef} style={{
+          position: isSticky ? 'fixed' : 'relative',
+          top: isSticky ? '0' : 'auto',
+          left: isSticky ? '0' : 'auto',
+          width: '100%',
+          zIndex: isSticky ? 1000 : 'auto',
+          height: isSticky ? '85px' : `${getHeaderHeight(currentZoom)}px`,
+          padding: isSticky ? '0 0 0 0' : '20px 0 0 0',
+          background: 'linear-gradient(to top, #FD48D7 10%, #7B07F8 90%)',
+          boxShadow: isSticky ? '0 2px 10px rgba(0, 0, 0, 0.1)' : 'none',
+          transition: 'height 0.3s ease, padding 0.3s ease, background 0.3s ease, box-shadow 0.3s ease',
+        }}>
+        <Container>
+          <div className="flex items-center justify-between py-10">
+            <div className="logo-menu">
+              <div className="flex-shrink-0 transform -translate-y-1">
+                <Link href="/">
+                  <Image
+                    src="/logos/logo.svg"
+                    alt="Логотип"
+                    width={240}
+                    height={38}
+                  />
+                </Link>
               </div>
-            </button>
-          </div>
 
-          {/* Search bar с фиксированной шириной и отступом */}
-          <div className="ml-[15px] w-[calc(100%-calc(230px*2)-60px-15px)]">
-            <input
-              type="text"
-              placeholder="Найти на Wildberries"
-              className="w-full h-[60px] rounded-[17px] bg-white focus:outline-none px-4 text-black text-[17px] font-sans font-regular"
-              style={{ maxWidth: '1020px', minWidth: '250px' }}
-            />
-          </div>
+              <MenuButton isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
+            </div>
 
-          <div className="flex items-center ml-[25px] space-x-[25px]">
-            <div className="flex flex-col items-center">
-              <img src="/icons/address.svg" alt="Адрес" className="w-[30px] h-[30px] mb-[5px]" />
-              <Link href="/addresses" className="text-white text-[14px] font-sans font-medium opacity-50 hover:opacity-100">
-                Адреса
-              </Link>
+            <div className="flex-grow flex items-center">
+              <div className="search-bar">
+                <input
+                  type="text"
+                  placeholder="Найти на Wildberries"
+                  className="search-bar-input"
+                  style={{ 
+                    height: 'var(--search-bar-height)',
+                  }}
+                />
+              </div>
             </div>
-            <div className="flex flex-col items-center">
-              <img src="/icons/user.svg" alt="Авторизация" className="w-[20px] h-[20px] mb-[5px]" />
-              <Link href="/login" className="text-white text-[14px] font-sans font-medium opacity-50 hover:opacity-100">
-                Войти
-              </Link>
-            </div>
-            <div className="flex flex-col items-center">
-              <img src="/icons/trash.svg" alt="Корзина" className="w-[25px] h-[25px] mb-[5px]" />
-              <Link href="/cart" className="text-white text-[14px] font-sans font-medium opacity-50 hover:opacity-100">
-                Корзина
-              </Link>
-            </div>
+
+            <RightIcons isZoom200OrGreater={isZoom200OrGreater} handleLoginClick={handleLoginClick} />
           </div>
-        </div>
-      </Container>
-    </header>
+        </Container>
+        <AuthModal isOpen={isAuthModalOpen} onClose={handleCloseAuthModal} />
+
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial="closed"
+              animate="open"
+              exit="closed"
+              variants={sideMenuVariants}
+            >
+              <SideMenu isOpen={isMenuOpen} onClose={toggleMenu} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+    </div>
   );
 };
 
