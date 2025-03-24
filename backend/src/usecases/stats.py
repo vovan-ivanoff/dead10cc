@@ -7,6 +7,7 @@ from schemas.exceptions import AccessForbiddenException
 from schemas.stats import NoteInfoSchema
 from services.stats import NotesService
 from services.users import UsersService
+from services.products import ProductsService
 from utils.dependencies import UOWDep
 
 
@@ -32,10 +33,11 @@ class NoteUseCase(AbstractNoteUseCase):
         return note
 
     async def get_products_by_user(self, user_id: int) -> List[int]:
-        products = set()
+        product_ids = set()
         async with self.uow:
             notes = await NotesService.get_notes_list(self.uow, user_id=user_id)
             for note in notes:
-                products.add(note.product_id)
+                product_ids.add(note.product_id)
+            articles = [(await ProductsService.get_product_info(self.uow, product_id)).article for product_id in product_ids]
 
-        return list(products)
+        return list(articles)

@@ -54,6 +54,6 @@ async def get_recommendation(
 ):
     products = {"skus": await note_case.get_products_by_user(user_id)}
     products = json.dumps(products, ensure_ascii=True, indent=4)
-    response = requests.post(f"127.0.0.1:5100/recomendation/{count}", products)
+    response = requests.post(f"http://127.0.0.1:5100/recomendation/{count}", data=products, headers={"Content-Type": "application/json"})
 
     return response
