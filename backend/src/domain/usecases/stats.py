@@ -9,3 +9,6 @@ class AbstractNoteUseCase(ABC):
 
     @abstractmethod
     async def get_list(self, user_id: int, **filter_by): ...
+
+    @abstractmethod
+    async def get_products_by_user(self, user_id: int): ...

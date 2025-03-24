@@ -16,6 +16,7 @@ class Products(Base):
     seller: Mapped[str] = mapped_column(nullable=False)
     rating: Mapped[float] = mapped_column(nullable=False)
     reviews: Mapped[int] = mapped_column(nullable=False, default=0)
+    description: Mapped[str] = mapped_column(String(1024), nullable=True)
 
     def to_read_model(self) -> ProductSchema:
         return ProductSchema(
@@ -26,5 +27,6 @@ class Products(Base):
             tags=self.tags,
             seller=self.seller,
             rating=self.rating,
-            reviews=self.reviews
+            reviews=self.reviews,
+            description=self.description
         )
