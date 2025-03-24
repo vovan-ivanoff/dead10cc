@@ -1,12 +1,20 @@
 import React from "react";
 import Container from "./Container";
 import "../app/globals.css";
+import Image from 'next/image';
 
 const Footer: React.FC = () => {
+    const socialLinks: Record<string, string> = {
+        vk: "https://vk.com",
+        git: "https://github.com",
+        tg: "https://t.me",
+        yt: "https://youtube.com",
+    };
+
     return (
         <footer className="bg-gray-200 h-[400px] w-full overflow-hidden">
             <Container>
-                <div className="w-[1200px] grid grid-cols-5 gap-8 text-gray-600 overflow-hidden whitespace-nowrap mt-14">
+                <div className="hidden lg:grid min-w-[1230px] max-w-[1230px] grid grid-cols-5 gap-8 text-gray-600 whitespace-nowrap mt-14 overflow-hidden">
                     <div className="space-y-2 w-[200px]">
                         <h3 className="font-black">Покупателям</h3>
                         <ul className="space-y-2">
@@ -42,21 +50,108 @@ const Footer: React.FC = () => {
                         </ul>
                     </div>
                     <div className="flex flex-col items-center justify-center w-[200px]">
-                        <img src="/qr1.svg" alt="QR Code" className="w-40 h-40" />
+                    <Image
+                    src="/pictures/qr1_1.svg"
+                    alt="QR Code"
+                    width={160}
+                    height={160}
+                    className="w-40 h-40"
+                    />
                         <div className="flex gap-3 mt-4 flex-nowrap">
                             {["vk", "git", "tg", "yt"].map((icon) => (
-                                <div key={icon} className="w-12 h-12 bg-white rounded-lg flex items-center justify-center relative group">
-                                    <img src={`/icons/icon${icon}.svg`} alt={`Icon ${icon}`} className="w-8 h-8 group-hover:hidden" />
-                                    <img src={`/icons/icon${icon}h.svg`} alt={`Icon ${icon} hover`} className="absolute w-9 h-9 group-hover:block hidden" />
-                                </div>
+                                <a
+                                    key={icon}
+                                    href={socialLinks[icon]}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-10 h-10 bg-white rounded-lg flex items-center justify-center relative group"
+                                >
+                                    <Image
+                                        src={`/icons/icon${icon}.svg`}
+                                        alt={`Icon ${icon}`}
+                                        width={24}
+                                        height={24}
+                                        className="w-6 h-6 group-hover:scale-95 group-hover:opacity-0 transition-all duration-300 ease-in-out"
+                                    />
+                                    <Image
+                                        src={`/icons/icon${icon}h.svg`}
+                                        alt={`Icon ${icon} hover`}
+                                        width={28}
+                                        height={28}
+                                        className="absolute top-0 left-0 w-7 h-7 group-hover:scale-100 group-hover:opacity-100 opacity-0 transform transition-all duration-300 ease-in-out"
+                                    />
+                                </a>
                             ))}
                         </div>
                     </div>
-                    <div className="w-[400px] h-[100px] break-words">
+                    <div className="w-[400px] h-[100px]">
                         <h3 className="flex">
-                            © Wildberries 2004-2025. Все права защищены. <br />
-                            Применяются рекомендательные технологии
+                            © Wildberries 2004-2025. Все права защищены.
                         </h3>
+                        <div>
+                            <span>Применяются </span>
+                            <a
+                                className="hover:underline whitespace-nowrap inline-block"
+                                href="https://github.com/vovan-ivanoff/dead10cc"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                рекомендательные технологии
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div className="lg:hidden flex flex-col items-center mt-10 text-gray-600">
+                    <div className="flex flex-col items-center justify-center w-[200px]">
+                        <Image
+                        src="/pictures/qr1_1.svg"
+                        alt="QR Code"
+                        width={160}
+                        height={160}
+                        className="w-40 h-40"
+                        />
+                        <div className="flex gap-3 mt-4 flex-nowrap">
+                            {["vk", "git", "tg", "yt"].map((icon) => (
+                                <a
+                                    key={icon}
+                                    href={socialLinks[icon]}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-10 h-10 bg-white rounded-lg flex items-center justify-center relative group"
+                                >
+                                    <Image
+                                        src={`/icons/icon${icon}.svg`}
+                                        alt={`Icon ${icon}`}
+                                        width={24}
+                                        height={24}
+                                        className="w-6 h-6 group-hover:scale-95 group-hover:opacity-0 transition-all duration-300 ease-in-out"
+                                    />
+                                    <Image
+                                        src={`/icons/icon${icon}h.svg`}
+                                        alt={`Icon ${icon} hover`}
+                                        width={28}
+                                        height={28}
+                                        className="absolute w-7 h-7 group-hover:scale-100 group-hover:opacity-100 opacity-0 transform transition-all duration-300 ease-in-out"
+                                    />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="w-full text-center mt-10">
+                        <h3 className="flex">
+                            © Wildberries 2004-2025. Все права защищены.
+                        </h3>
+                        <div>
+                            <span>Применяются </span>
+                            <a
+                                className="hover:underline whitespace-nowrap inline-block"
+                                href="https://github.com/vovan-ivanoff/dead10cc"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                рекомендательные технологии
+                            </a>
+                        </div>
                     </div>
                 </div>
             </Container>
