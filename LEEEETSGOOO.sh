@@ -1,5 +1,4 @@
-#!/bin/bash
-cd backend 
+cd backend
 echo "
 SECRET_KEY=fj4tQHvxG55c7srYFSotUv+XHvkchI56GyBRmd9z9AM=
 ALGORITHM=HS256
@@ -12,5 +11,10 @@ CLIENT_SECRET=6de8f5fa-4ebc-428e-8d2d-afd8aa7a92f9
 AUTH_DATA=OWUzYWI3NDQtMGQ4Zi00NDJjLWFkNjEtODJjY2Y2OTc4ZDE3OjZkZThmNWZhLTRlYmMtNDI4ZS04ZDJkLWFmZDhhYTdhOTJmOQ==
 " > .env
 cd ..
+
 docker compose up -d --build
-open -u http://localhost:8000/docs
+
+sleep 10
+
+start http://localhost:8000/docs
+start http://localhost:3000

@@ -1,0 +1,12 @@
+1. Клонирование репозитория:
+
+git clone https://github.com/vovan-ivanoff/dead10cc.git
+
+2. Перейдите в папку с репозиторием
+
+3. В WSL пишем ./LEEEETSGOOO.sh
+
+4 (если на MAC OS). Переходим по ссылкам: 
+
+http://localhost:8000/docs
+http://localhost:3000
