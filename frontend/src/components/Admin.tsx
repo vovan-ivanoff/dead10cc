@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { Plus, Minus, Trash2, Edit } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/AdminButton";
 import { Input } from "@/components/ui/AdminInput";
 import { Card, CardContent } from "@/components/ui/CardFull";
-import { Plus, Minus, Trash2, Edit } from "lucide-react";
-import { motion } from "framer-motion";
 import {
   getProducts,
   createProduct,
