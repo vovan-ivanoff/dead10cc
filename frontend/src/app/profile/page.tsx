@@ -2,6 +2,7 @@
 
 import ProfilePage from "@/components/Profile";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import Container from "@/components/Container";
 
 export default function Cabinet() {
@@ -13,6 +14,7 @@ export default function Cabinet() {
         <ProfilePage />
       </div>
       </Container>
+      <Footer />
     </div>
   );
 }

@@ -52,6 +52,6 @@ services:
     depends_on:
       - fastapi_app
 
-volumes:
-  postgres_data1:
-  model_data:
+# volumes:
+  # - ./postgres_data:/var/lib/postgresql/data
+  # - ./model_data:/app/model

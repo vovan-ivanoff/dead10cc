@@ -25,17 +25,18 @@ export const createProduct = async (productData: ProductCreate): Promise<Product
     const formData = new FormData();
     
     Object.entries(productData).forEach(([key, value]) => {
-      if (key !== 'image' && value !== undefined && value !== null) {
+      if (value !== undefined && value !== null && key !== 'image' && key !== 'id') {
         formData.append(key, value.toString());
       }
-    });
+    });    
 
     if (productData.image) {
-      const image = productData.image instanceof File ? 
-                   productData.image : 
-                   await urlToFile(productData.image);
+      const image = productData.image instanceof File 
+                    ? productData.image 
+                    : await urlToFile(productData.image);
       formData.append('image', image);
     }
+    
 
     const response = await fetch(`${API_BASE_URL}${API_PREFIX}/products`, {
       method: 'POST',
@@ -62,14 +63,14 @@ export const updateProduct = async (
       if (value !== undefined && value !== null && key !== 'image' && key !== 'id') {
         formData.append(key, value.toString());
       }
-    });
+    });    
 
     if (productData.image) {
-      const image = productData.image instanceof File ? 
-                   productData.image : 
-                   await urlToFile(productData.image);
+      const image = productData.image instanceof File 
+                    ? productData.image 
+                    : await urlToFile(productData.image);
       formData.append('image', image);
-    }
+    }    
 
     const response = await fetch(`${API_BASE_URL}${API_PREFIX}/products/${id}`, {
       method: 'PATCH',

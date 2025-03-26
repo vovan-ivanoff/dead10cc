@@ -17,6 +17,12 @@ interface AuthModalProps {
   onLogout?: () => void;
 }
 
+interface Country {
+  name: string;
+  code: string;
+  flag: string;
+}
+
 const countries = [
   { name: 'Россия', code: '+7', flag: '/flags/russia.svg' },
   { name: 'Армения', code: '+374', flag: '/flags/armenia.svg' },
@@ -35,7 +41,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
 }) => {
   const [phone, setPhone] = useState('');
   const [isAgreed, setIsAgreed] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState(countries[0]);
+  const [selectedCountry, setSelectedCountry] = useState<Country>(countries[0] as Country);
   const [isCountryListOpen, setIsCountryListOpen] = useState(false);
   const [isCodeInputOpen, setIsCodeInputOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -132,6 +138,11 @@ const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   const handleGetCodeClick = async () => {
+    if (!selectedCountry) {
+      setAuthError('Пожалуйста, выберите страну');
+      return;
+    }
+
     if (!isAgreed) {
       setAuthError('Пожалуйста, согласитесь с правилами');
       return;
@@ -478,14 +489,20 @@ const CodeInputModal: React.FC<CodeInputModalProps> = ({
     const newCode = [...code];
     
     for (let i = 0; i < Math.min(pasteData.length, 6); i++) {
-      newCode[i] = pasteData[i];
+      const char = pasteData[i];
+      if (typeof char === 'string' && char !== '') {
+        newCode[i] = char;
+      } else {
+        newCode[i] = '';
+      }
     }
     
     setCode(newCode);
     if (pasteData.length >= 6) {
       onAuthorize(newCode);
     } else {
-      inputsRef.current[Math.min(pasteData.length, 5)]?.focus();
+      const nextIndex = Math.min(pasteData.length, 5);
+      inputsRef.current[nextIndex]?.focus();
     }
   };
 

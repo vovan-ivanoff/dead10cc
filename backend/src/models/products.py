@@ -10,10 +10,10 @@ class Products(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
     article: Mapped[int] = mapped_column(nullable=False)
-    title: Mapped[str] = mapped_column(String(30), nullable=False)
+    title: Mapped[str] = mapped_column(String(128), nullable=False)
     price: Mapped[int] = mapped_column(nullable=False)
     tags: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
-    seller: Mapped[str] = mapped_column(nullable=False)
+    seller: Mapped[str] = mapped_column(nullable=True)
     rating: Mapped[float] = mapped_column(nullable=False)
     reviews: Mapped[int] = mapped_column(nullable=False, default=0)
     description: Mapped[str] = mapped_column(String(1024), nullable=True)

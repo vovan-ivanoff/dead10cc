@@ -12,7 +12,7 @@ interface CustomInputProps extends React.ComponentProps<"input"> {
 const Input = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, CustomInputProps>(
   ({ className, type, label, multiline, rows, icon, iconPosition = "left", ...props }, ref) => {
     const commonClasses = cn(
-      "flex w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5D1286] focus-visible:border-[#5D1286] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+      "flex w-full rounded-xl border border-gray-200 bg-transparent px-3 py-1 text-base shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5D1286] focus-visible:border-[#5D1286] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
       !multiline && "h-9",
       multiline && "min-h-[80px]",
       icon && iconPosition === "left" && "pl-10",

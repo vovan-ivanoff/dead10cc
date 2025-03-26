@@ -12,7 +12,7 @@ import {
   updateProduct,
   deleteProduct
 } from "@/api/admin/products";
-import type { Product, ProductCreate, ProductUpdate } from "@/types/product";
+import { Product, ProductCreate, ProductUpdate } from "@/types/product";
 
 export default function AdminProductsPage() {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -25,7 +25,7 @@ export default function AdminProductsPage() {
     oldPrice: 0,
     author: "",
     description: "",
-    image: "",
+    image: "" // Начальное значение — строка, но будет обрабатываться как файл
   });
   const [editId, setEditId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,15 +49,28 @@ export default function AdminProductsPage() {
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, files } = e.target;
+    const { name, value, files, type } = e.target;
     
-    if (name === "image" && files && files.length > 0) {
-      setFormData({ ...formData, [name]: files[0] });
+    // Явное приведение типа для name
+    const fieldName = name as keyof ProductCreate;
+
+    if (fieldName === "image" && files && files.length > 0) {
+      const file = files[0];
+      if (file && !file.type.startsWith('image/')) {
+        setError('Пожалуйста, загрузите изображение');
+        return;
+      }
+      if (file) {
+        setFormData(prev => ({
+          ...prev,
+          [fieldName]: file
+        }));
+      }
     } else {
-      setFormData({ 
-        ...formData, 
-        [name]: name.includes("price") ? Number(value) : value 
-      });
+      setFormData(prev => ({
+        ...prev,
+        [fieldName]: type === "number" ? Number(value) : value
+      }));
     }
   };
 
@@ -107,7 +120,6 @@ export default function AdminProductsPage() {
       description: product.description,
       image: product.image
     });
-    setShowAddForm(true);
   };
 
   const handleDeleteProduct = async (id: number) => {
@@ -233,7 +245,7 @@ export default function AdminProductsPage() {
 
           <Button 
             type="submit" 
-            className="bg-[#A232E8] hover:bg-[#AF4DFD] text-white transition-all duration-300 ease-in-out"
+            className="rounded-xl bg-[#A232E8] hover:bg-[#AF4DFD] text-white transition-all duration-300 ease-in-out"
             disabled={isLoading}
           >
             {isLoading ? "Обработка..." : editId ? "Сохранить изменения" : "Добавить товар"}
@@ -276,22 +288,20 @@ export default function AdminProductsPage() {
               >
                 <Card>
                   <CardContent className="p-4 rounded-lg hover:shadow-lg transition-all">
-                  <img 
-                    src={typeof product.image === 'string' ? product.image : URL.createObjectURL(product.image)} 
-                    alt={product.name} 
-                    className="w-full h-[250px] object-contain rounded-md mb-4" 
-                    onLoad={(e) => {
-                      if (typeof product.image !== 'string') {
-                        URL.revokeObjectURL(e.currentTarget.src);
-                      }
-                    }}
-                    onError={(e) => {
-                      if (typeof product.image !== 'string') {
-                        URL.revokeObjectURL(e.currentTarget.src);
-                      }
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
+                  {product.image && (
+                    <img 
+                      src={typeof product.image === 'string' 
+                        ? product.image 
+                        : URL.createObjectURL(product.image)} 
+                      alt={product.name}
+                      className="w-full h-[250px] object-contain rounded-md mb-4"
+                      onLoad={(e) => {
+                        if (typeof product.image !== 'string') {
+                          URL.revokeObjectURL(e.currentTarget.src);
+                        }
+                      }}
+                    />
+                  )}
                     <h2 className="text-lg font-semibold">{product.name}</h2>
                     <div className="flex items-center mb-2">
                       <p className="text-sm text-black truncate">{product.author}</p>

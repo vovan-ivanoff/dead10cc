@@ -35,7 +35,7 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
           {products.map((product) => (
             <div
               key={product.id}
-              className="p-4 rounded-lg hover:shadow-lg transition-all"
+              className="p-4 rounded-xl hover:shadow-lg transition-all"
             >
               <Image
                 src={product.image}
@@ -61,7 +61,7 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
                   / {product.name}
                 </p>
               </div>
-              <button className="w-full p-2 bg-[#A232E8] text-white rounded-md hover:bg-[#5D1286] transition-colors">
+              <button className="w-full p-2 bg-[#A232E8] hover:bg-[#AF4DFD] text-white rounded-xl transition-all duration-300 ease-in-out">
                 Добавить в корзину
               </button>
             </div>
