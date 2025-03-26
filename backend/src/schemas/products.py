@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 class ProductSchema(BaseModel):
     id: int
     article: int
-    title: str = Field(max_length=30)
+    title: str = Field(max_length=128)
     price: int
     tags: list | None
     seller: str
@@ -15,7 +15,7 @@ class ProductSchema(BaseModel):
 
 class ProductInfoSchema(BaseModel):
     article: int
-    title: str = Field(max_length=30)
+    title: str = Field(max_length=128)
     price: int
     tags: list | None
     seller: str
@@ -27,7 +27,7 @@ class ProductInfoSchema(BaseModel):
 class ProductAddSchema(BaseModel):
     article: int
     title: str = Field(
-        max_length=30,
+        max_length=128,
         examples=["Dildo"],
     )
     price: int
