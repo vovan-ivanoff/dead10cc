@@ -48,13 +48,18 @@ try:
     with open("/app/model/similarity.pkl", 'rb') as f:
         similarity = pickle.load(f)
 except FileNotFoundError:
+
     similarity = learn(wb_csv)
     with open("/app/model/similarity.pkl", 'wb') as f:
         pickle.dump(similarity, f)
 
 
 def get_model_rec(sku: int, n: int = 10) -> List[int]:
-    id = wb_csv[wb_csv.sku == sku].index.values[0]
+    try:
+        id = wb_csv[wb_csv.sku == sku].index.values[0]
+    except Exception as ex:
+        print(ex)
+        return []
     result = similarity[id]
     recommendations = sorted(list(enumerate(result)),
                              key=lambda x: x[1], reverse=True)
@@ -73,9 +78,9 @@ def get_recomendations(count: int):
     skus = request.json['skus']
     skus_count = len(skus)
     for sku in skus:
-        recomended.extend(get_model_rec(sku, count // skus_count))
+        recomended.extend(get_model_rec(sku, (count + skus_count) // skus_count))
 
-    return jsonify({'recomended': recomended}), 201
+    return jsonify({'recomended': recomended[:count]}), 201
 
 
 app.run(port=5100, host='0.0.0.0')

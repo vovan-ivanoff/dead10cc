@@ -37,6 +37,13 @@ class ProductsService:
         return ProductInfoSchema(**(await uow.products.find_one(id=product_id)).dict())
 
     @staticmethod
+    async def get_product_by_article(
+            uow: AbstractUOW,
+            article: int
+    ) -> ProductInfoSchema:
+        return ProductInfoSchema(**(await uow.products.find_one(article=article)).dict())
+
+    @staticmethod
     async def delete_product(
             uow: AbstractUOW,
             product_id: int
