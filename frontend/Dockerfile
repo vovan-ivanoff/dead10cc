@@ -4,15 +4,15 @@ WORKDIR /app
 
 COPY package.json yarn.lock ./
 
-RUN npm install -g yarn
+RUN npm install -g yarn --force
 
 RUN yarn install --frozen-lockfile --prefer-offline
 
 COPY . .
 
-RUN yarn build --no-lint
+ENV NEXT_ESLINT_IGNORE_DURING_BUILDS=true
 
-RUN yarn install --production --frozen-lockfile
+RUN yarn build --no-lint
 
 FROM node:18-alpine
 
@@ -24,5 +24,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 EXPOSE 3000
+
+RUN yarn cache clean
 
 CMD ["yarn", "start"]
