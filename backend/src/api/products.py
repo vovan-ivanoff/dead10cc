@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, UploadFile
 from schemas.products import ProductAddSchema
 from services.auth.dependencies import get_current_user_id
 from usecases.dependencies import ProductCase
+from variables.gl import iterators
 
 router = APIRouter(
     prefix="/products",
@@ -15,6 +16,22 @@ async def get_list(
     product_case: ProductCase
 ):
     return await product_case.get_list()
+
+
+@router.get("/get_page")
+async def get_page(
+        product_case: ProductCase,
+        user_id: int = Depends(get_current_user_id),
+):
+    return await product_case.get_page(user_id, iterators)
+
+
+@router.delete("/reset_paging")
+async def reset_paging(
+        user_id: int = Depends(get_current_user_id),
+):
+    del iterators[user_id]
+    return {"status": "OK"}
 
 
 @router.get("/{product_id}")

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Iterator
 
 from schemas.products import ProductAddSchema
 
@@ -10,7 +11,10 @@ class AbstractProductUseCase(ABC):
     async def add(self, product: ProductAddSchema, user_id: int): ...
 
     @abstractmethod
-    async def get_info(self, user_id:int, product_id: int): ...
+    async def get_info(self, user_id: int, product_id: int): ...
+
+    @abstractmethod
+    async def get_page(self, user_id: int, iterators: dict | None): ...
 
     @abstractmethod
     async def get_list(self): ...

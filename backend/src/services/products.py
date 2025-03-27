@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterator
 
 from pydantic import BaseModel
 
@@ -12,15 +12,13 @@ class ProductsService:
             uow: AbstractUOW,
             product: ProductAddSchema,
     ) -> int:
-        product_id = await uow.products.add_one(
-            article=product.article,
-            title=product.title,
-            price=product.price,
-            tags=product.tags,
-            seller=product.seller,
-            rating=product.rating,
-            reviews=product.reviews
-        )
+        product_id = await uow.products.add_one(article=product.article,
+                                                title=product.title,
+                                                price=product.price,
+                                                tags=product.tags,
+                                                seller=product.seller,
+                                                rating=product.rating,
+                                                reviews=product.reviews)
         return product_id
 
     @staticmethod
@@ -28,6 +26,19 @@ class ProductsService:
             uow: AbstractUOW,
     ) -> List[BaseModel]:
         return await uow.products.find_all()
+
+    @staticmethod
+    async def get_iterator(
+            uow: AbstractUOW,
+            size: int,
+    ) -> Iterator:
+        return await uow.products.get_iter(size)
+
+    @staticmethod
+    async def get_next_page(
+            iterator: Iterator
+    ) -> List[BaseModel]:
+        return [row[0].to_read_model() for row in next(iterator)]
 
     @staticmethod
     async def get_product_info(
