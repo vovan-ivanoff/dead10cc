@@ -2,28 +2,27 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json yarn.lock ./
 
-RUN npm ci --legacy-peer-deps --prefer-offline \
-    && npm cache clean --force
+RUN npm install -g yarn
+
+RUN yarn install --frozen-lockfile --prefer-offline
 
 COPY . .
 
-RUN npm run build -- --no-lint
+RUN yarn build --no-lint
+
+RUN yarn install --production --frozen-lockfile
 
 FROM node:18-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules ./node_modules
-
-RUN npm ci --only=production --omit=dev
+COPY --from=builder /app /app/
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 EXPOSE 3000
-CMD ["npm", "start"]
+
+CMD ["yarn", "start"]
