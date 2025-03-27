@@ -26,6 +26,14 @@ async def get(
     return await product_case.get_info(user_id, product_id)
 
 
+@router.get("/find/{article}")
+async def get(
+    product_case: ProductCase,
+    article: int,
+):
+    return await product_case.get_info(article)
+
+
 @router.post("/")
 async def add(
     product_case: ProductCase,
@@ -55,6 +63,7 @@ async def delete(
 ):
     await product_case.delete(user_id, product_id)
     return {"status": "OK"}
+
 
 @router.patch("/review/{product_id}")
 async def create_review(

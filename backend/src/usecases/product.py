@@ -32,6 +32,12 @@ class ProductUseCase(AbstractProductUseCase):
             await self.uow.commit()
         return product
 
+    async def get_info_by_article(self, article: int) -> ProductInfoSchema:
+        async with self.uow:
+            product = await ProductsService.get_product_info(self.uow, article)
+            await self.uow.commit()
+        return product
+
     async def add(
         self,
         product: ProductAddSchema,

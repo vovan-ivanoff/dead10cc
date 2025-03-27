@@ -7,10 +7,10 @@ class ProductSchema(BaseModel):
     title: str = Field(max_length=128)
     price: int
     tags: list | None
-    seller: str
+    seller: str | None
     rating: float
     reviews: int
-    description: str
+    description: str | None
 
 
 class ProductInfoSchema(BaseModel):
@@ -18,10 +18,10 @@ class ProductInfoSchema(BaseModel):
     title: str = Field(max_length=128)
     price: int
     tags: list | None
-    seller: str
+    seller: str | None
     rating: float
     reviews: int
-    description: str
+    description: str | None
 
 
 class ProductAddSchema(BaseModel):
@@ -32,10 +32,10 @@ class ProductAddSchema(BaseModel):
     )
     price: int
     tags: list | None = Field(examples=[["for_male", "18+"], ["for_kids"]])
-    seller: str = Field(examples=["OZON"])
+    seller: str | None = Field(examples=["OZON"])
     rating: float
     reviews: int
-    description: str = Field(
+    description: str | None = Field(
         max_length=1024,
         examples=["Для жеского кайфа"],
     )
