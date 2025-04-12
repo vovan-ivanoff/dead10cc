@@ -1,6 +1,5 @@
 from typing import List
 
-from fastapi import Depends
 from pydantic import BaseModel
 from starlette.responses import Response
 
@@ -36,7 +35,7 @@ class UserUseCase(AbstractUserUseCase):
 
     async def get_my_info(self, user_id: int) -> UserInfoSchema:
         async with self.uow:
-            user = await UsersService.get_user_info(self.uow, user_id)
+            user = await UsersService.get_user_info(self.uow, id=user_id)
 
         return user
 
@@ -76,3 +75,17 @@ class UserUseCase(AbstractUserUseCase):
             )
 
             await self.uow.commit()
+
+    async def get_info_by_phone(self, phone: str):
+        async with self.uow:
+            user = await UsersService.get_user_info(self.uow, phone=phone)
+
+        return user
+
+    async def auth_by_phone(self, phone: str, response: Response):
+        async with self.uow:
+            user = await UsersService.auth_user_by_phone(self.uow, phone, response)
+
+            await self.uow.commit()
+
+        return user

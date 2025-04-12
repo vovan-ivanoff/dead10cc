@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterator
 
 from pydantic import BaseModel
 
@@ -26,22 +26,34 @@ class ProductsService:
     @staticmethod
     async def get_products_list(
             uow: AbstractUOW,
+            **filter_by
     ) -> List[BaseModel]:
-        return await uow.products.find_all()
+        return await uow.products.find_all(**filter_by)
+
+    @staticmethod
+    async def get_iterator(
+            uow: AbstractUOW,
+            size: int,
+            **filter_by
+    ) -> Iterator:
+        return await uow.products.get_iter(size)
+
+    @staticmethod
+    async def get_next_page(
+            iterator: Iterator
+    ) -> List[BaseModel]:
+        try:
+            page = next(iterator)
+        except StopIteration:
+            return []
+        return [row[0].to_read_model() for row in page]
 
     @staticmethod
     async def get_product_info(
             uow: AbstractUOW,
-            product_id: int
+            **field
     ) -> ProductInfoSchema:
-        return ProductInfoSchema(**(await uow.products.find_one(id=product_id)).dict())
-
-    @staticmethod
-    async def get_product_by_article(
-            uow: AbstractUOW,
-            article: int
-    ) -> ProductInfoSchema:
-        return ProductInfoSchema(**(await uow.products.find_one(article=article)).dict())
+        return ProductInfoSchema(**(await uow.products.find_one(**field)).dict())
 
     @staticmethod
     async def delete_product(

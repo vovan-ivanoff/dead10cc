@@ -1,12 +1,12 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from pydantic import BaseModel, EmailStr, Field, StringConstraints
 
 
 class UserSchema(BaseModel):
     id: int
-    email: EmailStr = Field(max_length=30)
-    name: str = Field(max_length=30)
-    hashed_password: str
-    preferences: dict | list | None
+    phone: str
+    email: Optional[EmailStr] = Field(max_length=30)
+    name: Optional[str] = Field(max_length=30)
+    hashed_password: Optional[str]
     is_moderator: bool
