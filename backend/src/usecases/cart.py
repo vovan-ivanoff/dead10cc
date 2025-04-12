@@ -21,11 +21,11 @@ class CartUseCase(AbstractCartUseCase):
         async with self.uow:
             if not await UsersService.user_is_moderator(self.uow, user_id):
                 raise AccessForbiddenException
-            return await CartsService.get_cart(self.uow, user_id)
+            return await CartsService.get_cart(self.uow, user_id=target_user_id)
 
     async def get_my(self, user_id: int) -> CartInfoSchema:
         async with self.uow:
-            return await CartsService.get_cart(self.uow, user_id)
+            return await CartsService.get_cart(self.uow, user_id=user_id)
 
     async def add_product(
             self, user_id: int, target_user_id: int, product_id: int, count: int

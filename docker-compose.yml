@@ -24,14 +24,14 @@ services:
       postgres:
         condition: service_healthy
     ports:
-      - "8000:8000"
+      - "8080:8080"
 
-  recomender:
-    container_name: "recomender"
+  recommender:
+    container_name: "recommender"
     volumes:
       - model_data:/app/model
     build:
-      context: recomendations
+      context: recommendations
       dockerfile: Dockerfile
     ports:
       - "5100:5100"

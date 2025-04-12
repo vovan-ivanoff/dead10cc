@@ -1,1 +1,2 @@
-iterators = dict()
+iterators = {}
+phone_verification_codes = {}

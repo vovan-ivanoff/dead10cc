@@ -16,5 +16,5 @@ docker compose up -d --build
 
 sleep 10
 
-start http://localhost:8000/docs
+start http://localhost:8080/docs
 start http://localhost:3000
