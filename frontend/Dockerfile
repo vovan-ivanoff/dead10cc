@@ -6,7 +6,7 @@ COPY package.json yarn.lock ./
 
 RUN npm install -g yarn --force
 
-RUN yarn install --frozen-lockfile --prefer-offline
+RUN yarn install
 
 COPY . .
 
