@@ -1,7 +1,3 @@
-from typing import List
-
-from pydantic import BaseModel
-
 from schemas.carts import CartInfoSchema
 from utils.unit_of_work import AbstractUOW
 

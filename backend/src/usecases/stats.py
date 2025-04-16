@@ -5,9 +5,9 @@ from pydantic import BaseModel
 from domain.usecases.stats import AbstractNoteUseCase
 from schemas.exceptions import AccessForbiddenException
 from schemas.stats import NoteInfoSchema
+from services.products import ProductsService
 from services.stats import NotesService
 from services.users import UsersService
-from services.products import ProductsService
 from utils.dependencies import UOWDep
 
 
@@ -38,6 +38,7 @@ class NoteUseCase(AbstractNoteUseCase):
             notes = await NotesService.get_notes_list(self.uow, user_id=user_id)
             for note in notes:
                 product_ids.add(note.product_id)
-            articles = [(await ProductsService.get_product_info(self.uow, id=product_id)).article for product_id in product_ids]
+            articles = [(await ProductsService.get_product_info(self.uow, id=product_id)).article for product_id in
+                        product_ids]
 
         return list(articles)

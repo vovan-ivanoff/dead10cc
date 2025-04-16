@@ -3,9 +3,9 @@ from typing import List
 from pydantic import BaseModel
 
 from domain.usecases.product import AbstractProductUseCase
-from schemas.products import ProductAddSchema, ProductInfoSchema
-from schemas.exceptions import AccessForbiddenException
 from schemas.actions import VIEWED
+from schemas.exceptions import AccessForbiddenException
+from schemas.products import ProductAddSchema, ProductInfoSchema
 from services.products import ProductsService
 from services.stats import NotesService
 from services.users import UsersService
@@ -47,9 +47,9 @@ class ProductUseCase(AbstractProductUseCase):
         return product
 
     async def add(
-        self,
-        product: ProductAddSchema,
-        user_id: int,
+            self,
+            product: ProductAddSchema,
+            user_id: int,
     ) -> int:
         async with self.uow:
             if not await UsersService.user_is_moderator(self.uow, user_id):
@@ -88,7 +88,6 @@ class ProductUseCase(AbstractProductUseCase):
                 new_rating = new_rating.__round__(2)
 
             await ProductsService.edit_product_info(self.uow, product_id,
-                                                    reviews=product.reviews+1,
+                                                    reviews=product.reviews + 1,
                                                     rating=new_rating)
             await self.uow.commit()
-

@@ -1,6 +1,6 @@
-from typing import Annotated, Optional
+from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field, StringConstraints
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserSchema(BaseModel):

@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Iterator
 
 from schemas.products import ProductAddSchema
 

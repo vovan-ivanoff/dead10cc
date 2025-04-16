@@ -1,10 +1,8 @@
 from datetime import UTC, datetime, timedelta
-from typing import Annotated, Optional
+from typing import Optional
 
 from fastapi import Depends, Request, HTTPException
-from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
-from jwt import InvalidTokenError
 
 from config import settings
 from schemas.exceptions import (IncorrectTokenFormatExcepetion,

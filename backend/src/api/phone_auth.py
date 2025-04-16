@@ -1,22 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Request
-from variables.gl import phone_verification_codes
-from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel
-from typing import Optional
 import random
 import time
-from datetime import datetime, timedelta
-import jwt
-from jwt.exceptions import InvalidTokenError
 
-from schemas.auth import (UserInfoSchema, UserLoginSchema, UserRegisterSchema,
-                          PhoneAuthResponse, PhoneAuthRequest, PhoneVerifyRequest)
-from services.auth.dependencies import get_current_user_id, create_phone_access_token, get_current_user_phone
-from services.users import UsersService
+from fastapi import APIRouter, Depends, HTTPException, Response
+
+from schemas.auth import (UserInfoSchema, PhoneAuthResponse, PhoneAuthRequest, PhoneVerifyRequest)
+from services.auth.dependencies import get_current_user_phone
 from usecases.dependencies import UserCase
-from usecases.user import UserUseCase
-from schemas.phone_auth import *
-
+from variables.gl import phone_verification_codes
 
 router = APIRouter(prefix="/phone_auth", tags=["Phone_Auth"])
 

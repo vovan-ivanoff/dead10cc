@@ -7,9 +7,8 @@ from domain.usecases.user import AbstractUserUseCase
 from schemas.auth import UserInfoSchema, UserLoginSchema, UserRegisterSchema
 from schemas.exceptions import (AccessForbiddenException,
                                 UserIsAlreadyModeratorException)
-
-from services.users import UsersService
 from services.carts import CartsService
+from services.users import UsersService
 from utils.dependencies import UOWDep
 
 

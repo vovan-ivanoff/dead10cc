@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, ForeignKey, JSON
+from sqlalchemy import ForeignKey, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db.database import Base

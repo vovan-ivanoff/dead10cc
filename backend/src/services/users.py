@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import Depends, Response
+from fastapi import Response
 from pydantic import BaseModel
 
 from schemas.auth import UserInfoSchema, UserLoginSchema, UserRegisterSchema
@@ -11,14 +11,13 @@ from schemas.phone_auth import PHONE_ACCESS_TOKEN_EXPIRE_MINUTES
 from schemas.users import UserSchema
 from services.auth.auth import (create_access_token, get_password_hash,
                                 verify_password)
-from services.auth.dependencies import get_current_user_id
 from utils.unit_of_work import AbstractUOW
 
 
 class UsersService:
     @classmethod
     async def register_user(
-        cls, uow: AbstractUOW, user: UserRegisterSchema, response: Response
+            cls, uow: AbstractUOW, user: UserRegisterSchema, response: Response
     ) -> int:
         existing_user = await uow.users.find_one(email=user.email)
         if existing_user:
@@ -59,7 +58,7 @@ class UsersService:
 
     @staticmethod
     async def authenticate_user(
-        uow: AbstractUOW, email: str, password: str
+            uow: AbstractUOW, email: str, password: str
     ) -> UserSchema:
         user = await uow.users.find_one(email=email)
         if not user or not verify_password(password, user.hashed_password):
@@ -68,7 +67,7 @@ class UsersService:
 
     @classmethod
     async def login_user(
-        cls, uow: AbstractUOW, user_data: UserLoginSchema, response: Response
+            cls, uow: AbstractUOW, user_data: UserLoginSchema, response: Response
     ):
         user = await cls.authenticate_user(
             uow=uow, email=user_data.email, password=user_data.password

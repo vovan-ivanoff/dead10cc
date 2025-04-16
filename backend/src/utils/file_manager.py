@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 from fastapi import UploadFile
 
@@ -83,7 +82,7 @@ class FileManager:
 
     @staticmethod
     async def delete_preview(
-        product_id: int, user_case: AbstractUserUseCase, user_id: int
+            product_id: int, user_case: AbstractUserUseCase, user_id: int
     ):
         if not await user_case.is_moderator(user_id):
             raise AccessForbiddenException
@@ -109,6 +108,4 @@ class FileManager:
             if not os.path.exists(f"../resources/products/{product_id}_{i}.jpg"):
                 break
 
-            os.rename(f"../resources/products/{product_id}_{i}.jpg", f"../resources/products/{product_id}_{i-1}.jpg")
-
-
+            os.rename(f"../resources/products/{product_id}_{i}.jpg", f"../resources/products/{product_id}_{i - 1}.jpg")

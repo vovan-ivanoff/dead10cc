@@ -2,8 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from api.routers import all_routers
 from api import health
+from api.routers import all_routers
 
 app = FastAPI(title="TootEvent")
 

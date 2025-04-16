@@ -1,10 +1,10 @@
 from typing import List
 
-from utils.unit_of_work import AbstractUOW
-
 from pydantic import BaseModel
-from schemas.stats import NoteSchema, NoteInfoSchema
+
 from schemas.actions import show
+from schemas.stats import NoteInfoSchema
+from utils.unit_of_work import AbstractUOW
 
 
 class NotesService:

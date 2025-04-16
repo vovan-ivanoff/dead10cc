@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from repositories.products import ProductsRepo
 from repositories.carts import CartsRepo
+from repositories.products import ProductsRepo
 from repositories.stats import StatsRepo
 from repositories.users import UsersRepo
 
