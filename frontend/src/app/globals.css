@@ -6,6 +6,10 @@ body, html {
   overflow: auto;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 input::placeholder {
   opacity: 0.9;
 }
@@ -116,4 +120,14 @@ input::placeholder {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+:root {
+  --base-size: 1vw + 1vh;
+  --header-max-height: 114px;
+  --header-min-height: 64px;
+  --logo-max-width: 240px;
+  --logo-min-width: 100px;
+  --search-max-width: 930px;
+  --search-min-width: 280px;
 }

@@ -39,7 +39,7 @@ const ProfilePage: React.FC = () => {
                     <div className="p-3 bg-[#FEECEC] rounded-[14px] text-sm h-[80px] hover:bg-red-100 transition-all ease-in-out">
                     </div>
                     <div className="grid grid-cols-5 gap-3">
-                        <div className="col-span-2 bg-gray-100 pl-4 py-3 rounded-[14px] text-sm flex flex-col hover:bg-gray-200 transition-all ease-in-out">
+                        <div className="col-span-2 bg-gray-100 p-3 rounded-[14px] text-sm flex flex-col hover:bg-gray-200 transition-all ease-in-out">
                             <div className="flex">
                                 <span className="text-gray-500">WB скидка</span>
                                 <Image
@@ -53,7 +53,7 @@ const ProfilePage: React.FC = () => {
                             </div>
                             <div className="font-medium">до 30%</div>
                         </div>
-                        <div className="col-span-3 bg-gray-100 pl-4 py-3 rounded-[14px] text-sm flex flex-col h-full">
+                        <div className="col-span-3 bg-gray-100 p-3 rounded-[14px] text-sm flex flex-col h-full">
                             <span className="text-gray-500">Оплата при получении</span>
                             <div className="font-medium">до 137 100₽</div>
                         </div>
@@ -62,12 +62,12 @@ const ProfilePage: React.FC = () => {
                     <div>
                         <h4 className="font-medium text-sm text-gray-500">Финансы</h4>
                         <div className="flex flex-col gap-3 mt-2">
-                            <div className="bg-gray-100 flex items-center gap-2 pl-2 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
-                                <CreditCard className="w-4 h-4 ml-2" />
+                            <div className="bg-gray-100 flex items-center gap-2 pl-3 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
+                                <CreditCard className="w-4 h-4" />
                                 <span className="mt-1 text-black">Способы оплаты</span>
                             </div>
-                            <div className="bg-gray-100 flex items-center gap-2 pl-2 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
-                                <CreditCard className="w-4 h-4 ml-2" />
+                            <div className="bg-gray-100 flex items-center gap-2 pl-3 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
+                                <CreditCard className="w-4 h-4" />
                                 <span className="mt-1 text-black">Реквизиты</span>
                             </div>
                         </div>
@@ -76,12 +76,12 @@ const ProfilePage: React.FC = () => {
                     <div>
                         <h4 className="font-medium text-sm text-gray-500">Управление</h4>
                         <div className="flex flex-col gap-3 mt-2">
-                            <div className="bg-gray-100 flex items-center gap-2 pl-2 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
-                                <Settings className="w-4 h-4 ml-2" />
+                            <div className="bg-gray-100 flex items-center gap-2 pl-3 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
+                                <Settings className="w-4 h-4" />
                                 <span className="mt-1 text-black">Настройки</span>
                             </div>
-                            <div className="bg-gray-100 flex items-center gap-2 pl-2 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
-                                <Smartphone className="w-4 h-4 ml-2" />
+                            <div className="bg-gray-100 flex items-center gap-2 pl-3 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
+                                <Smartphone className="w-4 h-4" />
                                 <span className="mt-1 text-black">Ваши устройства</span>
                             </div>
                         </div>
@@ -140,7 +140,7 @@ const ProfilePage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="w-full grid gap-3 grid-cols-1 hidden lg:flex">
+                <div className="w-full grid gap-3 grid-cols-1 hidden lg:flex shadow-md rounded-[20px]">
                     <div className="bg-gradient-to-bl from-pink-50 to-pink-200 rounded-[20px] h-[100px] w-full hover:scale-[1.01] transition-all duration-300"></div>
                 </div>
 
@@ -173,16 +173,16 @@ const ProfilePage: React.FC = () => {
                 <div className="bg-white p-6 rounded-[20px] shadow-md">
                     <h3 className="font-[570] text-lg mb-3">Сервис и помощь</h3>
                     <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-3">
-                        <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
-                            <MessageSquare className="w-5 h-5 ml-2 text-gray-500" />
+                        <div className="flex items-center gap-2 pl-3 py-2 bg-gray-100 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
+                            <MessageSquare className="w-5 h-5 text-gray-500" />
                             <span className="mt-1">Написать в поддержку</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
-                            <RotateCcw className="w-5 h-5 ml-2 text-gray-500" />
+                        <div className="flex items-center gap-2 pl-3 py-2 bg-gray-100 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
+                            <RotateCcw className="w-5 h-5 text-gray-500" />
                             <span className="mt-1">Вернуть товар</span>
                         </div>
-                        <div className="flex items-center gap-2 p-2 bg-gray-100 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
-                            <HelpCircle className="w-5 h-5 ml-2 text-gray-500" />
+                        <div className="flex items-center gap-2 pl-3 py-2 bg-gray-100 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
+                            <HelpCircle className="w-5 h-5 text-gray-500" />
                             <span className="mt-1">Вопросы и ответы</span>
                         </div>
                     </div>

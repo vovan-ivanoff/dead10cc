@@ -5,13 +5,18 @@ import { menuIconVariants, lineVariants } from '../../lib/animation';
 interface MenuButtonProps {
   isMenuOpen: boolean;
   toggleMenu: () => void;
+  className?: string;
 }
 
-const MenuButton: React.FC<MenuButtonProps> = ({ isMenuOpen, toggleMenu }) => {
+const MenuButton: React.FC<MenuButtonProps> = ({ 
+  isMenuOpen, 
+  toggleMenu,
+  className = ''
+}) => {
   return (
     <button 
       onClick={toggleMenu}
-      className="ml-[18px] relative w-[60px] h-[60px] group appearance-none focus:outline-none min-w-[60px] min-h-[60px]"
+      className={`ml-[18px] relative w-[60px] h-[60px] group appearance-none focus:outline-none min-w-[60px] min-h-[60px] ${className}`}
     >
       <div
         className="w-full h-full rounded-[15px] border border-white opacity-35 group-hover:opacity-100 transition-opacity"
