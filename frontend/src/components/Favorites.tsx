@@ -21,8 +21,8 @@ interface Product {
     oldPrice: number;
     image: string;
     author: string;
-    dateAdded: string; // Добавляем дату добавления
-    popularity: number; // Добавляем популярность
+    dateAdded: string;
+    popularity: number;
 }
 
 interface ProductListProps {
