@@ -70,17 +70,17 @@ def get_model_rec(sku: int, n: int = 10) -> List[int]:
 app = Flask(__name__)
 
 
-@app.route('/recomendation/<int:count>', methods=['POST'])
-def get_recomendations(count: int):
+@app.route('/recommendation/<int:count>', methods=['POST'])
+def get_recommendations(count: int):
     if not request.json or 'skus' not in request.json:
         abort(400)
-    recomended = []
+    recommended = []
     skus = request.json['skus']
     skus_count = len(skus)
     for sku in skus:
-        recomended.extend(get_model_rec(sku, (count + skus_count) // skus_count))
+        recommended.extend(get_model_rec(sku, (count + skus_count) // skus_count))
 
-    return jsonify({'recomended': recomended[:count]}), 201
+    return jsonify({'recommended': recommended[:count]}), 201
 
 
 app.run(port=5100, host='0.0.0.0')

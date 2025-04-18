@@ -1,7 +1,7 @@
 import json
 
 import requests
-from fastapi import APIRouter, Depends, UploadFile
+from fastapi import APIRouter, Depends
 
 from services.auth.dependencies import get_current_user_id
 from usecases.dependencies import NoteCase
@@ -54,6 +54,7 @@ async def get_recommendation(
 ):
     products = {"skus": await note_case.get_products_by_user(user_id)}
     products = json.dumps(products, ensure_ascii=True, indent=4)
-    response = requests.post(f"http://recomender:5100/recomendation/{count}", data=products, headers={"Content-Type": "application/json"})
+    response = requests.post(f"http://recommender:5100/recommendation/{count}", data=products,
+                             headers={"Content-Type": "application/json"})
 
     return response.content

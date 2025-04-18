@@ -1,10 +1,10 @@
 from typing import List
 
-from utils.unit_of_work import AbstractUOW
-
 from pydantic import BaseModel
-from schemas.stats import NoteSchema, NoteInfoSchema
+
 from schemas.actions import show
+from schemas.stats import NoteInfoSchema
+from utils.unit_of_work import AbstractUOW
 
 
 class NotesService:
@@ -29,9 +29,9 @@ class NotesService:
     @staticmethod
     async def get_note_info(
             uow: AbstractUOW,
-            note_id: int
+            **field
     ) -> NoteInfoSchema:
-        note = await uow.stats.find_one(id=note_id)
+        note = await uow.stats.find_one(**field)
         return NoteInfoSchema(
             user_id=note.user_id,
             product_id=note.product_id,

@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 class AbstractCartUseCase(ABC):
     """Class for interaction with cart"""
+
     @abstractmethod
     async def get(self, user_id: int, target_user_id: int): ...
 
@@ -26,6 +27,3 @@ class AbstractCartUseCase(ABC):
 
     @abstractmethod
     async def clear_my(self, user_id: int): ...
-
-
-

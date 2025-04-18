@@ -4,7 +4,6 @@ __all__ = (
     "BOUGHT"
 )
 
-
 VIEWED = 0
 ADDED_TO_CART = 1
 BOUGHT = 2

@@ -3,14 +3,13 @@ from typing import List
 from pydantic import BaseModel
 
 from domain.usecases.product import AbstractProductUseCase
-from schemas.products import ProductAddSchema, ProductInfoSchema
-from schemas.exceptions import AccessForbiddenException
 from schemas.actions import VIEWED
+from schemas.exceptions import AccessForbiddenException
+from schemas.products import ProductAddSchema, ProductInfoSchema
 from services.products import ProductsService
 from services.stats import NotesService
 from services.users import UsersService
 from utils.dependencies import UOWDep
-from math import ceil
 
 
 class ProductUseCase(AbstractProductUseCase):
@@ -24,24 +23,33 @@ class ProductUseCase(AbstractProductUseCase):
 
         return products_list
 
+    async def get_page(self, user_id: int, iterators: dict | None) -> List[BaseModel]:
+        async with self.uow:
+            if iterators.get(user_id, None) is None:
+                iterators[user_id] = await ProductsService.get_iterator(self.uow, 40)
+
+            products_page = await ProductsService.get_next_page(iterators[user_id])
+
+        return products_page
+
     async def get_info(self, user_id: int, product_id: int) -> ProductInfoSchema:
         async with self.uow:
-            product = await ProductsService.get_product_info(self.uow, product_id)
-            await NotesService.add_note(self.uow, user_id, product_id, VIEWED)
+            product = await ProductsService.get_product_info(self.uow, id=product_id)
 
+            await NotesService.add_note(self.uow, user_id, product_id, VIEWED)
             await self.uow.commit()
+
         return product
 
     async def get_info_by_article(self, article: int) -> ProductInfoSchema:
         async with self.uow:
-            product = await ProductsService.get_product_info(self.uow, article)
-            await self.uow.commit()
+            product = await ProductsService.get_product_info(self.uow, article=article)
         return product
 
     async def add(
-        self,
-        product: ProductAddSchema,
-        user_id: int,
+            self,
+            product: ProductAddSchema,
+            user_id: int,
     ) -> int:
         async with self.uow:
             if not await UsersService.user_is_moderator(self.uow, user_id):
@@ -73,14 +81,13 @@ class ProductUseCase(AbstractProductUseCase):
         new_rating = mark
 
         async with self.uow:
-            product = await ProductsService.get_product_info(self.uow, product_id)
+            product = await ProductsService.get_product_info(self.uow, id=product_id)
             if product.reviews > 0:
                 new_rating += product.reviews * product.rating
                 new_rating /= product.reviews + 1
                 new_rating = new_rating.__round__(2)
 
             await ProductsService.edit_product_info(self.uow, product_id,
-                                                    reviews=product.reviews+1,
+                                                    reviews=product.reviews + 1,
                                                     rating=new_rating)
             await self.uow.commit()
-

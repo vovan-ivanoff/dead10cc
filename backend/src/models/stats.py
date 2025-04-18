@@ -1,9 +1,9 @@
-from sqlalchemy import JSON, String, ForeignKey
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db.database import Base
-from schemas.stats import NoteSchema
 from schemas.actions import show
+from schemas.stats import NoteSchema
 
 
 class Notes(Base):

@@ -1,5 +1,3 @@
-from sqlalchemy import update
-
 from models.carts import Carts
 from repositories.alchemy import SqlAlchemyRepo
 
