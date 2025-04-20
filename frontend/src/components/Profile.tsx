@@ -34,7 +34,6 @@ const ProfilePage: React.FC = () => {
                             height={20}
                             className="object-contain mb-2"
                         />
-
                     </div>
                     <div className="p-3 bg-[#FEECEC] rounded-[14px] text-sm h-[80px] hover:bg-red-100 transition-all ease-in-out">
                     </div>
