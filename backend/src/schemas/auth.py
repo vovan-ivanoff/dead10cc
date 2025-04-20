@@ -33,6 +33,7 @@ class PhoneAuthRequest(BaseModel):
 class PhoneVerifyRequest(BaseModel):
     phone: str
     code: str
+    country_code: str
 
 
 class PhoneAuthResponse(BaseModel):

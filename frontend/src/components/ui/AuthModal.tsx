@@ -3,11 +3,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { 
-  sendVerificationCode,
-  verifyCode,
-  checkAuth,
-  logout,
-  type Profile
+  sendVerificationCode, 
+  verifyCode, 
+  checkAuth, 
+  logout, 
+  type Profile 
 } from '../../api/auth';
 
 interface AuthModalProps {
@@ -17,7 +17,7 @@ interface AuthModalProps {
   onLogout?: () => void;
 }
 
-interface Country {
+interface Country { 
   name: string;
   code: string;
   flag: string;
@@ -36,12 +36,14 @@ const countries = [
 const AuthModal: React.FC<AuthModalProps> = ({ 
   isOpen, 
   onClose, 
-  onAuthSuccess,
+  onAuthSuccess, 
   onLogout 
 }) => {
   const [phone, setPhone] = useState('');
   const [isAgreed, setIsAgreed] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<Country>(countries[0] as Country);
+  const [selectedCountry, setSelectedCountry] = useState<Country>(
+    countries[0] ?? { name: '', code: '', flag: '' }
+  );
   const [isCountryListOpen, setIsCountryListOpen] = useState(false);
   const [isCodeInputOpen, setIsCodeInputOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +52,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const countryListRef = useRef<HTMLDivElement>(null);
 
-  // Проверяем авторизацию при открытии модалки
   useEffect(() => {
     const verifySession = async () => {
       try {
@@ -64,21 +65,19 @@ const AuthModal: React.FC<AuthModalProps> = ({
         setCurrentProfile(null);
       }
     };
-  
+
     if (isOpen) {
       verifySession();
       setAuthError(null);
     }
   }, [isOpen, onAuthSuccess]);
 
-  // Фокусировка на поле ввода при открытии
   useEffect(() => {
     if (isOpen && inputRef.current && !isCodeInputOpen) {
       inputRef.current.focus();
     }
   }, [isOpen, isCodeInputOpen]);
 
-  // Обработчик клика вне списка стран
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (countryListRef.current && !countryListRef.current.contains(e.target as Node)) {
@@ -90,7 +89,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Форматы телефонов для разных стран
   const phoneFormats: { [key: string]: string } = {
     '+7': '000 000-00-00',
     '+374': '00 00-00-00',
@@ -108,7 +106,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   const formatPhone = (phone: string, countryCode: string): string => {
     if (!phone) return '';
-
     const format = phoneFormats[countryCode] || '000 000-00-00';
     let formattedPhone = '';
     let phoneIndex = 0;
@@ -147,21 +144,21 @@ const AuthModal: React.FC<AuthModalProps> = ({
       setAuthError('Пожалуйста, согласитесь с правилами');
       return;
     }
-  
+
     if (!phone) {
       setAuthError('Пожалуйста, введите номер телефона');
       return;
     }
-  
+
     setIsLoading(true);
     setAuthError(null);
-  
+
     try {
       const response = await sendVerificationCode({
         phone,
         country_code: selectedCountry.code
       });
-  
+
       if (response.success) {
         setIsCodeInputOpen(true);
       } else {
@@ -170,9 +167,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
     } catch (error) {
       console.error('Ошибка при отправке кода:', error);
       setAuthError(
-        error instanceof Error ? 
-        error.message : 
-        'Произошла ошибка при отправке кода'
+        error instanceof Error ? error.message : 'Произошла ошибка при отправке кода'
       );
     } finally {
       setIsLoading(false);
@@ -195,9 +190,12 @@ const AuthModal: React.FC<AuthModalProps> = ({
     setAuthError(null);
 
     try {
+      const cleanPhone = phoneNumber.replace(/\D/g, '').replace(/^\+?7/, '');
+      
       const profile = await verifyCode({
-        phone: phoneNumber,
-        code: enteredCode
+        phone: cleanPhone,
+        code: enteredCode,
+        country_code: selectedCountry.code.replace(/\D/g, '')
       });
 
       setCurrentProfile(profile);
@@ -206,9 +204,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
     } catch (error) {
       console.error('Ошибка верификации:', error);
       setAuthError(
-        error instanceof Error ? 
-        error.message : 
-        'Неверный код подтверждения'
+        error instanceof Error ? error.message : 'Неверный код подтверждения'
       );
       return { error: true };
     } finally {
@@ -225,9 +221,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
     } catch (error) {
       console.error('Ошибка при выходе:', error);
       setAuthError(
-        error instanceof Error ? 
-        error.message : 
-        'Не удалось выйти из системы'
+        error instanceof Error ? error.message : 'Не удалось выйти из системы'
       );
     }
   };
@@ -245,7 +239,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
         <CodeInputModal
           onClose={handleCloseModal}
           phoneNumber={`${selectedCountry.code} ${formatPhone(phone, selectedCountry.code)}`}
-          onAuthorize={(code) => handleAuthorization(`${selectedCountry.code}${phone}`, code)}
+          onAuthorize={(code) => handleAuthorization(phone, code)}
           onResendCode={handleGetCodeClick}
           isLoading={isLoading}
           error={authError}
@@ -275,7 +269,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
                   <span className="text-purple-600 text-xl font-medium">
-                    {currentProfile.name.charAt(0)}
+                    {currentProfile.name?.slice(0, 1).toUpperCase()}
                   </span>
                 </div>
                 <div>

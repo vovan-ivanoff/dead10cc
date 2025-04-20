@@ -2,29 +2,27 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
+RUN npm install -g bun
 
-RUN npm install -g yarn --force
+COPY package.json bun.lockb ./
 
-RUN yarn install
+RUN bun install
 
 COPY . .
 
-ENV NEXT_ESLINT_IGNORE_DURING_BUILDS=true
-
-RUN yarn build --no-lint
+RUN bunx next build
 
 FROM node:18-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app /app/
+RUN npm install -g bun
+
+COPY --from=builder /app /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 EXPOSE 3000
 
-RUN yarn cache clean
-
-CMD ["yarn", "start"]
+CMD ["bunx", "next", "start"]

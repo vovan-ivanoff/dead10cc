@@ -9,11 +9,29 @@ interface RightIconsProps {
 const RightIcons: React.FC<RightIconsProps> = ({ handleLoginClick }) => {
   const [profile, setProfile] = useState<{ id: string; phone: string } | null>(null);
 
-  useEffect(() => {
+  const loadProfile = () => {
     const savedProfile = localStorage.getItem('profile');
     if (savedProfile) {
       setProfile(JSON.parse(savedProfile));
+    } else {
+      setProfile(null);
     }
+  };
+
+  useEffect(() => {
+    loadProfile();
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'profile') {
+        loadProfile();
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+    };
   }, []);
 
   return (

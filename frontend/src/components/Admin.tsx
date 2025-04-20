@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Minus, Trash2, Edit } from 'lucide-react';
+import { Plus, Minus, Trash2, Edit, Link } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/AdminButton";
 import { Input } from "@/components/ui/AdminInput";
@@ -13,6 +13,7 @@ import {
   deleteProduct
 } from "@/api/admin/products";
 import { Product, ProductCreate, ProductUpdate } from "@/types/product";
+import Image from 'next/image';
 
 export default function AdminProductsPage() {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -25,7 +26,7 @@ export default function AdminProductsPage() {
     oldPrice: 0,
     author: "",
     description: "",
-    image: "" // Начальное значение — строка, но будет обрабатываться как файл
+    image: ""
   });
   const [editId, setEditId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -51,7 +52,6 @@ export default function AdminProductsPage() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, files, type } = e.target;
     
-    // Явное приведение типа для name
     const fieldName = name as keyof ProductCreate;
 
     if (fieldName === "image" && files && files.length > 0) {
@@ -148,14 +148,12 @@ export default function AdminProductsPage() {
         <h1 className="text-5xl font-extrabold">Админ-панель</h1>
       </div>
       
-      {/* Отображение ошибок */}
       {error && (
         <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
           {error}
         </div>
       )}
       
-      {/* Индикатор загрузки */}
       {isLoading && (
         <div className="mb-4 p-4 bg-blue-100 text-blue-700 rounded-lg">
           Загрузка...
@@ -289,18 +287,18 @@ export default function AdminProductsPage() {
                 <Card>
                   <CardContent className="p-4 rounded-lg hover:shadow-lg transition-all">
                   {product.image && (
-                    <img 
-                      src={typeof product.image === 'string' 
-                        ? product.image 
-                        : URL.createObjectURL(product.image)} 
-                      alt={product.name}
-                      className="w-full h-[250px] object-contain rounded-md mb-4"
-                      onLoad={(e) => {
-                        if (typeof product.image !== 'string') {
-                          URL.revokeObjectURL(e.currentTarget.src);
-                        }
-                      }}
-                    />
+                  <Image
+                    src={typeof product.image === 'string' ? product.image : URL.createObjectURL(product.image)}
+                    alt={product.name}
+                    width={250}
+                    height={250}
+                    className="w-full h-[250px] object-contain rounded-md mb-4"
+                    onLoadingComplete={(img) => {
+                      if (typeof product.image !== 'string') {
+                        URL.revokeObjectURL(img.src);
+                      }
+                    }}
+                  />
                   )}
                     <h2 className="text-lg font-semibold">{product.name}</h2>
                     <div className="flex items-center mb-2">
@@ -334,9 +332,15 @@ export default function AdminProductsPage() {
           </div>
         )}
       </motion.div>
-      <a className="flex justify-center mt-10" href="/">
-        <img src="/logos/logowb1.svg" alt="Wildberries Logo" />
-      </a>
+      <Link href="/" className="flex justify-center mt-10">
+        <Image
+          src="/logos/logowb1.svg"
+          alt="Wildberries Logo"
+          width={120}
+          height={40}
+          className="object-contain"
+        />
+      </Link>
     </div>
   );
 }

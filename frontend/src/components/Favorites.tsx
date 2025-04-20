@@ -21,8 +21,8 @@ interface Product {
     oldPrice: number;
     image: string;
     author: string;
-    dateAdded: string; // Добавляем дату добавления
-    popularity: number; // Добавляем популярность
+    dateAdded: string;
+    popularity: number;
 }
 
 interface ProductListProps {
@@ -74,7 +74,6 @@ const FavoritesPage: React.FC<ProductListProps> = ({ products }) => {
     return (
         <Container>
             <div className="w-full flex flex-col px-[5%] sm:px-[7%] lg:px-[7%] py-6">
-                {/* Верхний блок */}
                 <div className="flex flex-col justify-between mb-6 gap-4">
                     <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-4">
@@ -134,7 +133,6 @@ const FavoritesPage: React.FC<ProductListProps> = ({ products }) => {
                 </div>
 
 
-                {/* Контент */}
                 {activeTab === "brands" ? (
                     <div className="w-full py-20 text-xl text-gray-500 flex flex-col items-center text-center">
                         <Image

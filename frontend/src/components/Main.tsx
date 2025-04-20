@@ -3,7 +3,7 @@
 import React from "react";
 import Container from "../components/Container";
 import Image from "next/image";
-import ImageSlider from "./ui/ImageSlider"; // Импортируем слайдер
+import ImageSlider from "./ui/ImageSlider";
 
 interface ProductListProps {
   products: Product[];
