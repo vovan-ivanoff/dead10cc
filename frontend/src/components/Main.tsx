@@ -4,6 +4,7 @@ import React from "react";
 import Container from "../components/Container";
 import Image from "next/image";
 import ImageSlider from "./ui/ImageSlider";
+import Link from "next/link";
 
 interface ProductListProps {
   products: Product[];
@@ -33,38 +34,40 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
 
         <div className="w-full max-w-screen-xl grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {products.map((product) => (
-            <div
-              key={product.id}
-              className="p-4 rounded-xl hover:shadow-lg transition-all"
-            >
-              <Image
-                src={product.image}
-                alt={product.name}
-                width={250}
-                height={250}
-                className="w-full h-[250px] object-contain rounded-md mb-4"
-              />
-              <div className="flex items-center">
-                <p className="text-xl font-semibold text-red-500 truncate">
-                  {product.price}₽
+            <Link key={product.id} href={`/product/${product.id}`} className="block">
+              <div
+                key={product.id}
+                className="p-4 rounded-xl hover:shadow-lg transition-all"
+              >
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  width={250}
+                  height={250}
+                  className="w-full h-[250px] object-contain rounded-md mb-4"
+                />
+                <div className="flex items-center">
+                  <p className="text-xl font-semibold text-red-500 truncate">
+                    {product.price}₽
+                  </p>
+                  <p className="ml-2 text-sm text-gray-500 line-through truncate">
+                    {product.oldPrice}₽
+                  </p>
+                </div>
+                <p className="text-sm text-red-500 mb-1 truncate">
+                  с WB Кошельком
                 </p>
-                <p className="ml-2 text-sm text-gray-500 line-through truncate">
-                  {product.oldPrice}₽
-                </p>
+                <div className="flex items-center mb-2">
+                  <p className="text-sm text-black truncate">{product.author}</p>
+                  <p className="text-sm text-gray-500 ml-1 truncate">
+                    / {product.name}
+                  </p>
+                </div>
+                <button className="w-full p-2 bg-[#A232E8] hover:bg-[#AF4DFD] text-white rounded-xl transition-all duration-300 ease-in-out">
+                  Добавить в корзину
+                </button>
               </div>
-              <p className="text-sm text-red-500 mb-1 truncate">
-                с WB Кошельком
-              </p>
-              <div className="flex items-center mb-2">
-                <p className="text-sm text-black truncate">{product.author}</p>
-                <p className="text-sm text-gray-500 ml-1 truncate">
-                  / {product.name}
-                </p>
-              </div>
-              <button className="w-full p-2 bg-[#A232E8] hover:bg-[#AF4DFD] text-white rounded-xl transition-all duration-300 ease-in-out">
-                Добавить в корзину
-              </button>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

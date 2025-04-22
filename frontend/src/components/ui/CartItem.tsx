@@ -84,7 +84,7 @@ export const CartItem: FC<CartItemProps> = ({
                             : "text-gray-400 fill-none hover:text-purple-500"
                             }`}
                     />
-                    <Trash className="text-gray-400 hover:text-gray-600 transition-all" />
+                    <Trash className="hover:text-gray-600 transition-all" />
                 </div>
             </div>
 
