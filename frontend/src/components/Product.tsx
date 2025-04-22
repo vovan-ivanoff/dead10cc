@@ -22,7 +22,7 @@ export default function ProductPage({ product }: { product: Product }) {
     const [liked, setLiked] = useState(false);
 
     return (
-        <main className="container mx-auto px-6 py-8">
+        <main className="container mx-auto px-6 mt-2 mb-6">
             {/* Back button and breadcrumbs */}
             <div className="mb-6 flex items-center">
                 <Button variant="ghost" className="mr-4 p-0">
@@ -118,7 +118,7 @@ export default function ProductPage({ product }: { product: Product }) {
                             variant="outline"
                             className="h-9 w-[55px] rounded-[10px] border-[1.7px] hover:border-gray-500 border-[#d9d9d9] p-0"
                         >
-                            <span className="mt-1 text-md font-medium">14-88</span>
+                            <span className="mt-1 text-md font-medium">50-52</span>
                         </Button>
                     </div>
 
@@ -126,7 +126,7 @@ export default function ProductPage({ product }: { product: Product }) {
                         <div className="grid grid-cols-2 gap-x-2 gap-y-3 text-xs">
                             <div className="font-medium text-gray-500">Артикул</div>
                             <div className="flex items-center font-medium">
-                                13372281488
+                                1337133752
                                 <CopyIcon className="ml-2 h-[15px] w-[15px]" />
                             </div>
 
@@ -146,7 +146,7 @@ export default function ProductPage({ product }: { product: Product }) {
 
                     <Button
                         variant="default"
-                        className="mt-4 h-[25px] w-[225px] rounded-[9px] bg-gray-100 hover:bg-gray-200 px-3 py-1"
+                        className="mt-4 h-[25px] w-[225px] rounded-[9px] bg-gray-50 hover:bg-gray-100 px-3 py-1"
                     >
                         <span className="mt-1 text-sm font-medium">
                             Характеристики и описание
