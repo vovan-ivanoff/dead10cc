@@ -3,8 +3,11 @@
 import React from "react";
 import Container from "../components/Container";
 import Image from "next/image";
-import ImageSlider from "./ui/ImageSlider";
 import Link from "next/link";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Pagination, Autoplay } from "swiper/modules";
 
 interface ProductListProps {
   products: Product[];
@@ -30,7 +33,30 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
           </div>
         </div>
 
-        <ImageSlider />
+        <Swiper
+          modules={[Pagination, Autoplay]}
+          spaceBetween={10}
+          slidesPerView="auto"
+          pagination={{ clickable: true }}
+          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          className="h-36 custom-swiper rounded-xl px-[5%] sm:px-[7%] lg:px-[7%] max-w-screen-xl mx-auto"
+        >
+          <SwiperSlide>
+            <div className="h-36 bg-gradient-to-r from-[#C800A1] via-[#981E97] to-[#470A68] rounded-2xl flex items-center justify-center text-white font-semibold sm:text-4xl md:text-4xl lg:text-6xl">
+              <h3 className="mt-1">Тут могла быть ваша реклама</h3>
+            </div>
+          </SwiperSlide>
+          <SwiperSlide>
+            <div className="h-36 bg-gradient-to-r from-[#C800A1] via-[#981E97] to-[#470A68] rounded-2xl flex items-center justify-center text-white font-semibold sm:text-4xl md:text-4xl lg:text-6xl">
+              <h3 className="mt-1">И здесь</h3>
+            </div>
+          </SwiperSlide>
+          <SwiperSlide>
+            <div className="h-36 bg-gradient-to-r from-[#C800A1] via-[#981E97] to-[#470A68] rounded-2xl flex items-center justify-center text-white font-semibold sm:text-4xl md:text-4xl lg:text-6xl">
+              <h3 className="mt-1">И даже тут!</h3>
+            </div>
+          </SwiperSlide>
+        </Swiper>
 
         <div className="w-full max-w-screen-xl grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {products.map((product) => (

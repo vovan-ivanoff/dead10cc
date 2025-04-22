@@ -22,7 +22,7 @@ export default function ProductPage({ product }: { product: Product }) {
     const [liked, setLiked] = useState(false);
 
     return (
-        <main className="container mx-auto px-6 mt-2 mb-6">
+        <main className="container mx-auto mt-2 mb-6">
             {/* Back button and breadcrumbs */}
             <div className="mb-6 flex items-center">
                 <Button variant="ghost" className="mr-4 p-0">

@@ -130,3 +130,25 @@ input::placeholder {
   --search-max-width: 930px;
   --search-min-width: 280px;
 }
+
+/* Стили для активной точки (выбранного слайда) */
+.swiper-pagination-bullet-active {
+  background-color: #C800A1 !important; /* Фиолетовый */
+  width: 12px;
+  height: 12px;
+}
+
+/* Стили для неактивных точек */
+.swiper-pagination-bullet {
+  background-color: #ffffff !important; /* Белый */
+  opacity: 0.6;
+  width: 8px;
+  height: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Увеличение точки при наведении */
+.swiper-pagination-bullet:hover {
+  background-color: #981E97 !important;
+  opacity: 1;
+}
