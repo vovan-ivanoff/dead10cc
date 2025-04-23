@@ -1,109 +1,157 @@
 import random
 import time
-import re
-import os
+from datetime import datetime, timedelta
+from typing import Dict, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Response
-from schemas.auth import (
-    UserInfoSchema, PhoneAuthResponse, PhoneAuthRequest, PhoneVerifyRequest
-)
-from services.auth.dependencies import get_current_user_phone
-from usecases.dependencies import UserCase
-from variables.gl import phone_verification_codes
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/phone", tags=["Phone_Auth"])
 
-IS_DEV = os.getenv("ENV", "development") == "development"
+class PhoneAuthRequest(BaseModel):
+    phone: str
+    country_code: str
 
-def is_valid_phone(phone: str) -> bool:
-    return bool(re.match(r'^\+?\d{10,15}$', phone))
+class PhoneVerifyRequest(BaseModel):
+    phone: str
+    code: str
 
-def normalize_phone(phone: str, country_code: str = '') -> str:
-    digits = re.sub(r'[^\d]', '', phone)
-    country_digits = re.sub(r'[^\d]', '', country_code)
+class PhoneAuthResponse(BaseModel):
+    success: bool
+    message: str | None = None
+    retry_delay: int | None = None
+    code: str | None = None
 
-    if country_digits and digits.startswith(country_digits):
-        return f"+{digits}"
+class UserInfoSchema(BaseModel):
+    id: str
+    phone: str
+    name: str
+    email: str | None = None
+    avatar_url: str | None = None
+    token: str
 
-    return f"+{country_digits}{digits}" if country_digits else f"+{digits}"
+phone_verification_codes: Dict[str, Dict[str, Any]] = {}
+users_db: Dict[str, Dict[str, Any]] = {}
+security = HTTPBearer()
 
-@router.get("/info")
+def generate_token(phone: str) -> str:
+    return f"mock_token_{phone}_{datetime.now().timestamp()}"
+
+@router.get("/info", response_model=UserInfoSchema)
 async def get_phone_user_info(
-    user_case: UserCase,
-    phone: str = Depends(get_current_user_phone)
-) -> UserInfoSchema:
-    return await user_case.get_info_by_phone(phone)
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    token = credentials.credentials
+    phone = token.replace("mock_token_", "").split("_")[0]
+    
+    if phone not in users_db:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+    
+    return UserInfoSchema(
+        id=users_db[phone]["id"],
+        phone=phone,
+        name=users_db[phone]["name"],
+        token=token
+    )
 
-@router.post("/send_code", response_model=PhoneAuthResponse)
-async def send_phone_code(request: PhoneAuthRequest, user_case: UserCase):
-    normalized_phone = normalize_phone(request.phone, request.country_code)
-
-    if not is_valid_phone(normalized_phone):
-        raise HTTPException(status_code=400, detail="Invalid phone number format")
-
+@router.post("/send-code", response_model=PhoneAuthResponse)
+async def send_phone_code(request: PhoneAuthRequest):
     code = "".join([str(random.randint(0, 9)) for _ in range(6)])
+    phone = request.phone
 
-    print(f"[send_code] Normalized phone: {normalized_phone}")
-    print(f"[send_code] Generated code: {code}")
+    print(f"Sending code {code} to phone {request.country_code}{phone}")
 
-    phone_verification_codes[normalized_phone] = {
+    phone_verification_codes[phone] = {
         "code": code,
         "timestamp": time.time(),
         "attempts": 0
     }
 
-    print(f"[send_code] Verification codes DB: {phone_verification_codes}")
-
-    return {
+    response_data = {
         "success": True,
-        "message": "Verification code sent",
-        **({"data": {"code": code}} if IS_DEV else {})
+        "message": "Verification code sent"
     }
 
-@router.post("/verify_code", response_model=PhoneAuthResponse)
+    if __debug__:
+        response_data["code"] = code
+
+    return response_data
+
+@router.post("/verify-code", response_model=UserInfoSchema)
 async def verify_phone_code(
     request: PhoneVerifyRequest,
-    response: Response,
-    user_case: UserCase
+    response: Response
 ):
-    normalized_phone = normalize_phone(request.phone, request.country_code)
-    stored_code = phone_verification_codes.get(normalized_phone)
-
-    print(f"[verify_code] Normalized phone: {normalized_phone}")
-    print(f"[verify_code] Provided code: {request.code}")
-    print(f"[verify_code] Stored: {stored_code}")
+    stored_code = phone_verification_codes.get(request.phone)
 
     if not stored_code:
-        raise HTTPException(status_code=400, detail="No verification code requested for this phone")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No verification code requested for this phone"
+        )
 
     if stored_code["attempts"] >= 3:
-        raise HTTPException(status_code=400, detail="Too many attempts, please request a new code")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Too many attempts, please request a new code"
+        )
 
     if request.code != stored_code["code"]:
-        stored_code["attempts"] += 1
-        raise HTTPException(status_code=400, detail="Invalid verification code")
+        phone_verification_codes[request.phone]["attempts"] += 1
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid verification code"
+        )
 
     if time.time() - stored_code["timestamp"] > 300:
-        raise HTTPException(status_code=400, detail="Verification code expired")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Verification code expired"
+        )
 
-    try:
-        await user_case.auth_by_phone(normalized_phone, response)
+    phone = request.phone
+    if phone not in users_db:
+        users_db[phone] = {
+            "id": f"user_{phone}",
+            "name": f"User {phone}",
+            "phone": phone
+        }
+    
+    token = generate_token(phone)
+    users_db[phone]["token"] = token
+    
+    del phone_verification_codes[phone]
 
-        profile = await user_case.get_info_by_phone(normalized_phone)
+    return UserInfoSchema(
+        id=users_db[phone]["id"],
+        phone=phone,
+        name=users_db[phone]["name"],
+        token=token
+    )
 
-        token = await user_case.generate_token(normalized_phone)
+@router.post("/logout")
+async def logout(response: Response):
+    return {"success": True, "message": "Logged out successfully"}
 
-        del phone_verification_codes[normalized_phone]
-    except Exception as e:
-        print(f"[verify_code] Error during auth_by_phone: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
-
-    retry_delay = max(0, 60 - int(time.time() - stored_code["timestamp"]))
-
-    return {
-        "success": True,
-        "message": "Verification successful",
-        "retry_delay": retry_delay,
-        "token": token,
-        "profile": profile.dict()
-    }
+@router.post("/refresh")
+async def refresh_token(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    old_token = credentials.credentials
+    phone = old_token.replace("mock_token_", "").split("_")[0]
+    
+    if phone not in users_db:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+    
+    new_token = generate_token(phone)
+    users_db[phone]["token"] = new_token
+    
+    return {"token": new_token}

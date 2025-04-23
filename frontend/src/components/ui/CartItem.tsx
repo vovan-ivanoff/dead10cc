@@ -22,7 +22,6 @@ export const CartItem: FC<CartItemProps> = ({
     title,
     description,
     price,
-    oldPrice,
     quantity = 1,
     onIncrease,
     onDecrease,

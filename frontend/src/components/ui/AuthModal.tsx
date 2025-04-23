@@ -1,23 +1,21 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { 
-  sendVerificationCode, 
-  verifyCode, 
-  checkAuth, 
-  logout, 
-  type Profile 
+  sendVerificationCode,
+  verifyCode,
+  checkAuth,
+  type Profile
 } from '../../api/auth';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAuthSuccess?: (profile: Profile) => void;
-  onLogout?: () => void;
 }
 
-interface Country { 
+interface Country {
   name: string;
   code: string;
   flag: string;
@@ -36,36 +34,49 @@ const countries = [
 const AuthModal: React.FC<AuthModalProps> = ({ 
   isOpen, 
   onClose, 
-  onAuthSuccess, 
-  onLogout 
+  onAuthSuccess
 }) => {
   const [phone, setPhone] = useState('');
   const [isAgreed, setIsAgreed] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState<Country>(
-    countries[0] ?? { name: '', code: '', flag: '' }
-  );
+  const [selectedCountry, setSelectedCountry] = useState<Country>(countries[0] as Country);
   const [isCountryListOpen, setIsCountryListOpen] = useState(false);
   const [isCodeInputOpen, setIsCodeInputOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [currentProfile, setCurrentProfile] = useState<Profile | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const countryListRef = useRef<HTMLDivElement>(null);
+
+  const verifySession = useCallback(async () => {
+    try {
+      const profile = await checkAuth();
+      if (profile) {
+        onAuthSuccess?.(profile);
+      }
+    } catch {
+    }
+  }, [onAuthSuccess]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setAuthError(null);
+      if (inputRef.current && !isCodeInputOpen) {
+        inputRef.current.focus();
+      }
+    }
+  }, [isOpen, isCodeInputOpen]);
 
   useEffect(() => {
     const verifySession = async () => {
       try {
         const profile = await checkAuth();
         if (profile) {
-          setCurrentProfile(profile);
           onAuthSuccess?.(profile);
         }
       } catch {
         console.log('Пользователь не авторизован');
-        setCurrentProfile(null);
       }
     };
-
+  
     if (isOpen) {
       verifySession();
       setAuthError(null);
@@ -77,6 +88,16 @@ const AuthModal: React.FC<AuthModalProps> = ({
       inputRef.current.focus();
     }
   }, [isOpen, isCodeInputOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      verifySession();
+      setAuthError(null);
+      if (inputRef.current && !isCodeInputOpen) {
+        inputRef.current.focus();
+      }
+    }
+  }, [isOpen, isCodeInputOpen, verifySession]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -99,33 +120,26 @@ const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '');
-    setPhone(value);
+    setPhone(e.target.value.replace(/\D/g, ''));
     setAuthError(null);
   };
 
   const formatPhone = (phone: string, countryCode: string): string => {
     if (!phone) return '';
     const format = phoneFormats[countryCode] || '000 000-00-00';
-    let formattedPhone = '';
+    let result = '';
     let phoneIndex = 0;
 
-    for (let i = 0; i < format.length; i++) {
-      if (format[i] === '0') {
+    for (const char of format) {
+      if (char === '0') {
         if (phone[phoneIndex]) {
-          formattedPhone += phone[phoneIndex];
-          phoneIndex++;
-        } else {
-          break;
-        }
-      } else {
-        if (phone[phoneIndex]) {
-          formattedPhone += format[i];
-        }
+          result += phone[phoneIndex++];
+        } else break;
+      } else if (phone[phoneIndex]) {
+        result += char;
       }
     }
-
-    return formattedPhone;
+    return result;
   };
 
   const handleCountrySelect = (country: typeof countries[number]) => {
@@ -135,106 +149,77 @@ const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   const handleGetCodeClick = async () => {
-    if (!selectedCountry) {
-      setAuthError('Пожалуйста, выберите страну');
-      return;
-    }
-
-    if (!isAgreed) {
-      setAuthError('Пожалуйста, согласитесь с правилами');
-      return;
-    }
-
-    if (!phone) {
-      setAuthError('Пожалуйста, введите номер телефона');
-      return;
-    }
+    if (!isAgreed) return setAuthError('Пожалуйста, согласитесь с правилами');
+    if (!phone) return setAuthError('Пожалуйста, введите номер телефона');
 
     setIsLoading(true);
     setAuthError(null);
 
     try {
-      const response = await sendVerificationCode({
-        phone,
-        country_code: selectedCountry.code
-      });
-
-      if (response.success) {
-        setIsCodeInputOpen(true);
-      } else {
-        setAuthError(response.message || 'Не удалось отправить код');
-      }
+      await sendVerificationCode({ phone, country_code: selectedCountry.code });
+      setIsCodeInputOpen(true);
     } catch (error) {
-      console.error('Ошибка при отправке кода:', error);
-      setAuthError(
-        error instanceof Error ? error.message : 'Произошла ошибка при отправке кода'
-      );
+      setAuthError(error instanceof Error ? error.message : 'Ошибка при отправке кода');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleCloseModal = () => {
-    setIsCodeInputOpen(false);
-    setAuthError(null);
-    setPhone('');
-    setIsAgreed(false);
-    onClose();
   };
 
   const handleAuthorization = async (phoneNumber: string, code: string[]) => {
     const enteredCode = code.join('');
     if (enteredCode.length !== 6) return;
-
+    
     setIsLoading(true);
     setAuthError(null);
-
+    
     try {
-      const cleanPhone = phoneNumber.replace(/\D/g, '').replace(/^\+?7/, '');
-      
       const profile = await verifyCode({
-        phone: cleanPhone,
-        code: enteredCode,
-        country_code: selectedCountry.code.replace(/\D/g, '')
+        phone: phoneNumber,
+        code: enteredCode
       });
-
-      setCurrentProfile(profile);
+      
+      onAuthSuccess?.(profile); // Передаем профиль
       onClose();
-      onAuthSuccess?.(profile);
+      resetForm();
+      window.location.reload();
     } catch (error) {
-      console.error('Ошибка верификации:', error);
-      setAuthError(
-        error instanceof Error ? error.message : 'Неверный код подтверждения'
-      );
-      return { error: true };
+      setAuthError(error instanceof Error ? error.message : 'Неверный код подтверждения');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      setCurrentProfile(null);
-      onLogout?.();
-      onClose();
-    } catch (error) {
-      console.error('Ошибка при выходе:', error);
-      setAuthError(
-        error instanceof Error ? error.message : 'Не удалось выйти из системы'
-      );
-    }
+  const resetForm = () => {
+    setIsCodeInputOpen(false);
+    setPhone('');
+    setIsAgreed(false);
+  };
+
+  const handleCloseModal = () => {
+    resetForm();
+    onClose();
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div
-        className="fixed inset-0 bg-black bg-opacity-30"
-        onClick={handleCloseModal}
-      />
-
+    <>
+    {/* Темный оверлей под хедером */}
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-30 z-40"
+      style={{ 
+        top: 'var(--header-height)',
+        height: 'calc(100vh - var(--header-height, 114px))'
+      }}
+      onClick={handleCloseModal}
+    />
+    
+    <div 
+      className="fixed inset-0 flex items-center justify-center z-50"
+      style={{
+        height: 'calc(100vh - var(--header-height, 114px))'
+      }}
+    >
       {isCodeInputOpen ? (
         <CodeInputModal
           onClose={handleCloseModal}
@@ -246,7 +231,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
           onClearError={() => setAuthError(null)}
         />
       ) : (
-        <div className="bg-white rounded-[20px] shadow-lg w-[420px] relative z-10 flex flex-col justify-center pb-6">
+        <div className="bg-white rounded-[20px] shadow-lg w-[420px] max-w-[95vw] relative z-10 flex flex-col justify-center pb-6 mx-4">
           <button
             onClick={handleCloseModal}
             className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -261,31 +246,9 @@ const AuthModal: React.FC<AuthModalProps> = ({
           </button>
 
           <h2 className="text-2xl font-hauss font-medium text-center mt-6">
-            {currentProfile ? 'Ваш профиль' : 'Войти или создать профиль'}
+            Войти или создать профиль
           </h2>
 
-          {currentProfile ? (
-            <div className="mt-6 px-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                  <span className="text-purple-600 text-xl font-medium">
-                    {currentProfile.name?.slice(0, 1).toUpperCase()}
-                  </span>
-                </div>
-                <div>
-                  <p className="font-medium">{currentProfile.name}</p>
-                  <p className="text-gray-500 text-sm">{currentProfile.phone}</p>
-                </div>
-              </div>
-
-              <button
-                onClick={handleLogout}
-                className="w-full mt-6 py-3 text-purple-600 font-medium rounded-lg border border-purple-600 hover:bg-purple-50 transition-colors"
-              >
-                Выйти из аккаунта
-              </button>
-            </div>
-          ) : (
             <>
               <div className="mt-6 px-6">
                 <div className="w-full h-[45px] bg-[#E8E8F0] rounded-[10px] flex items-center px-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-[#A232E8] relative">
@@ -405,10 +368,10 @@ const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
             </>
-          )}
         </div>
       )}
     </div>
+    </>
   );
 };
 

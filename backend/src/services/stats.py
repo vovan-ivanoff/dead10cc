@@ -1,39 +1,105 @@
 from typing import List
 
+from fastapi import Response
 from pydantic import BaseModel
 
-from schemas.actions import show
-from schemas.stats import NoteInfoSchema
+from schemas.auth import UserInfoSchema, UserLoginSchema, UserRegisterSchema
+from schemas.exceptions import (IncorrectEmailOrPasswordException,
+                                UnauthorizedException,
+                                UserAlreadyExistException)
+from schemas.phone_auth import PHONE_ACCESS_TOKEN_EXPIRE_MINUTES
+from schemas.users import UserSchema
+from services.auth.auth import (create_access_token, get_password_hash,
+                                verify_password)
 from utils.unit_of_work import AbstractUOW
 
 
-class NotesService:
-    @staticmethod
-    async def add_note(
-            uow: AbstractUOW,
-            user_id: int,
-            product_id: int,
-            action: int
+class UsersService:
+    @classmethod
+    async def register_user(
+            cls, uow: AbstractUOW, user: UserRegisterSchema, response: Response
     ) -> int:
-        note_id = await uow.stats.add_one(user_id=user_id, product_id=product_id, action=action)
-        return note_id
-
-    @staticmethod
-    async def get_notes_list(
-            uow: AbstractUOW,
-            **filter_by
-    ) -> List[BaseModel]:
-        notes = await uow.stats.find_all(**filter_by)
-        return notes
-
-    @staticmethod
-    async def get_note_info(
-            uow: AbstractUOW,
-            **field
-    ) -> NoteInfoSchema:
-        note = await uow.stats.find_one(**field)
-        return NoteInfoSchema(
-            user_id=note.user_id,
-            product_id=note.product_id,
-            action=show(note.action)
+        existing_user = await uow.users.find_one(email=user.email)
+        if existing_user:
+            raise UserAlreadyExistException
+        hashed_password = get_password_hash(user.password)
+        user_id = await uow.users.add_one(
+            email=user.email, name=user.name, hashed_password=hashed_password
         )
+
+        cls.setup_access_token(user_id=user_id, response=response)
+        return user_id
+
+    @staticmethod
+    async def get_user_info(uow: AbstractUOW, **field) -> UserInfoSchema:
+        user = await uow.users.find_one(**field)
+        if not user:
+            raise UnauthorizedException
+        return UserInfoSchema(**user.dict())
+
+    @staticmethod
+    async def get_users_list(uow: AbstractUOW, **filter_by) -> List[BaseModel]:
+        users = await uow.users.find_all(**filter_by)
+        return users
+
+    @staticmethod
+    def setup_access_token(user_id: int, phone: str, response: Response):
+        access_token = create_access_token(
+            {"id": str(user_id), "ph": phone}
+        )
+        response.set_cookie(
+            key="TootEventToken",
+            value=access_token,
+            httponly=True,
+            max_age=PHONE_ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            secure=True,
+            samesite="lax"
+        )
+
+    @staticmethod
+    async def authenticate_user(
+            uow: AbstractUOW, email: str, password: str
+    ) -> UserSchema:
+        user = await uow.users.find_one(email=email)
+        if not user or not verify_password(password, user.hashed_password):
+            raise IncorrectEmailOrPasswordException
+        return user
+
+    @classmethod
+    async def login_user(
+            cls, uow: AbstractUOW, user_data: UserLoginSchema, response: Response
+    ):
+        user = await cls.authenticate_user(
+            uow=uow, email=user_data.email, password=user_data.password
+        )
+        cls.setup_access_token(user_id=user.id, phone=user.phone, response=response)
+        return user.id
+
+    @staticmethod
+    def logout_user(response: Response):
+        response.delete_cookie("TootEventToken")
+
+    @staticmethod
+    async def user_is_moderator(uow: AbstractUOW, user_id: int) -> bool:
+        user = await uow.users.find_one(id=user_id)
+        return user.is_moderator
+
+    @staticmethod
+    async def change_user_info(uow: AbstractUOW, user_id: int, **data):
+        if data.get("password", False):
+            data["hashed_password"] = get_password_hash(data["password"])
+        await uow.users.update_by_id(user_id, **data)
+
+    @classmethod
+    async def auth_user_by_phone(cls, uow: AbstractUOW, phone: str, response: Response):
+        existing_user = await uow.users.find_one(phone=phone)
+        if existing_user:
+            cls.setup_access_token(user_id=existing_user.id, phone=phone, response=response)
+            return existing_user
+
+        user_id = await uow.users.add_one(
+            phone=phone
+        )
+
+        cls.setup_access_token(user_id=user_id, phone=phone, response=response)
+        return await uow.users.find_one(id=user_id)

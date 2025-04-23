@@ -1,10 +1,6 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 const API_PREFIX = '/api/v1';
 
-interface DecodedToken {
-  phone: string;
-}
-
 export interface VerificationRequest {
   phone: string;
   country_code: string;
@@ -14,14 +10,11 @@ export interface VerificationResponse {
   success: boolean;
   message?: string;
   retry_delay?: number;
-  data: {
-    code: string;
-  };
+  code?: string;  // Only available in development
 }
 
 export interface VerifyCodeRequest {
   phone: string;
-  country_code: string;
   code: string;
 }
 
@@ -42,54 +35,47 @@ interface ApiError {
 
 const handleApiError = async (response: Response): Promise<never> => {
   let errorData: ApiError = {};
-
+  
   try {
     errorData = await response.json();
   } catch (e) {
     console.error('Failed to parse error response', e);
   }
 
-  const errorMessage =
-    errorData.detail ||
-    errorData.message ||
+  const errorMessage = 
+    errorData.detail || 
+    errorData.message || 
     `API request failed with status ${response.status}`;
-
+  
   throw new Error(errorMessage);
+};
+
+const getAuthHeader = (): { Authorization: string } => {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    throw new Error('Authentication token not found in localStorage');
+  }
+  
+  return { Authorization: `Bearer ${token}` };
 };
 
 export const sendVerificationCode = async (
   data: VerificationRequest
 ): Promise<VerificationResponse> => {
   try {
-    if (!data.phone || !data.country_code) {
-      throw new Error('Phone number and country code are required');
-    }
-
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/send_code`, {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/send-code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        phone: data.phone,
-        country_code: data.country_code.replace(/\D/g, ''),
-      }),
-      credentials: 'include',
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
       return handleApiError(response);
     }
 
-    const result: VerificationResponse = await response.json();
-
-    if (process.env.NODE_ENV === 'development' && result.success) {
-      console.log(`Verification code for ${data.phone}: ${result.data.code}`);
-    }
-
-    localStorage.setItem('verificationCode', result.data.code);
-
-    return result;
+    return await response.json();
   } catch (error) {
     console.error('[Auth API] Error sending verification code:', error);
     throw error;
@@ -100,39 +86,21 @@ export const verifyCode = async (
   data: VerifyCodeRequest
 ): Promise<Profile> => {
   try {
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/verify_code`, {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/verify-code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        phone: data.phone,
-        code: data.code,
-        country_code: data.country_code.replace(/\D/g, ''),
-      }),
-      credentials: 'include',
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
       return handleApiError(response);
     }
 
-    const result = await response.json();
-
-    const token = result.data?.token || result.token;
-    const profile = result.data?.profile || result.profile;
-
-    if (!token || !profile) {
-      throw new Error('Missing token or profile in response');
-    }
-
-    localStorage.setItem('authToken', token);
-    localStorage.removeItem('verificationCode');
-
-    return {
-      ...profile,
-      token,
-    };
+    const profile = await response.json();
+    localStorage.setItem('authToken', profile.token);
+    return profile;
   } catch (error) {
     console.error('[Auth API] Error verifying code:', error);
     throw error;
@@ -140,22 +108,16 @@ export const verifyCode = async (
 };
 
 export const checkAuth = async (): Promise<Profile | null> => {
+  const token = localStorage.getItem('authToken');
+  if (!token) return null;
+
   try {
-    const token = localStorage.getItem('authToken');
-
-    if (!token) return null;
-
-    const phone = decodeTokenAndGetPhone(token);
-
-    if (!phone) return null;
-
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/info?phone=${phone}`, {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/info`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`
       },
-      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -165,48 +127,21 @@ export const checkAuth = async (): Promise<Profile | null> => {
       return null;
     }
 
-    const profile: Profile = await response.json();
-    return {
-      ...profile,
-      token,
-    };
+    return await response.json();
   } catch (error) {
     console.error('[Auth API] Error checking auth:', error);
     return null;
   }
 };
 
-const decodeTokenAndGetPhone = (token: string): string | null => {
-  try {
-    const tokenParts = token.split('.');
-
-    if (tokenParts.length < 2) {
-      console.error('Invalid JWT token');
-      return null;
-    }
-
-    const payloadBase64 = tokenParts[1];
-
-    if (typeof payloadBase64 !== 'string') {
-      console.error('Invalid payload');
-      return null;
-    }
-
-    const payloadJson = atob(payloadBase64);
-    const decoded: DecodedToken = JSON.parse(payloadJson);
-
-    return decoded.phone || null;
-  } catch (error) {
-    console.error('Error decoding token', error);
-    return null;
-  }
-};
-
 export const logout = async (): Promise<void> => {
   try {
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/auth/logout`, {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/logout`, {
       method: 'POST',
-      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
     });
 
     if (!response.ok) {
@@ -217,5 +152,32 @@ export const logout = async (): Promise<void> => {
   } catch (error) {
     console.error('[Auth API] Error during logout:', error);
     throw error;
+  }
+};
+
+export const refreshToken = async (): Promise<string | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const { token } = await response.json();
+    
+    if (token) {
+      localStorage.setItem('authToken', token);
+    }
+
+    return token;
+  } catch (error) {
+    console.error('[Auth API] Error refreshing token:', error);
+    return null;
   }
 };

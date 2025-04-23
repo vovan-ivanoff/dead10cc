@@ -49,17 +49,13 @@ const Header: React.FC = () => {
     return () => window.removeEventListener('scroll', optimizedScroll);
   }, [isSticky]);
 
-  const handleLoginClick = () => {
-    setIsAuthModalOpen(true);
-  };
-
-  const handleCloseAuthModal = () => {
-    setIsAuthModalOpen(false);
-  };
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
-    document.body.classList.toggle('overflow-hidden', isMenuOpen);
+    document.body.classList.toggle('overflow-hidden', !isMenuOpen);
+  };
+
+  const handleAuthSuccess = () => {
+    setIsAuthModalOpen(false);
   };
 
   return (
@@ -98,12 +94,16 @@ const Header: React.FC = () => {
               </div>
 
               <div className="header-right">
-                <RightIcons handleLoginClick={handleLoginClick} />
+                <RightIcons handleLoginClick={() => setIsAuthModalOpen(true)} />
               </div>
             </Container>
           </div>
           
-          <AuthModal isOpen={isAuthModalOpen} onClose={handleCloseAuthModal} />
+          <AuthModal
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            onAuthSuccess={handleAuthSuccess}  
+          />
 
           <AnimatePresence>
             {isMenuOpen && (
@@ -113,7 +113,10 @@ const Header: React.FC = () => {
                 exit="closed"
                 variants={sideMenuVariants}
               >
-                <SideMenu isOpen={isMenuOpen} onClose={toggleMenu} />
+                <SideMenu 
+                  isOpen={isMenuOpen} 
+                  onClose={toggleMenu}
+                />
               </motion.div>
             )}
           </AnimatePresence>

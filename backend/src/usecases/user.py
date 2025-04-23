@@ -1,5 +1,3 @@
-import datetime
-import jwt
 from typing import List
 
 from pydantic import BaseModel
@@ -16,9 +14,8 @@ from utils.dependencies import UOWDep
 
 class UserUseCase(AbstractUserUseCase):
 
-    def __init__(self, uow: UOWDep, secret_key: str):
+    def __init__(self, uow: UOWDep):
         self.uow = uow
-        self.secret_key = secret_key
 
     async def registrate(self, user: UserRegisterSchema, response: Response) -> int:
         async with self.uow:
@@ -88,21 +85,6 @@ class UserUseCase(AbstractUserUseCase):
         async with self.uow:
             user = await UsersService.auth_user_by_phone(self.uow, phone, response)
 
-            if not user:
-                raise AccessForbiddenException("Invalid phone number")
-
-            token = self.generate_token(user.id)
-
-            response.set_cookie("auth_token", token, httponly=True)
-
             await self.uow.commit()
 
         return user
-    
-    def generate_token(self, user_id: int) -> str:
-        expiration = datetime.utcnow() + datetime.timedelta(hours=1)
-        token = jwt.encode({
-            'user_id': user_id,
-            'exp': expiration
-        }, self.secret_key, algorithm='HS256')
-        return token

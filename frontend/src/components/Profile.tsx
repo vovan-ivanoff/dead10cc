@@ -5,9 +5,19 @@ import { Bell, CreditCard, Settings, Smartphone, Heart, ShoppingCart, Star, Help
 import { Button } from "./ui/AdminButton";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { logout } from "../api/auth";
 
 const ProfilePage: React.FC = () => {
     const router = useRouter();
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            router.push('/');
+        } catch (error) {
+            console.error('Ошибка при выходе:', error);
+        }
+    };
 
     return (
         <div className="flex flex-col md:flex-row gap-6 xl:px-24 md:px-4 transition-all duration-300 ease-in-out">
@@ -86,7 +96,7 @@ const ProfilePage: React.FC = () => {
                         </div>
                         <Button
                             className="w-full flex items-center justify-center gap-2 mt-4 p-3 bg-[#A232E8] hover:bg-[#AF4DFD] text-white rounded-[14px] font-semibold transition-all duration-300 ease-in-out"
-                            onClick={() => router.push('/')}>
+                            onClick={handleLogout}>
                             <LogOut className="w-5 h-5 mb-0.5" />
                             <h2 className="font-medium mt-1">Выйти</h2>
                         </Button>

@@ -1,37 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Profile } from '../../api/auth';
 
 interface RightIconsProps {
   handleLoginClick: () => void;
+  onProfileUpdate?: (profile: Profile | null) => void;
 }
 
-const RightIcons: React.FC<RightIconsProps> = ({ handleLoginClick }) => {
-  const [profile, setProfile] = useState<{ id: string; phone: string } | null>(null);
+const RightIcons: React.FC<RightIconsProps> = ({ 
+  handleLoginClick
+}) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const loadProfile = () => {
-    const savedProfile = localStorage.getItem('profile');
-    if (savedProfile) {
-      setProfile(JSON.parse(savedProfile));
-    } else {
-      setProfile(null);
-    }
-  };
-
-  useEffect(() => {
-    loadProfile();
-
-    const handleStorage = (event: StorageEvent) => {
-      if (event.key === 'profile') {
-        loadProfile();
-      }
+  useEffect(() => { 
+    const token = localStorage.getItem('authToken');
+    setIsAuthenticated(!!token);
+    
+    const handleStorageChange = () => {
+      const newToken = localStorage.getItem('authToken');
+      setIsAuthenticated(!!newToken);
     };
 
-    window.addEventListener('storage', handleStorage);
-
-    return () => {
-      window.removeEventListener('storage', handleStorage);
-    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   return (
@@ -45,14 +37,12 @@ const RightIcons: React.FC<RightIconsProps> = ({ handleLoginClick }) => {
             height={30}
             className="cursor-pointer icon-base"
           />
-          <span className="icon-label">
-            Адреса
-          </span>
+          <span className="icon-label">Адреса</span>
         </Link>
       </div>
 
       <div className="flex flex-col items-center">
-        {profile ? (
+        {isAuthenticated ? (
           <Link href="/profile" className="flex flex-col items-center">
             <Image
               src="/icons/user.svg"
@@ -61,9 +51,7 @@ const RightIcons: React.FC<RightIconsProps> = ({ handleLoginClick }) => {
               height={25}
               className="cursor-pointer icon-base"
             />
-            <span className="icon-label">
-              Профиль
-            </span>
+            <span className="icon-label">Профиль</span>
           </Link>
         ) : (
           <button
@@ -77,9 +65,7 @@ const RightIcons: React.FC<RightIconsProps> = ({ handleLoginClick }) => {
               height={25}
               className="cursor-pointer icon-base"
             />
-            <span className="icon-label">
-              Войти
-            </span>
+            <span className="icon-label">Войти</span>
           </button>
         )}
       </div>
@@ -93,9 +79,7 @@ const RightIcons: React.FC<RightIconsProps> = ({ handleLoginClick }) => {
             height={25}
             className="cursor-pointer icon-base"
           />
-          <span className="icon-label">
-            Корзина
-          </span>
+          <span className="icon-label">Корзина</span>
         </Link>
       </div>
     </div>

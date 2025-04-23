@@ -7,7 +7,7 @@ from schemas.actions import VIEWED
 from schemas.exceptions import AccessForbiddenException
 from schemas.products import ProductAddSchema, ProductInfoSchema
 from services.products import ProductsService
-from services.stats import NotesService
+from services.stats import UsersService as NotesService
 from services.users import UsersService
 from utils.dependencies import UOWDep
 

@@ -129,4 +129,32 @@ input::placeholder {
   --logo-min-width: 100px;
   --search-max-width: 930px;
   --search-min-width: 280px;
+  --header-height: clamp(var(--header-min-height), 8vh, var(--header-max-height));
+}
+
+.fixed {
+  position: fixed;
+}
+
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.z-40 {
+  z-index: 40;
+}
+
+.z-50 {
+  z-index: 50;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
 }
