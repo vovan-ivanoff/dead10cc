@@ -129,25 +129,50 @@ input::placeholder {
   --logo-min-width: 100px;
   --search-max-width: 930px;
   --search-min-width: 280px;
+  --header-height: clamp(var(--header-min-height), 8vh, var(--header-max-height));
 }
 
-/* Стили для активной точки (выбранного слайда) */
+.fixed {
+  position: fixed;
+}
+
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.z-40 {
+  z-index: 40;
+}
+
+.z-50 {
+  z-index: 50;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
 .swiper-pagination-bullet-active {
-  background-color: #C800A1 !important; /* Фиолетовый */
+  background-color: #C800A1 !important;
   width: 12px;
   height: 12px;
 }
 
-/* Стили для неактивных точек */
 .swiper-pagination-bullet {
-  background-color: #ffffff !important; /* Белый */
+  background-color: #ffffff !important;
   opacity: 0.6;
   width: 8px;
   height: 8px;
   transition: all 0.3s ease-in-out;
 }
 
-/* Увеличение точки при наведении */
 .swiper-pagination-bullet:hover {
   background-color: #981E97 !important;
   opacity: 1;
