@@ -7,7 +7,7 @@ import Footer from "../../components/Footer";
 import '../globals.css';
 import FavoritesPage from "@/components/Favorites";
 
-export default function Home() {
+export default function Favorites() {
   const [productList, setProductList] = useState([]);
 
   useEffect(() => {
