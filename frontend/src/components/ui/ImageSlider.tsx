@@ -8,11 +8,11 @@ import "swiper/css/pagination";
 import Image from "next/image";
 
 const images = [
-  "/icons/slide1.svg",
-  "/icons/slide1.svg",
-  "/icons/slide1.svg",
-  "/icons/slide1.svg",
-  "/icons/slide1.svg",
+  "/assets/icons/slide1.svg",
+  "/assets/icons/slide1.svg",
+  "/assets/icons/slide1.svg",
+  "/assets/icons/slide1.svg",
+  "/assets/icons/slide1.svg",
 ];
 
 const ImageSlider: React.FC = () => {

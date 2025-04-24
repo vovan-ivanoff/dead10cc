@@ -2,10 +2,10 @@
 
 import React from "react";
 import { Bell, CreditCard, Settings, Smartphone, Heart, ShoppingCart, Star, HelpCircle, RotateCcw, MessageSquare, LogOut } from "lucide-react";
-import { Button } from "./ui/AdminButton";
+import { Button } from "../ui/AdminButton";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { logout } from "../api/auth";
+import { logout } from "../../api/auth";
 
 const ProfilePage: React.FC = () => {
     const router = useRouter();
@@ -28,7 +28,7 @@ const ProfilePage: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-4">
                         <Image
-                            src="/icons/avatar.svg"
+                            src="/assets/icons/avatar.svg"
                             alt="avatar"
                             width={51}
                             height={50}
@@ -38,7 +38,7 @@ const ProfilePage: React.FC = () => {
                             <h3 className="font-[570] text-lg group-hover:bg-gradient-to-r group-hover:from-[#C800A1] group-hover:to-[#981E97] group-hover:bg-clip-text group-hover:text-transparent duration-500 ease-in-out opacity-100 group-hover:opacity-100 transition-opacity">Имя пользователя</h3>
                         </div>
                         <Image
-                            src="/icons/control.svg"
+                            src="/assets/icons/control.svg"
                             alt="control"
                             width={20}
                             height={20}
@@ -52,7 +52,7 @@ const ProfilePage: React.FC = () => {
                             <div className="flex">
                                 <span className="text-gray-500">WB скидка</span>
                                 <Image
-                                    src="/icons/control.svg"
+                                    src="/assets/icons/control.svg"
                                     alt="control1"
                                     width={16}
                                     height={16}
@@ -110,7 +110,7 @@ const ProfilePage: React.FC = () => {
                         <div className="flex flex-col ml-2">
                             <div className="flex items-center">
                                 <Image
-                                    src="/icons/cash.svg"
+                                    src="/assets/icons/cash.svg"
                                     alt="cash"
                                     width={27}
                                     height={22}
@@ -129,7 +129,7 @@ const ProfilePage: React.FC = () => {
                         <div className="flex flex-col ml-2">
                             <div className="flex items-center">
                                 <Image
-                                    src="/icons/dolki.svg"
+                                    src="/assets/icons/dolki.svg"
                                     alt="avatar"
                                     width={27}
                                     height={27}
@@ -140,7 +140,7 @@ const ProfilePage: React.FC = () => {
                             <span className="text-sm mt-2 text-gray-500">Лимит на оплату частями</span>
                         </div>
                         <Image
-                            src="/icons/control.svg"
+                            src="/assets/icons/control.svg"
                             alt="control"
                             width={32}
                             height={32}

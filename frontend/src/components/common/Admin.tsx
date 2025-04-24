@@ -334,8 +334,8 @@ export default function AdminProductsPage() {
       </motion.div>
       <Link href="/" className="flex justify-center mt-10">
         <Image
-          src="/logos/logowb1.svg"
-          alt="Wildberries Logo"
+          src="/assets/images/logos/logosy.svg"
+          alt="Snaply Logo"
           width={120}
           height={40}
           className="object-contain"

@@ -5,7 +5,7 @@
       "description": "Качественный звук и удобная посадка",
       "price": "3499",
       "oldPrice": "4999",
-      "image": "/pictures/headphones.png",
+      "image": "/assets/images/pictures/headphones.png",
       "author": "TechSound"
     },
     {
@@ -14,7 +14,7 @@
       "description": "Отслеживание активности и уведомления",
       "price": "5999",
       "oldPrice": "7999",
-      "image": "/pictures/smartwatch.png",
+      "image": "/assets/images/pictures/smartwatch.png",
       "author": "TimeTech"
     },
     {
@@ -23,7 +23,7 @@
       "description": "RGB подсветка и механические переключатели",
       "price": "4499",
       "oldPrice": "5999",
-      "image": "/pictures/keyboard.png",
+      "image": "/assets/images/pictures/keyboard.png",
       "author": "GamerGear"
     }
   ]

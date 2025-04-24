@@ -3,7 +3,7 @@
   top: 0;
   width: 100%;
   height: var(--header-height);
-  background: linear-gradient(to top, #FD48D7 10%, #7B07F8 90%);
+  background: linear-gradient(45deg, #4F46E5 0%, #8A3FFC 15%, #EC4899 100%);
   transition: 
     transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
     box-shadow 0.3s ease,
@@ -13,7 +13,7 @@
 
 .header-wrapper.sticky {
   position: fixed;
-  --header-height: 64px;
+  header: var(--header-height);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(0);
   transition: 
@@ -56,7 +56,7 @@
 
 .logo-link {
   display: block;
-  width: 240px;
+  width: 160px;
 }
 
 .logo-image {

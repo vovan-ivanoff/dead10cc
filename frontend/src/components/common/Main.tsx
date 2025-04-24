@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Container from "../components/Container";
+import Container from "./Container";
 import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -28,7 +28,7 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
     <Container>
       <div className="w-full flex flex-col items-center px-[5%] sm:px-[7%] lg:px-[7%]">
         <div className="w-full max-w-screen-xl space-y-2 mb-4">
-          <div className="h-10 bg-gradient-to-r from-[#C800A1] via-[#981E97] to-[#470A68] rounded-xl flex items-center justify-center text-white font-medium text-sm">
+          <div className="h-10 bg-gradient-to-r from-[#4F46E5] via-[#8A3FFC] to-[#EC4899] rounded-xl flex items-center justify-center text-white font-medium text-sm">
             <h3 className="mt-1">Реклама</h3>
           </div>
         </div>
@@ -42,17 +42,17 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
           className="h-36 custom-swiper rounded-xl px-[5%] sm:px-[7%] lg:px-[7%] max-w-screen-xl mx-auto"
         >
           <SwiperSlide>
-            <div className="h-36 bg-gradient-to-r from-[#C800A1] via-[#981E97] to-[#470A68] rounded-2xl flex items-center justify-center text-white font-semibold sm:text-4xl md:text-4xl lg:text-6xl">
+            <div className="h-36 bg-gradient-to-r from-[#4F46E5] via-[#8A3FFC] to-[#EC4899] rounded-2xl flex items-center justify-center text-white font-semibold sm:text-4xl md:text-4xl lg:text-6xl">
               <h3 className="mt-1">Тут могла быть ваша реклама</h3>
             </div>
           </SwiperSlide>
           <SwiperSlide>
-            <div className="h-36 bg-gradient-to-r from-[#C800A1] via-[#981E97] to-[#470A68] rounded-2xl flex items-center justify-center text-white font-semibold sm:text-4xl md:text-4xl lg:text-6xl">
+            <div className="h-36 bg-gradient-to-r from-[#4F46E5] via-[#8A3FFC] to-[#EC4899] rounded-2xl flex items-center justify-center text-white font-semibold sm:text-4xl md:text-4xl lg:text-6xl">
               <h3 className="mt-1">И здесь</h3>
             </div>
           </SwiperSlide>
           <SwiperSlide>
-            <div className="h-36 bg-gradient-to-r from-[#C800A1] via-[#981E97] to-[#470A68] rounded-2xl flex items-center justify-center text-white font-semibold sm:text-4xl md:text-4xl lg:text-6xl">
+            <div className="h-36 bg-gradient-to-r from-[#4F46E5] via-[#8A3FFC] to-[#EC4899] rounded-2xl flex items-center justify-center text-white font-semibold sm:text-4xl md:text-4xl lg:text-6xl">
               <h3 className="mt-1">И даже тут!</h3>
             </div>
           </SwiperSlide>
@@ -89,7 +89,7 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
                     / {product.name}
                   </p>
                 </div>
-                <button className="w-full p-2 bg-[#A232E8] hover:bg-[#AF4DFD] text-white rounded-xl transition-all duration-300 ease-in-out">
+                <button className="w-full p-2 bg-[#A232E8] hover:bg-[#AF4DFD] text-white rounded-xl border-radius-[15px] transition-all duration-300 ease-in-out">
                   Добавить в корзину
                 </button>
               </div>

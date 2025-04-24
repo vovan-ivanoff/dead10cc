@@ -1,6 +1,6 @@
 import React from "react";
 import Container from "./Container";
-import "../app/globals.css";
+import "../../styles/globals.css";
 import Image from 'next/image';
 
 const Footer: React.FC = () => {
@@ -51,7 +51,7 @@ const Footer: React.FC = () => {
                     </div>
                     <div className="flex flex-col items-center justify-center w-[200px]">
                     <Image
-                    src="/pictures/qr1_1.svg"
+                    src="/assets/images/pictures/qr1_1.svg"
                     alt="QR Code"
                     width={160}
                     height={160}
@@ -67,14 +67,14 @@ const Footer: React.FC = () => {
                                     className="w-10 h-10 bg-white rounded-lg flex items-center justify-center relative group"
                                 >
                                     <Image
-                                        src={`/icons/icon${icon}.svg`}
+                                        src={`/assets/icons/icon${icon}.svg`}
                                         alt={`Icon ${icon}`}
                                         width={24}
                                         height={24}
                                         className="w-6 h-6 group-hover:scale-95 group-hover:opacity-0 transition-all duration-300 ease-in-out"
                                     />
                                     <Image
-                                        src={`/icons/icon${icon}h.svg`}
+                                        src={`/assets/icons/icon${icon}h.svg`}
                                         alt={`Icon ${icon} hover`}
                                         width={28}
                                         height={28}
@@ -86,7 +86,7 @@ const Footer: React.FC = () => {
                     </div>
                     <div className="w-[400px] h-[100px]">
                         <h3 className="flex font-medium">
-                            © Wildberries 2004-2025. Все права защищены.
+                            © Snaply 2025. Все права защищены.
                         </h3>
                         <div>
                             <span className="font-medium">Применяются </span>
@@ -104,7 +104,7 @@ const Footer: React.FC = () => {
                 <div className="lg:hidden flex flex-col items-center mt-10 text-gray-600">
                     <div className="flex flex-col items-center justify-center w-[200px]">
                         <Image
-                        src="/pictures/qr1_1.svg"
+                        src="/assets/images/pictures/qr1_1.svg"
                         alt="QR Code"
                         width={160}
                         height={160}
@@ -120,14 +120,14 @@ const Footer: React.FC = () => {
                                     className="w-10 h-10 bg-white rounded-lg flex items-center justify-center relative group"
                                 >
                                     <Image
-                                        src={`/icons/icon${icon}.svg`}
+                                        src={`/assets/icons/icon${icon}.svg`}
                                         alt={`Icon ${icon}`}
                                         width={24}
                                         height={24}
                                         className="w-6 h-6 group-hover:scale-95 group-hover:opacity-0 transition-all duration-300 ease-in-out"
                                     />
                                     <Image
-                                        src={`/icons/icon${icon}h.svg`}
+                                        src={`/assets/icons/icon${icon}h.svg`}
                                         alt={`Icon ${icon} hover`}
                                         width={28}
                                         height={28}
@@ -139,7 +139,7 @@ const Footer: React.FC = () => {
                     </div>
                     <div className="w-full text-center mt-10">
                         <h3 className="flex font-medium">
-                            © Wildberries 2004-2025. Все права защищены.
+                            © Snaply 2025. Все права защищены.
                         </h3>
                         <div>
                             <span className="font-medium">Применяются </span>

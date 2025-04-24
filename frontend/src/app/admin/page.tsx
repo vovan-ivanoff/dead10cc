@@ -1,6 +1,6 @@
 "use client"
 
-import AdminProductsPage from "@/components/Admin"
+import AdminProductsPage from "@/components/common/Admin"
 
 export default function Admin() {
     return (

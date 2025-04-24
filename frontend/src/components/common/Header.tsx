@@ -4,14 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
 import Container from './Container';
-import AuthModal from './ui/AuthModal';
-import SideMenu from './ui/SideMenu';
+import AuthModal from '../ui/AuthModal';
+import SideMenu from '../ui/SideMenu';
 import { motion, AnimatePresence } from 'framer-motion';
-import '../app/globals.css';
-import '../app/header.css';
-import MenuButton from './ui/MenuButton';
-import RightIcons from './ui/RightIcons';
-import { sideMenuVariants } from '../lib/animation';
+import '../../styles/globals.css';
+import '../../styles/header.css';
+import MenuButton from '../ui/MenuButton';
+import RightIcons from '../ui/RightIcons';
+import { sideMenuVariants } from '../../lib/animation';
 
 const Header: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
@@ -49,6 +49,10 @@ const Header: React.FC = () => {
     return () => window.removeEventListener('scroll', optimizedScroll);
   }, [isSticky]);
 
+  useEffect(() => {
+    document.body.classList.toggle('overflow-hidden', isAuthModalOpen || isMenuOpen);
+  }, [isAuthModalOpen, isMenuOpen]);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
     document.body.classList.toggle('overflow-hidden', !isMenuOpen);
@@ -70,26 +74,28 @@ const Header: React.FC = () => {
           <div className="header-container">
             <Container>
               <div className="header-left">
-                <Link href="/" className="logo-link">
-                  <Image
-                    src="/logos/logo.svg"
-                    alt="Логотип"
-                    width={240}
-                    height={38}
-                    className="logo-image"
-                    priority
-                  />
-                </Link>
+              <Link href="/" className="logo-link">
+                <Image
+                  src="/assets/images/logos/logo.svg"
+                  alt="Логотип"
+                  width={160}
+                  height={1}
+                  className="logo-image"
+                  style={{ height: 'auto' }}
+                  priority
+                />
+              </Link>
                 <MenuButton isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
               </div>
 
               <div className="search-wrapper">
                 <div className="search-bar">
-                  <input
-                    type="text"
-                    placeholder="Найти на Wildberries"
-                    className="search-input"
-                  />
+                <input
+                  type="text"
+                  placeholder="Найти на Snaply"
+                  className="search-input"
+                  aria-label="Поиск по сайту"
+                />
                 </div>
               </div>
 

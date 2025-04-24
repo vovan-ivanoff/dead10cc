@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { CartItem } from './ui/CartItem';
+import { CartItem } from '../ui/CartItem';
 import Image from 'next/image';
 import Container from './Container';
 import { Pencil } from 'lucide-react';
@@ -176,7 +176,7 @@ export default function CartPage({ products }: ProductListProps) {
                                 <div className="flex justify-between items-center">
                                     <label className="flex items-center gap-2">
                                         <Image
-                                            src="/icons/cash.svg"
+                                            src="/assets/icons/cash.svg"
                                             alt="cash"
                                             width={27}
                                             height={22}
@@ -198,7 +198,7 @@ export default function CartPage({ products }: ProductListProps) {
                             <div className="px-2">
                                 <div className="flex items-center gap-2 mt-2">
                                     <Image
-                                        src="/icons/user_cart.svg"
+                                        src="/assets/icons/user_cart.svg"
                                         alt="avatar"
                                         width={25}
                                         height={25}
@@ -265,7 +265,7 @@ export default function CartPage({ products }: ProductListProps) {
 
                         <div className="flex gap-2">
                             <Image
-                                src="/icons/dolki.svg"
+                                src="/assets/icons/dolki.svg"
                                 alt="avatar"
                                 width={27}
                                 height={27}
@@ -273,7 +273,7 @@ export default function CartPage({ products }: ProductListProps) {
                             />
                             <h3 className="font-medium mt-1.5">Частями</h3>
                             <Image
-                                src="/icons/control.svg"
+                                src="/assets/icons/control.svg"
                                 alt="control"
                                 width={20}
                                 height={20}

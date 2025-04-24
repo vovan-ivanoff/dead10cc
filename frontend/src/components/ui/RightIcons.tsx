@@ -31,7 +31,7 @@ const RightIcons: React.FC<RightIconsProps> = ({
       <div className="flex flex-col items-center address">
         <Link href="/addresses" className="flex flex-col items-center">
           <Image
-            src="/icons/address.svg"
+            src="/assets/icons/address.svg"
             alt="Адрес"
             width={15}
             height={30}
@@ -45,7 +45,7 @@ const RightIcons: React.FC<RightIconsProps> = ({
         {isAuthenticated ? (
           <Link href="/profile" className="flex flex-col items-center">
             <Image
-              src="/icons/user.svg"
+              src="/assets/icons/user.svg"
               alt="Профиль"
               width={20}
               height={25}
@@ -59,7 +59,7 @@ const RightIcons: React.FC<RightIconsProps> = ({
             className="flex flex-col items-center"
           >
             <Image
-              src="/icons/user.svg"
+              src="/assets/icons/user.svg"
               alt="Авторизация"
               width={20}
               height={25}
@@ -73,7 +73,7 @@ const RightIcons: React.FC<RightIconsProps> = ({
       <div className="flex flex-col items-center">
         <Link href="/cart" className="flex flex-col items-center">
           <Image
-            src="/icons/trash.svg"
+            src="/assets/icons/trash.svg"
             alt="Корзина"
             width={20}
             height={25}

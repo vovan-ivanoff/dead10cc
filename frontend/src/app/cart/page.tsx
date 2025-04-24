@@ -1,9 +1,9 @@
 "use client"
 
-import CartPage from "@/components/Cart";
-import Header from "@/components/Header";
-import Container from "@/components/Container";
-import Footer from "@/components/Footer";
+import CartPage from "@/components/common/Cart";
+import Header from "@/components/common/Header";
+import Container from "@/components/common/Container";
+import Footer from "@/components/common/Footer";
 import { useState, useEffect } from "react";
 
 export default function Cart() {

@@ -22,13 +22,13 @@ interface Country {
 }
 
 const countries = [
-  { name: 'Россия', code: '+7', flag: '/flags/russia.svg' },
-  { name: 'Армения', code: '+374', flag: '/flags/armenia.svg' },
-  { name: 'Беларусь', code: '+375', flag: '/flags/belarus.svg' },
-  { name: 'Казахстан', code: '+7', flag: '/flags/kazakhstan.svg' },
-  { name: 'Киргизия', code: '+996', flag: '/flags/kyrgyzstan.svg' },
-  { name: 'Узбекистан', code: '+998', flag: '/flags/uzbekistan.svg' },
-  { name: 'Грузия', code: '+995', flag: '/flags/georgia.svg' },
+  { name: 'Россия', code: '+7', flag: '/assets/images/flags/russia.svg' },
+  { name: 'Армения', code: '+374', flag: '/assets/images/flags/armenia.svg' },
+  { name: 'Беларусь', code: '+375', flag: '/assets/images/flags/belarus.svg' },
+  { name: 'Казахстан', code: '+7', flag: '/assets/images/flags/kazakhstan.svg' },
+  { name: 'Киргизия', code: '+996', flag: '/assets/images/flags/kyrgyzstan.svg' },
+  { name: 'Узбекистан', code: '+998', flag: '/assets/images/flags/uzbekistan.svg' },
+  { name: 'Грузия', code: '+995', flag: '/assets/images/flags/georgia.svg' },
 ];
 
 const AuthModal: React.FC<AuthModalProps> = ({ 
@@ -238,7 +238,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
             aria-label="Закрыть"
           >
             <Image
-              src="/icons/close.svg"
+              src="/assets/icons/close.svg"
               alt=""
               width={16}
               height={16}
@@ -484,7 +484,7 @@ const CodeInputModal: React.FC<CodeInputModalProps> = ({
         aria-label="Закрыть"
       >
         <Image
-          src="/icons/close.svg"
+          src="/assets/icons/close.svg"
           alt=""
           width={16}
           height={16}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Container from "@/components/Container";
+import Container from "@/components/common/Container";
 import Image from "next/image";
 import Link from "next/link";
 import { Input } from "@/components/ui/FavoriteInput";
@@ -11,7 +11,7 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/Select";
 
 interface Product {
     id: number;
@@ -182,7 +182,7 @@ const FavoritesPage: React.FC<ProductListProps> = ({ products }) => {
                                         / {product.name}
                                     </p>
                                 </div>
-                                <button className="w-full p-2 bg-[#A232E8] hover:bg-[#AF4DFD] text-white rounded-xl transition-all duration-300 ease-in-out">
+                                <button className="w-full p-2 bg-[#A232E8] hover:bg-[#AF4DFD] text-white rounded-xl transition-all border-radius-[15px] duration-300 ease-in-out">
                                     Добавить в корзину
                                 </button>
                             </div>
