@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Profile } from '../../api/auth';
 
@@ -28,60 +27,23 @@ const RightIcons: React.FC<RightIconsProps> = ({
 
   return (
     <div className="right-icons">
-      <div className="flex flex-col items-center address">
-        <Link href="/addresses" className="flex flex-col items-center">
-          <Image
-            src="/assets/icons/address.svg"
-            alt="Адрес"
-            width={15}
-            height={30}
-            className="cursor-pointer icon-base"
-          />
-          <span className="icon-label">Адреса</span>
-        </Link>
-      </div>
+      <Link href="/addresses" className="right-icon-item">
+        <span className="icon-label">Адреса</span>
+      </Link>
 
-      <div className="flex flex-col items-center">
-        {isAuthenticated ? (
-          <Link href="/profile" className="flex flex-col items-center">
-            <Image
-              src="/assets/icons/user.svg"
-              alt="Профиль"
-              width={20}
-              height={25}
-              className="cursor-pointer icon-base"
-            />
-            <span className="icon-label">Профиль</span>
-          </Link>
-        ) : (
-          <button
-            onClick={handleLoginClick}
-            className="flex flex-col items-center"
-          >
-            <Image
-              src="/assets/icons/user.svg"
-              alt="Авторизация"
-              width={20}
-              height={25}
-              className="cursor-pointer icon-base"
-            />
-            <span className="icon-label">Войти</span>
-          </button>
-        )}
-      </div>
-
-      <div className="flex flex-col items-center">
-        <Link href="/cart" className="flex flex-col items-center">
-          <Image
-            src="/assets/icons/trash.svg"
-            alt="Корзина"
-            width={20}
-            height={25}
-            className="cursor-pointer icon-base"
-          />
-          <span className="icon-label">Корзина</span>
+      {isAuthenticated ? (
+        <Link href="/profile" className="right-icon-item">
+          <span className="icon-label">Профиль</span>
         </Link>
-      </div>
+      ) : (
+        <button onClick={handleLoginClick} className="right-icon-item">
+          <span className="icon-label">Войти</span>
+        </button>
+      )}
+
+      <Link href="/cart" className="right-icon-item">
+        <span className="icon-label">Корзина</span>
+      </Link>
     </div>
   );
 };

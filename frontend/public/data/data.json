@@ -4,8 +4,7 @@
       "name": "Беспроводные наушники",
       "description": "Качественный звук и удобная посадка",
       "price": "3499",
-      "oldPrice": "4999",
-      "image": "/assets/images/pictures/headphones.png",
+      "image": "/assets/images/pictures/headphones.svg",
       "author": "TechSound"
     },
     {
@@ -13,8 +12,7 @@
       "name": "Смарт-часы",
       "description": "Отслеживание активности и уведомления",
       "price": "5999",
-      "oldPrice": "7999",
-      "image": "/assets/images/pictures/smartwatch.png",
+      "image": "/assets/images/pictures/smartwatch.svg",
       "author": "TimeTech"
     },
     {
@@ -22,8 +20,7 @@
       "name": "Игровая клавиатура",
       "description": "RGB подсветка и механические переключатели",
       "price": "4499",
-      "oldPrice": "5999",
-      "image": "/assets/images/pictures/keyboard.png",
+      "image": "/assets/images/pictures/keyboard.svg",
       "author": "GamerGear"
     },
     {
@@ -31,8 +28,7 @@
       "name": "Беспроводная мышь",
       "description": "Эргономичный дизайн и высокая точность",
       "price": "2499",
-      "oldPrice": "3499",
-      "image": "/assets/images/pictures/mouse.png",
+      "image": "/assets/images/pictures/mouse.svg",
       "author": "ClickMaster"
     },
     {
@@ -40,8 +36,7 @@
       "name": "Внешний аккумулятор",
       "description": "Большая емкость и быстрая зарядка",
       "price": "2999",
-      "oldPrice": "3999",
-      "image": "/assets/images/pictures/powerbank.png",
+      "image": "/assets/images/pictures/powerbank.svg",
       "author": "ChargePro"
     },
     {
@@ -49,8 +44,7 @@
       "name": "Планшет",
       "description": "Мощный процессор и яркий экран",
       "price": "15999",
-      "oldPrice": "18999",
-      "image": "/assets/images/pictures/tab.png",
+      "image": "/assets/images/pictures/tab.svg",
       "author": "SmartTab"
     },
     {
@@ -58,8 +52,7 @@
       "name": "Ноутбук",
       "description": "Легкий и производительный для работы",
       "price": "49999",
-      "oldPrice": "54999",
-      "image": "/assets/images/pictures/laptop.png",
+      "image": "/assets/images/pictures/laptop.svg",
       "author": "UltraBook"
     },
     {
@@ -67,8 +60,7 @@
       "name": "Футболка",
       "description": "Качественный хлопок",
       "price": "1999",
-      "oldPrice": "3999",
-      "image": "/assets/images/pictures/tshirt.png",
+      "image": "/assets/images/pictures/tshirt.svg",
       "author": "Hlopok"
     },
     {
@@ -76,8 +68,7 @@
       "name": "Чехол",
       "description": "Качественная кожа",
       "price": "799",
-      "oldPrice": "1399",
-      "image": "/assets/images/pictures/case.png",
+      "image": "/assets/images/pictures/case.svg",
       "author": "CasesRu"
     },
     {
@@ -85,8 +76,7 @@
       "name": "Микрофон",
       "description": "Чистая передача голоса без шумов",
       "price": "3999",
-      "oldPrice": "5499",
-      "image": "/assets/images/pictures/microphone.png",
+      "image": "/assets/images/pictures/microphone.svg",
       "author": "VoiceTech"
     },
     {
@@ -94,8 +84,7 @@
       "name": "Веб-камера",
       "description": "Full HD качество для видеозвонков",
       "price": "3499",
-      "oldPrice": "4499",
-      "image": "/assets/images/pictures/webcam.png",
+      "image": "/assets/images/pictures/webcam.svg",
       "author": "CamPro"
     },
     {
@@ -103,8 +92,7 @@
       "name": "Геймпад",
       "description": "Беспроводной с высокой чувствительностью",
       "price": "2999",
-      "oldPrice": "3999",
-      "image": "/assets/images/pictures/gamepad.png",
+      "image": "/assets/images/pictures/gamepad.svg",
       "author": "PlayMaster"
     }
   ]

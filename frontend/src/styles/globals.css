@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 body, html {
+  background: white;
 }
 
 html {
@@ -130,6 +131,7 @@ input::placeholder {
   --search-max-width: 930px;
   --search-min-width: 280px;
   --header-height: clamp(var(--header-min-height), 10vh, var(--header-max-height));
+  --card-width: calc(190px + 2 * 1rem);
 }
 
 .fixed {

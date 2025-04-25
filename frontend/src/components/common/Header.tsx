@@ -5,35 +5,29 @@ import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react';
 import Container from './Container';
 import AuthModal from '../ui/AuthModal';
-import SideMenu from '../ui/SideMenu';
-import { motion, AnimatePresence } from 'framer-motion';
+import RightIcons from '../ui/RightIcons';
 import '../../styles/globals.css';
 import '../../styles/header.css';
-import MenuButton from '../ui/MenuButton';
-import RightIcons from '../ui/RightIcons';
-import { sideMenuVariants } from '../../lib/animation';
 
 const Header: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const headerElement = headerRef.current;
     if (!headerElement) return;
-  
+
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
-      
+
       if (scrollPosition > 0 && !isSticky) {
         setIsSticky(true);
-      } 
-      else if (scrollPosition === 0 && isSticky) {
+      } else if (scrollPosition === 0 && isSticky) {
         setIsSticky(false);
       }
     };
-  
+
     let ticking = false;
     const optimizedScroll = () => {
       if (!ticking) {
@@ -44,22 +38,21 @@ const Header: React.FC = () => {
         ticking = true;
       }
     };
-  
+
     window.addEventListener('scroll', optimizedScroll, { passive: true });
     return () => window.removeEventListener('scroll', optimizedScroll);
   }, [isSticky]);
 
   useEffect(() => {
-    document.body.classList.toggle('overflow-hidden', isAuthModalOpen || isMenuOpen);
-  }, [isAuthModalOpen, isMenuOpen]);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-    document.body.classList.toggle('overflow-hidden', !isMenuOpen);
-  };
+    document.body.classList.toggle('overflow-hidden', isAuthModalOpen);
+  }, [isAuthModalOpen]);
 
   const handleAuthSuccess = () => {
     setIsAuthModalOpen(false);
+  };
+
+  const handleLoginClick = () => {
+    setIsAuthModalOpen(true);
   };
 
   return (
@@ -73,59 +66,52 @@ const Header: React.FC = () => {
         <header className="header">
           <div className="header-container">
             <Container>
-              <div className="header-left">
+            <div className="header-left">
               <Link href="/" className="logo-link">
+                {/* Основное лого */}
                 <Image
                   src="/assets/images/logos/logo.svg"
                   alt="Логотип"
                   width={160}
                   height={1}
-                  className="logo-image"
+                  className="logo-image logo-default"
+                  style={{ height: 'auto' }}
+                  priority
+                />
+                {/* Лого при наведении */}
+                <Image
+                  src="/assets/images/logos/logosyh.svg"
+                  alt="Логотип"
+                  width={160}
+                  height={1}
+                  className="logo-image logo-hover"
                   style={{ height: 'auto' }}
                   priority
                 />
               </Link>
-                <MenuButton isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} />
-              </div>
+            </div>
 
               <div className="search-wrapper">
                 <div className="search-bar">
-                <input
-                  type="text"
-                  placeholder="Найти на Snaply"
-                  className="search-input"
-                  aria-label="Поиск по сайту"
-                />
+                  <input
+                    type="text"
+                    placeholder="Найти на Snaply"
+                    className="search-input"
+                    aria-label="Поиск по сайту"
+                  />
                 </div>
               </div>
-
-              <div className="header-right">
-                <RightIcons handleLoginClick={() => setIsAuthModalOpen(true)} />
+              <div>
+                <RightIcons handleLoginClick={handleLoginClick} />
               </div>
             </Container>
           </div>
-          
+
           <AuthModal
             isOpen={isAuthModalOpen}
             onClose={() => setIsAuthModalOpen(false)}
-            onAuthSuccess={handleAuthSuccess}  
+            onAuthSuccess={handleAuthSuccess}
           />
-
-          <AnimatePresence>
-            {isMenuOpen && (
-              <motion.div
-                initial="closed"
-                animate="open"
-                exit="closed"
-                variants={sideMenuVariants}
-              >
-                <SideMenu 
-                  isOpen={isMenuOpen} 
-                  onClose={toggleMenu}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
         </header>
       </div>
     </>

@@ -3,7 +3,7 @@
   top: 0;
   width: 100%;
   height: var(--header-height);
-  background: linear-gradient(45deg, #4F46E5 0%, #8A3FFC 15%, #EC4899 100%);
+  background: transparent;
   transition: 
     transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
     box-shadow 0.3s ease,
@@ -15,6 +15,7 @@
   position: fixed;
   header: var(--header-height);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: white;
   transform: translateY(0);
   transition: 
     transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
@@ -57,13 +58,34 @@
 .logo-link {
   display: block;
   width: 160px;
+  margin-right: 15px;
+  position: relative; /* Добавляем для позиционирования */
 }
 
 .logo-image {
   width: clamp(var(--logo-min-width), 18vw, var(--logo-max-width));
   height: auto;
-  transition: width 0.3s ease;
+  transition: all 0.3s ease; /* Изменяем на all для анимации opacity */
   object-fit: contain;
+}
+
+/* Новые стили для hover-логотипа */
+.logo-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(var(--logo-min-width), 18vw, var(--logo-max-width));
+  height: auto;
+  opacity: 0;
+  object-fit: contain;
+}
+
+.logo-link:hover .logo-default {
+  opacity: 0;
+}
+
+.logo-link:hover .logo-hover {
+  opacity: 1;
 }
 
 .search-wrapper {
@@ -86,54 +108,74 @@
   height: 60px;
   padding: 0 20px;
   border-radius: 14px;
-  border: none;
+  color: #000000;
+  background-color: #ffffff;
+  border: 2px solid #000000;
+  outline: none;
   font-size: 16px;
   font-family: 'Hauss', sans-serif;
 }
 
-.right-icons {
-  display: flex;
-  gap: 25px;
-  margin-left: 15px;
-  align-items: center;
-  height: 60px;
-  justify-content: center;
+.search-input:focus {
+  border-color: #4F46E5;
 }
 
-.right-icons .flex-col {
+.right-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-left: 20px;
+  height: 60px;
+}
+
+.right-icon-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Hauss';
+  text-decoration: none;
+  position: relative;
+  transition: all 0.3s ease;
 }
 
-.right-icons .icon-base {
-  width: 20px;
-  height: 25px;
-  margin-bottom: 5px;
-  display: flex;
-  align-items: center;
-}
-
-.right-icons .address .icon-base {
-  width: 15px;
-  height: 30px;
-  margin-top: -2.5px;
-  margin-bottom: 2.5px;
-}
-
-.right-icons .icon-label {
-  color: white;
-  font-size: 14px;
-  opacity: 0.7;
+.right-icon-item::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 0;
+  right: 0;
+  bottom: 10%;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  z-index: -1;
+  opacity: 0;
   transition: opacity 0.3s ease;
-  white-space: nowrap;
 }
 
-.right-icons a:hover .icon-label,
-.right-icons button:hover .icon-label {
+.right-icon-item:hover::before {
   opacity: 1;
+}
+
+.right-icon-item:hover .icon-label {
+  color: transparent;
+  background-image: linear-gradient(105deg, #6A11CB 0%, #2575FC 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.icon-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  opacity: 0.7;
+  transition: all 0.3s ease;
 }
 
 @keyframes slideDown {
