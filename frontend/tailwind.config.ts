@@ -54,8 +54,7 @@ export default {
   		},
   		fontFamily: {
   			sans: [
-  				'Hauss',
-  				'sans-serif'
+  				'Hauss'
   			]
   		},
 		fontWeight: {

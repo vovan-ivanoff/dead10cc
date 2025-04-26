@@ -6,7 +6,7 @@ from domain.usecases.stats import AbstractNoteUseCase
 from schemas.exceptions import AccessForbiddenException
 from schemas.stats import NoteInfoSchema
 from services.products import ProductsService
-from services.stats import NotesService
+from services.stats import UsersService as NotesService
 from services.users import UsersService
 from utils.dependencies import UOWDep
 

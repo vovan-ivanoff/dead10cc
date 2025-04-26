@@ -3,7 +3,7 @@ from schemas.actions import ADDED_TO_CART
 from schemas.carts import CartInfoSchema
 from schemas.exceptions import (AccessForbiddenException)
 from services.carts import CartsService
-from services.stats import NotesService
+from services.stats import UsersService as NotesService
 from services.users import UsersService
 from utils.dependencies import UOWDep
 

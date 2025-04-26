@@ -1,15 +1,15 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
-import './globals.css'
+import '../styles/globals.css'
 
 const hauss = localFont({
   src: [
     {
-      path: '../../public/fonts/ALSHauss-Light.woff2',
+      path: '../../public/assets/fonts/ALSHauss-Light.woff2',
       weight: '300',
     },
     {
-      path: '../../public/fonts/ALSHauss-Light.woff',
+      path: '../../public/assets/fonts/ALSHauss-Light.woff',
       weight: '300',
     }
   ],
@@ -17,8 +17,13 @@ const hauss = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'Wildberries',
+  title: 'Snaply',
   description: 'Created by MAI',
+  icons: {
+    icon: [
+      { url: '/assets/images/logos/logosy.svg', type: 'image/svg+xml' }
+    ],
+  },
 }
 
 export default function RootLayout({

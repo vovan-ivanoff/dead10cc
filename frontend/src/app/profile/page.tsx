@@ -1,9 +1,9 @@
 "use client";
 
-import ProfilePage from "@/components/Profile";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import Container from "@/components/Container";
+import ProfilePage from "@/components/common/Profile";
+import Header from "@/components/common/Header";
+import Footer from "@/components/common/Footer";
+import Container from "@/components/common/Container";
 
 export default function Cabinet() {
   return (

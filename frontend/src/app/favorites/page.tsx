@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import Container from "../../components/Container";
-import Header from "../../components/Header";
-import Footer from "../../components/Footer";
-import '../globals.css';
-import FavoritesPage from "@/components/Favorites";
+import Container from "../../components/common/Container";
+import Header from "../../components/common/Header";
+import Footer from "../../components/common/Footer";
+import '../../styles/globals.css';
+import FavoritesPage from "@/components/common/Favorites";
 
-export default function Home() {
+export default function Favorites() {
   const [productList, setProductList] = useState([]);
 
   useEffect(() => {

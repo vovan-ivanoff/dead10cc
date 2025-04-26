@@ -8,11 +8,11 @@ export interface ProductBase {
 }
 
 export interface Product extends ProductBase {
-  image: string; // Для данных, полученных с сервера (всегда URL строки)
+  image: string;
 }
 
 export interface ProductForm extends ProductBase {
-  image: File | string; // Для формы (может быть File или URL string)
+  image: File | string;
 }
 
 export type ProductCreate = Omit<ProductForm, 'id'>;

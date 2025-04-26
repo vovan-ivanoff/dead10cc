@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 const API_PREFIX = '/api/v1';
 
 export interface VerificationRequest {
@@ -10,7 +10,7 @@ export interface VerificationResponse {
   success: boolean;
   message?: string;
   retry_delay?: number;
-  code?: string;
+  code?: string;  // Only available in development
 }
 
 export interface VerifyCodeRequest {
@@ -50,30 +50,32 @@ const handleApiError = async (response: Response): Promise<never> => {
   throw new Error(errorMessage);
 };
 
+const getAuthHeader = (): { Authorization: string } => {
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    throw new Error('Authentication token not found in localStorage');
+  }
+  
+  return { Authorization: `Bearer ${token}` };
+};
+
 export const sendVerificationCode = async (
   data: VerificationRequest
 ): Promise<VerificationResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/auth/send-code`, {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/send-code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
-      credentials: 'include'
     });
 
     if (!response.ok) {
       return handleApiError(response);
     }
 
-    const result: VerificationResponse = await response.json();
-
-    if (process.env.NODE_ENV === 'development' && result.success) {
-      console.log(`Verification code for ${data.phone}: ${result.code}`);
-    }
-
-    return result;
+    return await response.json();
   } catch (error) {
     console.error('[Auth API] Error sending verification code:', error);
     throw error;
@@ -84,25 +86,20 @@ export const verifyCode = async (
   data: VerifyCodeRequest
 ): Promise<Profile> => {
   try {
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/auth/verify-code`, {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/verify-code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
-      credentials: 'include'
     });
 
     if (!response.ok) {
       return handleApiError(response);
     }
 
-    const profile: Profile = await response.json();
-
-    if (profile.token) {
-      localStorage.setItem('authToken', profile.token);
-    }
-
+    const profile = await response.json();
+    localStorage.setItem('authToken', profile.token);
     return profile;
   } catch (error) {
     console.error('[Auth API] Error verifying code:', error);
@@ -111,16 +108,16 @@ export const verifyCode = async (
 };
 
 export const checkAuth = async (): Promise<Profile | null> => {
+  const token = localStorage.getItem('authToken');
+  if (!token) return null;
+
   try {
-    const token = localStorage.getItem('authToken');
-    
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/auth/me`, {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/info`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
+        'Authorization': `Bearer ${token}`
       },
-      credentials: 'include'
     });
 
     if (!response.ok) {
@@ -139,9 +136,12 @@ export const checkAuth = async (): Promise<Profile | null> => {
 
 export const logout = async (): Promise<void> => {
   try {
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/auth/logout`, {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/logout`, {
       method: 'POST',
-      credentials: 'include'
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
     });
 
     if (!response.ok) {
@@ -157,9 +157,12 @@ export const logout = async (): Promise<void> => {
 
 export const refreshToken = async (): Promise<string | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/auth/refresh`, {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/refresh`, {
       method: 'POST',
-      credentials: 'include'
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
     });
 
     if (!response.ok) {
