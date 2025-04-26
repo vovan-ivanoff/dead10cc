@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
+import { sideMenuVariants } from '../../lib/animation';
+import '../../styles/sidemenu.css';
 
 interface SideMenuProps {
   onClose: () => void;
@@ -44,58 +47,85 @@ const menuItems = [
 ];
 
 const SideMenu: React.FC<SideMenuProps> = ({ onClose, isOpen }) => {
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const menu = document.querySelector('.side-menu');
-      if (menu && !menu.contains(e.target as Node)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         onClose();
       }
     };
 
     if (isOpen) {
       document.addEventListener('mousedown', handleClickOutside);
+      document.body.classList.add('side-menu-open');
       document.body.style.overflow = 'hidden';
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.body.style.overflow = 'auto';
     }
 
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.classList.remove('side-menu-open');
+      document.body.style.overflow = 'auto';
+    };
   }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setInternalIsOpen(true);
+    }
+  }, [isOpen]);
+
+  const handleAnimationComplete = (definition: string) => {
+    if (definition === 'closed') {
+      setInternalIsOpen(false);
+    }
+  };
 
   return (
     <>
-      {isOpen && (
-        <div
-          onClick={onClose}
-          className="fixed top-[115px] left-0 w-full h-[calc(100vh-115px)] bg-black bg-opacity-50 z-30"
-        />
-      )}
-
-      <div
-        className={`fixed top-[115px] left-0 w-[350px] h-[calc(100vh-115px)] bg-white shadow-lg z-40 overflow-y-auto side-menu transition-transform duration-300 ${
-          isOpen ? 'open' : ''
-        }`}
-      >
-        <div className="p-4">
-          {menuItems.map((item, index) => (
-            <Link
-              key={index}
-              href="#"
-              className="flex items-center p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <Image
-                src={item.icon}
-                alt={item.name}
-                width={17}
-                height={17}
-                className="mr-3"
-              />
-              <span className="font-hauss font-book text-base">{item.name}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
+      <AnimatePresence>
+        {internalIsOpen && (
+          <motion.div
+            key="overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            exit={{ opacity: 0 }}
+            className="side-menu-overlay"
+            onClick={onClose}
+          />
+        )}
+          <motion.div
+            ref={menuRef}
+            key="menu"
+            initial="closed"
+            animate={isOpen ? "open" : "closed"}
+            exit="closed"
+            variants={sideMenuVariants}
+            onAnimationComplete={handleAnimationComplete}
+            className="side-menu-container"
+          >
+          <div className="side-menu-content">
+            {menuItems.map((item, index) => (
+              <Link
+                key={index}
+                href="#"
+                className="side-menu-item"
+                onClick={onClose}
+              >
+                <Image
+                  src={item.icon}
+                  alt={item.name}
+                  width={17}
+                  height={17}
+                  className="side-menu-icon"
+                />
+                <span className="side-menu-text">{item.name}</span>
+              </Link>
+            ))}
+          </div>
+          </motion.div>
+      </AnimatePresence>
     </>
   );
 };

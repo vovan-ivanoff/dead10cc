@@ -2,16 +2,20 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Container from './Container';
+import MenuButton from '../ui/MenuButton';
 import AuthModal from '../ui/AuthModal';
 import RightIcons from '../ui/RightIcons';
+import SideMenu from '../ui/SideMenu';
 import '../../styles/globals.css';
 import '../../styles/header.css';
 
 const Header: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,6 +59,23 @@ const Header: React.FC = () => {
     setIsAuthModalOpen(true);
   };
 
+  const toggleMenu = useCallback(() => {
+    if (isAnimating) return;
+    
+    setIsAnimating(true);
+    setIsMenuOpen(prev => !prev);
+    
+    setTimeout(() => setIsAnimating(false), 100);
+  }, [isAnimating]);
+
+  const closeMenu = useCallback(() => {
+    if (isAnimating) return;
+    
+    setIsAnimating(true);
+    setIsMenuOpen(false);
+    setTimeout(() => setIsAnimating(false), 100);
+  }, [isAnimating]);
+
   return (
     <>
       {isSticky && <div style={{ height: headerRef.current?.offsetHeight || '114px' }} />}
@@ -68,7 +89,6 @@ const Header: React.FC = () => {
             <Container>
             <div className="header-left">
               <Link href="/" className="logo-link">
-                {/* Основное лого */}
                 <Image
                   src="/assets/images/logos/logo.svg"
                   alt="Логотип"
@@ -78,7 +98,6 @@ const Header: React.FC = () => {
                   style={{ height: 'auto' }}
                   priority
                 />
-                {/* Лого при наведении */}
                 <Image
                   src="/assets/images/logos/logosyh.svg"
                   alt="Логотип"
@@ -89,6 +108,10 @@ const Header: React.FC = () => {
                   priority
                 />
               </Link>
+            </div>
+
+            <div className="flex items-center">
+              <MenuButton isMenuOpen={isMenuOpen} toggleMenu={toggleMenu} isAnimating={isAnimating} />
             </div>
 
               <div className="search-wrapper">
@@ -107,6 +130,7 @@ const Header: React.FC = () => {
             </Container>
           </div>
 
+          <SideMenu isOpen={isMenuOpen} onClose={closeMenu} />
           <AuthModal
             isOpen={isAuthModalOpen}
             onClose={() => setIsAuthModalOpen(false)}

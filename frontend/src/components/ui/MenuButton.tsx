@@ -1,25 +1,38 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { menuIconVariants, lineVariants } from '../../lib/animation';
+import '../../styles/sidemenu.css';
 
 interface MenuButtonProps {
   isMenuOpen: boolean;
   toggleMenu: () => void;
+  isAnimating: boolean;
   className?: string;
 }
 
 const MenuButton: React.FC<MenuButtonProps> = ({ 
   isMenuOpen, 
   toggleMenu,
+  isAnimating,
   className = ''
 }) => {
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAnimating) {
+      toggleMenu();
+    }
+  };
+
   return (
     <button 
-      onClick={toggleMenu}
+      onClick={handleClick}
       className={`ml-[18px] relative w-[60px] h-[60px] group appearance-none focus:outline-none min-w-[60px] min-h-[60px] ${className}`}
+      disabled={isAnimating}
     >
       <div
-        className="w-full h-full rounded-[15px] border border-white opacity-35 group-hover:opacity-100 transition-opacity"
+        className="w-full h-full rounded-[15px] border border-black opacity-35 group-hover:opacity-100 transition-opacity"
         style={{ borderWidth: '1px' }}
       />
       <motion.div
@@ -30,7 +43,7 @@ const MenuButton: React.FC<MenuButtonProps> = ({
         {[0, 1, 2].map((index) => (
           <motion.div
             key={index}
-            className="w-[30px] h-[3px] bg-white rounded-full absolute left-[-3px] transform -translate-x-1/2"
+            className="w-[30px] h-[3px] bg-black rounded-full absolute left-[-3px] transform -translate-x-1/2"
             variants={lineVariants}
             custom={index}
             style={{

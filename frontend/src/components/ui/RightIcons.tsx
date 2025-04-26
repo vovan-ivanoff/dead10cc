@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Profile } from '../../api/auth';
+import '../../styles/righticons.css';
 
 interface RightIconsProps {
   handleLoginClick: () => void;
