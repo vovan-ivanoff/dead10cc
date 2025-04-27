@@ -131,7 +131,12 @@ input::placeholder {
   --search-max-width: 930px;
   --search-min-width: 280px;
   --header-height: clamp(var(--header-min-height), 10vh, var(--header-max-height));
-  --card-width: calc(190px + 2 * 1rem);
+  --card-min-width: 140px;
+  --card-max-width: 220px;
+  --card-width: clamp(var(--card-min-width), 17vw, var(--card-max-width));
+  --footer-min-width: 320px;
+  --footer-max-width: 1230px;
+  --footer-content-width: clamp(var(--footer-min-width), 80vw, var(--footer-max-width));
 }
 
 .fixed {

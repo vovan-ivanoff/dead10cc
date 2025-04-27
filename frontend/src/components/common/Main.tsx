@@ -19,8 +19,8 @@ interface Product {
 const ProductList: React.FC<ProductListProps> = ({ products }) => {
   return (
     <Container>
-      <div className="w-full flex flex-col items-center px-[5%] sm:px-[7%] lg:px-[7%]">
-        <div className="w-full max-w-screen-xl grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+      <div className="w-full max-w-[1400px]">
+        <div className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
           {products.map((product) => (
             <Link
               key={product.id}

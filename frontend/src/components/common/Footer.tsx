@@ -14,7 +14,8 @@ const Footer: React.FC = () => {
     return (
         <footer className="bg-transparent h-[400px] w-full overflow-hidden">
             <Container>
-                <div className="hidden lg:grid min-w-[1230px] max-w-[1230px] grid grid-cols-5 gap-8 text-gray-500 whitespace-nowrap mt-14 overflow-hidden">
+            <div className="hidden lg:grid w-full max-w-[var(--footer-content-width)] grid-cols-5 gap-8 text-gray-500 whitespace-nowrap mt-14 overflow-hidden">
+
                     <div className="space-y-2 w-[200px]">
                         <h3 className="text-black font-medium">Покупателям</h3>
                         <ul className="space-y-2">
