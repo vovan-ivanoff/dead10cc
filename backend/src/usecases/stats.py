@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from pydantic import BaseModel
 
@@ -6,7 +6,7 @@ from domain.usecases.stats import AbstractNoteUseCase
 from schemas.exceptions import AccessForbiddenException
 from schemas.stats import NoteInfoSchema
 from services.products import ProductsService
-from services.stats import UsersService as NotesService
+from services.stats import NotesService
 from services.users import UsersService
 from utils.dependencies import UOWDep
 
@@ -32,13 +32,53 @@ class NoteUseCase(AbstractNoteUseCase):
 
         return note
 
-    async def get_products_by_user(self, user_id: int) -> List[int]:
-        product_ids = set()
-        async with self.uow:
-            notes = await NotesService.get_notes_list(self.uow, user_id=user_id)
-            for note in notes:
-                product_ids.add(note.product_id)
-            articles = [(await ProductsService.get_product_info(self.uow, id=product_id)).article for product_id in
-                        product_ids]
+    async def get_statistics(self, user_id: int) -> Dict:
+        interesting_products_ids = set()  # товары, интересующие данного пользователя
+        similar_users_ids = set()  # юзеры с похожим поведением
+        relevant_products_ids = set()  # товары, которые интересуют юзеров с похожим поведением
+        similar_users = {}  # {user: similarity}
+        relevant_products = {}  # {product: relevance}
 
-        return list(articles)
+        async with self.uow:
+            user_notes = await NotesService.get_notes_list(self.uow, user_id=user_id)
+            for note in user_notes:
+                interesting_products_ids.add(note.product_id)
+
+            for product_id in interesting_products_ids:
+                product_notes = await NotesService.get_notes_list(self.uow, product_id=product_id)
+                for note in product_notes:
+                    similar_users_ids.add(note.user_id)
+                for user in similar_users_ids:
+                    similar_users[user] = similar_users.get(user, 0) + 1
+                similar_users_ids.clear()
+
+            for (key, value) in similar_users.items():
+                similar_users[key] = NotesService.calculate_similarity(value)
+
+            for (user, similarity) in similar_users.items():
+                user_notes = await NotesService.get_notes_list(self.uow, user_id=user)
+                for note in user_notes:
+                    relevant_products_ids.add(note.product_id)
+                for product_id in relevant_products_ids:
+                    relevant_products[product_id] = relevant_products.get(product_id, 0.) + similarity
+                relevant_products_ids.clear()
+
+            result = {
+                "interesting_products": [(await ProductsService.get_product_info(self.uow, id=product_id)).article for
+                                         product_id in interesting_products_ids],
+                "similar_users": [
+                    {
+                        "user_id": _id,
+                        "similarity": similarity
+                    }
+                for (_id, similarity) in similar_users.items()],
+
+                "relevant_products": [
+                    {
+                        "article": (await ProductsService.get_product_info(self.uow, id=product_id)).article,
+                        "relevance": relevant_products[product_id]
+                    }
+                for (product_id, relevance) in relevant_products.items()]
+            }
+
+        return result
