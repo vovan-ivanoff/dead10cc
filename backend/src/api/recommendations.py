@@ -43,7 +43,7 @@ async def get_statistics(
         note_case: NoteCase,
         user_id: int = Depends(get_current_user_id),
 ):
-    return await note_case.get_statictics(user_id)
+    return await note_case.get_statistics(user_id)
 
 
 @router.get("/")

@@ -48,7 +48,7 @@ class NoteUseCase(AbstractNoteUseCase):
                 product_notes = await NotesService.get_notes_list(self.uow, product_id=product_id)
                 for note in product_notes:
                     similar_users_ids.add(note.user_id)
-                for user in similar_users_ids:
+                for user in similar_users_ids.difference({user_id}):
                     similar_users[user] = similar_users.get(user, 0) + 1
                 similar_users_ids.clear()
 
@@ -59,7 +59,7 @@ class NoteUseCase(AbstractNoteUseCase):
                 user_notes = await NotesService.get_notes_list(self.uow, user_id=user)
                 for note in user_notes:
                     relevant_products_ids.add(note.product_id)
-                for product_id in relevant_products_ids:
+                for product_id in relevant_products_ids.difference(interesting_products_ids):
                     relevant_products[product_id] = relevant_products.get(product_id, 0.) + similarity
                 relevant_products_ids.clear()
 
@@ -71,14 +71,14 @@ class NoteUseCase(AbstractNoteUseCase):
                         "user_id": _id,
                         "similarity": similarity
                     }
-                for (_id, similarity) in similar_users.items()],
+                    for (_id, similarity) in similar_users.items()],
 
                 "relevant_products": [
                     {
                         "article": (await ProductsService.get_product_info(self.uow, id=product_id)).article,
                         "relevance": relevant_products[product_id]
                     }
-                for (product_id, relevance) in relevant_products.items()]
+                    for (product_id, relevance) in relevant_products.items()]
             }
 
         return result
