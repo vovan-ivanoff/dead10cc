@@ -1,13 +1,10 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, UploadFile, Response
 
-from domain.usecases.user import AbstractUserUseCase
 from schemas.products import ProductAddSchema
 from services.auth.dependencies import get_current_user_id
 from usecases.dependencies import ProductCase, UserCase
-from variables.gl import iterators
 from utils.file_manager import FileManager as Fm
+from variables.gl import iterators
 
 router = APIRouter(
     prefix="/products",

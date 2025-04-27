@@ -1,7 +1,6 @@
-from typing import List, Iterator, Sequence
+from typing import Iterator, Sequence
 
-from pydantic import BaseModel
-from sqlalchemy import update, select, Row
+from sqlalchemy import select, Row
 
 from models.products import Products
 from repositories.alchemy import SqlAlchemyRepo

@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body, html {
+  background: white;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+input::placeholder {
+  opacity: 0.9;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/assets/fonts/ALSHauss-BookItalic.woff2') format('woff2'),
+  url('/assets/fonts/ALSHauss-BookItalic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/assets/fonts/ALSHauss-Hairline.woff2') format('woff2'),
+  url('/assets/fonts/ALSHauss-Hairline.woff') format('woff');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/assets/fonts/ALSHauss-HairlineItalic.woff2') format('woff2'),
+  url('/assets/fonts/ALSHauss-HairlineItalic.woff') format('woff');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/assets/fonts/ALSHauss-Light.woff2') format('woff2'),
+  url('/assets/fonts/ALSHauss-Light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/assets/fonts/ALSHauss-LightItalic.woff2') format('woff2'),
+  url('/assets/fonts/ALSHauss-LightItalic.woff') format('woff');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/assets/fonts/ALSHauss-Medium.woff2') format('woff2'),
+  url('/assets/fonts/ALSHauss-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/assets/fonts/ALSHauss-MediumItalic.woff2') format('woff2'),
+  url('/assets/fonts/ALSHauss-MediumItalic.woff') format('woff');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/assets/fonts/ALSHauss-Regular.woff2') format('woff2'),
+  url('/assets/fonts/ALSHauss-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/assets/fonts/ALSHauss-RegularItalic.woff2') format('woff2'),
+  url('/assets/fonts/ALSHauss-RegularItalic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/assets/fonts/ALSHauss-Thin.woff2') format('woff2'),
+  url('/assets/fonts/ALSHauss-Thin.woff') format('woff');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hauss';
+  src: url('/assets/fonts/ALSHauss-ThinItalic.woff2') format('woff2'),
+  url('/assets/fonts/ALSHauss-ThinItalic.woff') format('woff');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+:root {
+  --base-size: 1vw + 1vh;
+  --header-max-height: 114px;
+  --header-min-height: 64px;
+  --logo-max-width: 160px;
+  --logo-min-width: 80px;
+  --search-max-width: 930px;
+  --search-min-width: 280px;
+  --header-height: clamp(var(--header-min-height), 10vh, var(--header-max-height));
+  --card-width: calc(190px + 2 * 1rem);
+}
+
+.fixed {
+  position: fixed;
+}
+
+.inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.z-40 {
+  z-index: 40;
+}
+
+.z-50 {
+  z-index: 50;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: #C800A1 !important;
+  width: 12px;
+  height: 12px;
+}
+
+.swiper-pagination-bullet {
+  background-color: #ffffff !important;
+  opacity: 0.6;
+  width: 8px;
+  height: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+.swiper-pagination-bullet:hover {
+  background-color: #981E97 !important;
+  opacity: 1;
+}

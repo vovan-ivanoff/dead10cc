@@ -1,0 +1,26 @@
+[
+    {
+      "id": 1,
+      "name": "Беспроводные наушники",
+      "description": "Качественный звук и удобная посадка",
+      "price": "3499",
+      "image": "/assets/images/pictures/headphones.svg",
+      "author": "TechSound"
+    },
+    {
+      "id": 2,
+      "name": "Смарт-часы",
+      "description": "Отслеживание активности и уведомления",
+      "price": "5999",
+      "image": "/assets/images/pictures/smartwatch.svg",
+      "author": "TimeTech"
+    },
+    {
+      "id": 3,
+      "name": "Игровая клавиатура",
+      "description": "RGB подсветка и механические переключатели",
+      "price": "4499",
+      "image": "/assets/images/pictures/keyboard.svg",
+      "author": "GamerGear"
+    }
+  ]

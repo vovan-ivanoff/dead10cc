@@ -1,9 +1,9 @@
 from db.database import async_session_maker
 from domain.utils.unit_of_work import AbstractUOW
-from repositories.products import ProductsRepo
 from repositories.carts import CartsRepo
-from repositories.users import UsersRepo
+from repositories.products import ProductsRepo
 from repositories.stats import StatsRepo
+from repositories.users import UsersRepo
 
 
 class UOW(AbstractUOW):

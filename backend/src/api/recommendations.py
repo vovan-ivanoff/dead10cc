@@ -1,7 +1,7 @@
 import json
 
 import requests
-from fastapi import APIRouter, Depends, UploadFile
+from fastapi import APIRouter, Depends
 
 from services.auth.dependencies import get_current_user_id
 from usecases.dependencies import NoteCase
@@ -39,11 +39,11 @@ async def get_notes_by_product(
 
 
 @router.get("/{user_id}/products")
-async def get_products_by_user(
+async def get_statistics(
         note_case: NoteCase,
         user_id: int = Depends(get_current_user_id),
 ):
-    return await note_case.get_products_by_user(user_id)
+    return await note_case.get_statictics(user_id)
 
 
 @router.get("/")
@@ -52,8 +52,9 @@ async def get_recommendation(
         note_case: NoteCase,
         user_id: int = Depends(get_current_user_id)
 ):
-    products = {"skus": await note_case.get_products_by_user(user_id)}
+    products = {"interesting_products": await note_case.get_statistics(user_id)}
     products = json.dumps(products, ensure_ascii=True, indent=4)
-    response = requests.post(f"http://recommender:5100/recommendation/{count}", data=products, headers={"Content-Type": "application/json"})
+    response = requests.post(f"http://recommender:5100/recommendation/{count}", data=products,
+                             headers={"Content-Type": "application/json"})
 
     return response.content

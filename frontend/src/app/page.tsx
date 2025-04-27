@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import Container from "../components/Container";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import ProductList from "../components/Main";
-import './globals.css';
+import Container from "../components/common/Container";
+import Header from "../components/common/Header";
+import Footer from "../components/common/Footer";
+import ProductList from "../components/common/Main";
+import '../styles/globals.css';
 
 export default function Home() {
   const [productList, setProductList] = useState([]);

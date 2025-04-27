@@ -1,10 +1,11 @@
 from typing import List
 
-from utils.unit_of_work import AbstractUOW
-
 from pydantic import BaseModel
-from schemas.stats import NoteSchema, NoteInfoSchema
+
+from math import log
 from schemas.actions import show
+from schemas.stats import NoteInfoSchema
+from utils.unit_of_work import AbstractUOW
 
 
 class NotesService:
@@ -37,3 +38,7 @@ class NotesService:
             product_id=note.product_id,
             action=show(note.action)
         )
+
+    @staticmethod
+    def calculate_similarity(x: int|float) -> float:
+        return log(x+1)/2
