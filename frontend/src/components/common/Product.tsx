@@ -1,22 +1,29 @@
-import { 
+import {
     ArrowLeftIcon,
+    CameraIcon,
     CopyIcon,
-    Heart,
-    MessageCircleIcon,
+    PackageIcon,
     RotateCwIcon,
-  } from "lucide-react";
-  import { useState } from "react";
-  import Image from "next/image";
-  
-  import { Button } from "../ui/AdminButton";
-  import { Card, CardContent } from "../ui/Card";
-  import { Tabs, TabsList, TabsTrigger } from "../ui/Tabs";
+    SearchIcon,
+    StarIcon,
+} from "lucide-react";
+import React from "react";
 
-export default function ProductPage({ product }: { product: Product }) {
+import { useState } from "react";
+import Image from "next/image";
+import { Badge } from "lucide-react";
+import { Button } from "./ui/AdminButton";
+import { Card, CardContent } from "./ui/Card";
+import { Tabs, TabsList, TabsTrigger } from "./ui/Tabs";
+import { Heart } from "lucide-react";
+import { MessageCircleIcon } from "lucide-react";
+
+export default function ProductPage() {
     const [liked, setLiked] = useState(false);
 
     return (
         <main className="container mx-auto mt-2 mb-6">
+            {/* Back button and breadcrumbs */}
             <div className="mb-6 flex items-center">
                 <Button variant="ghost" className="mr-4 p-0">
                     <ArrowLeftIcon className="h-[30px] w-[34px] text-gray-500" />
@@ -35,24 +42,25 @@ export default function ProductPage({ product }: { product: Product }) {
                                     : "text-gray-500 fill-none hover:text-purple-500"
                                     }`}
                             />
-                            <MessageCircleIcon className="cursor-pointer transition-all w-6 h-6 text-gray-500 fill-none hover:text-purple-500" />
+                            <MessageCircleIcon className={`cursor-pointer transition-all w-6 h-6 text-gray-500 fill-none hover:text-purple-500`}></MessageCircleIcon>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div className="grid grid-cols-12 gap-8">
+                {/* Product image */}
                 <div className="col-span-4">
                     <div className="relative h-[524px] rounded-[15px] overflow-hidden">
                         <Image
-                            src="/assets/icons/rect-52.svg"
+                            src="/icons/rect-52.svg"
                             alt="background"
                             fill
                             className="object-cover"
                         />
                         <div className="absolute bottom-2 right-2 flex items-center gap-2 px-2 py-1 w-fit bg-white rounded-xl shadow-sm">
                             <Image
-                                src="/assets/icons/filter-search.svg"
+                                src="/icons/filter-search.svg"
                                 alt="filter"
                                 width={15}
                                 height={15}
@@ -68,6 +76,7 @@ export default function ProductPage({ product }: { product: Product }) {
                     </div>
                 </div>
 
+                {/* Product details */}
                 <div className="col-span-4">
                     <div className="flex h-[22px] w-[89px] rounded-[8px] bg-[#f1f1f1] px-0 py-0">
                         <span className="flex w-full items-center justify-center text-[13px] font-medium mt-1">
@@ -79,7 +88,7 @@ export default function ProductPage({ product }: { product: Product }) {
 
                     <div className="mt-1 flex items-center">
                         <Image
-                            src="/assets/icons/star-2.svg"
+                            src="/icons/star-2.svg"
                             alt="Star"
                             width={15}
                             height={15}
@@ -152,7 +161,7 @@ export default function ProductPage({ product }: { product: Product }) {
 
                     <div className="mt-2 flex items-center">
                         <Image
-                            src="/assets/icons/coathanger.svg"
+                            src="/icons/coathanger.svg"
                             alt="Coat hanger"
                             width={20}
                             height={20}
@@ -162,6 +171,7 @@ export default function ProductPage({ product }: { product: Product }) {
                     </div>
                 </div>
 
+                {/* Purchase section */}
                 <div className="col-span-4">
                     <Card className="rounded-[20px] bg-white">
                         <CardContent className="p-8">
@@ -197,7 +207,7 @@ export default function ProductPage({ product }: { product: Product }) {
 
                             <div className="mt-4 flex items-center">
                                 <Image
-                                    src="/assets/icons/Package.svg"
+                                    src="/icons/Package.svg"
                                     alt="Package"
                                     width={20}
                                     height={20}
@@ -211,7 +221,7 @@ export default function ProductPage({ product }: { product: Product }) {
                             <div>
                                 <div className="flex items-center">
                                     <Image
-                                        src="/assets/icons/Basket.svg"
+                                        src="/icons/Basket.svg"
                                         alt="Basket"
                                         width={20}
                                         height={20}
@@ -219,7 +229,7 @@ export default function ProductPage({ product }: { product: Product }) {
                                     />
                                     <span className="text-[13px] font-medium mt-1 mr-2">Продавец</span>
                                     <Image
-                                        src="/assets/icons/star-2.svg"
+                                        src="/icons/star-2.svg"
                                         alt="Star"
                                         width={15}
                                         height={15}
@@ -233,7 +243,7 @@ export default function ProductPage({ product }: { product: Product }) {
                                 <div className="mt-3 flex items-center">
                                     <div className="flex gap-2">
                                         <Image
-                                            src="/assets/icons/dolki.svg"
+                                            src="/icons/dolki.svg"
                                             alt="avatar"
                                             width={27}
                                             height={27}
@@ -241,7 +251,7 @@ export default function ProductPage({ product }: { product: Product }) {
                                         />
                                         <h3 className="font-medium mt-1.5">Частями</h3>
                                         <Image
-                                            src="/assets/icons/control.svg"
+                                            src="/icons/control.svg"
                                             alt="control"
                                             width={20}
                                             height={20}
