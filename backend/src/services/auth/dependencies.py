@@ -14,17 +14,21 @@ from schemas.phone_auth import PHONE_AUTH_SECRET_KEY, PHONE_AUTH_ALGORITHM
 def get_token(request: Request):
     token = request.cookies.get("TootEventToken")
     if not token:
-        raise TokenAbsentException
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split("Bearer ")[1]
+        else:
+            raise TokenAbsentException
     return token
 
 
 def get_current_user_id(token: str = Depends(get_token)) -> int:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, settings.ALGORITHM)
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
     except JWTError:
         raise IncorrectTokenFormatExcepetion
     expire: str = payload.get("exp")
-    if (not expire) or (int(expire) < datetime.now(UTC).timestamp()):
+    if not expire or int(expire) < datetime.utcnow().timestamp():
         raise TokenExpiredException
     user_id = payload.get("id")
     if not user_id:
@@ -39,24 +43,34 @@ def create_phone_access_token(data: dict, expires_delta: Optional[timedelta] = N
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, PHONE_AUTH_SECRET_KEY, algorithm=PHONE_AUTH_ALGORITHM)
+    
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=PHONE_AUTH_ALGORITHM)
     return encoded_jwt
 
 
-async def get_current_user_phone(token: str = Depends(get_token)):
+async def get_current_user_phone(request: Request):
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate phone credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, settings.ALGORITHM)
+        token = get_token(request)
+    except TokenAbsentException:
+        raise credentials_exception
+    
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
     except JWTError:
         raise IncorrectTokenFormatExcepetion
-    expire: str = payload.get("exp")
-    if (not expire) or (int(expire) < datetime.now(UTC).timestamp()):
+    
+    expire = payload.get("exp")
+    if not expire or int(expire) < datetime.utcnow().timestamp():
         raise TokenExpiredException
+    
     phone: str = payload.get("ph")
     if phone is None:
         raise credentials_exception
+    
     return phone
