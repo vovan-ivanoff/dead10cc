@@ -2,7 +2,12 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-RUN npm install -g bun
+RUN if [ "$(uname -s)" = "Linux" ]; then \
+      apk add --no-cache curl unzip && \
+      npm install -g bun; \
+    else \
+      curl -fsSL https://bun.sh/install | bash; \
+    fi
 
 COPY package.json bun.lockb ./
 
@@ -16,7 +21,12 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-RUN npm install -g bun
+RUN if [ "$(uname -s)" = "Linux" ]; then \
+      apk add --no-cache curl unzip && \
+      npm install -g bun; \
+    else \
+      curl -fsSL https://bun.sh/install | bash; \
+    fi
 
 COPY --from=builder /app /app
 

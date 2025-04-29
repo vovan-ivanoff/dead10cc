@@ -1,15 +1,12 @@
 "use client"
 
-import { useParams } from "next/navigation";
-import Container from "../../../components/Container";
-import Header from "../../../components/Header";
-import Footer from "../../../components/Footer";
-import '../../globals.css';
-import ProductPage from "@/components/Product";
+import Container from "@/components/common/Container";
+import Header from "@/components/common/Header";
+import Footer from "@/components/common/Footer";
+import '@/styles/globals.css';
+import ProductPage from "@/components/common/Product";
 
 export default function Product() {
-    const { id } = useParams();
-
     return (
         <div className="flex flex-col mih-h-screen">
             <Header />

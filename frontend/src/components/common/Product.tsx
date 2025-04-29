@@ -1,20 +1,15 @@
 import {
     ArrowLeftIcon,
-    CameraIcon,
     CopyIcon,
-    PackageIcon,
     RotateCwIcon,
-    SearchIcon,
-    StarIcon,
 } from "lucide-react";
 import React from "react";
 
 import { useState } from "react";
 import Image from "next/image";
-import { Badge } from "lucide-react";
-import { Button } from "./ui/AdminButton";
-import { Card, CardContent } from "./ui/Card";
-import { Tabs, TabsList, TabsTrigger } from "./ui/Tabs";
+import { Button } from "@/components/ui/AdminButton";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { Heart } from "lucide-react";
 import { MessageCircleIcon } from "lucide-react";
 
