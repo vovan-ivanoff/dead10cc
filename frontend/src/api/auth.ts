@@ -10,7 +10,7 @@ export interface VerificationResponse {
   success: boolean;
   message?: string;
   retry_delay?: number;
-  code?: string;  // Only available in development
+  code?: string;
 }
 
 export interface VerifyCodeRequest {
