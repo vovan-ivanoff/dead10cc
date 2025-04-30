@@ -30,4 +30,5 @@
 Trello: [Тык](https://trello.com/b/PQ9zAdJZ/dead10cc)
 Miro: [Тык](https://miro.com/app/board/uXjVL3Wywzs=/?share_link_id=865311933063)
 Figma: [Тык](https://www.figma.com/design/3IjCqUOLtGzr4XisAy04Ho/DEAD10CC-%7C-Brandbook?node-id=55-38&t=GJ5NNOV69WWwOdYQ-1)
+Отчет: [Тык](https://docs.google.com/document/d/14Me2hqKB7EhqDtlJUvQsehzwfQVwDUCYelcB8Retki8/edit?tab=t.0)
 >>>>>>> a4ce1e2853e143ceeb89c9599f116d6090a3bd81
