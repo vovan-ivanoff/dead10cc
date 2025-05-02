@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Bell, CreditCard, Settings, Smartphone, Heart, ShoppingCart, Star, HelpCircle, RotateCcw, MessageSquare, LogOut } from "lucide-react";
+import { Bell, CreditCard, Settings, Smartphone, Heart, ShoppingCart, Star, HelpCircle, RotateCcw, MessageSquare, LogOut, ChevronRight } from "lucide-react";
 import { Button } from "../ui/AdminButton";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -26,42 +26,32 @@ const ProfilePage: React.FC = () => {
                     <div className="absolute top-0 right-0">
                         <Bell className="w-6 h-6 text-gray-500 hover:text-gray-700 cursor-pointer transition-all hover:scale-105" />
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center">
                         <Image
                             src="/assets/icons/avatar.svg"
                             alt="avatar"
                             width={51}
                             height={50}
-                            className="object-contain mb-2"
+                            className="object-contain mr-4"
                         />
-                        <div className="group text-lg font-semibold">
-                            <h3 className="font-[570] text-lg group-hover:bg-gradient-to-r group-hover:from-[#C800A1] group-hover:to-[#981E97] group-hover:bg-clip-text group-hover:text-transparent duration-500 ease-in-out opacity-100 group-hover:opacity-100 transition-opacity">Имя пользователя</h3>
-                        </div>
-                        <Image
-                            src="/assets/icons/control.svg"
-                            alt="control"
-                            width={20}
-                            height={20}
-                            className="object-contain mb-2"
+                        <h3 className="text-lg font-[570] leading-none group-hover:bg-gradient-to-r group-hover:from-[#C800A1] group-hover:to-[#981E97] group-hover:bg-clip-text group-hover:text-transparent duration-500 ease-in-out transition-opacity opacity-100 group-hover:opacity-100">
+                            Имя пользователя
+                        </h3>
+                        <ChevronRight
+                            className="w-6 h-6 text-[#8C8989] opacity-50 translate-y-[1px] ml-1"
                         />
                     </div>
-                    <div className="p-3 bg-[#FEECEC] rounded-[14px] text-sm h-[80px] hover:bg-red-100 transition-all ease-in-out">
+                    <div className="p-3 bg-black opacity-75 rounded-[14px] text-sm h-[80px] hover:bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] hover:opacity-50 transition-all ease-in-out">
                     </div>
                     <div className="grid grid-cols-5 gap-3">
                         <div className="col-span-2 bg-gray-100 p-3 rounded-[14px] text-sm flex flex-col hover:bg-gray-200 transition-all ease-in-out">
-                            <div className="flex">
+                            <div className="flex items-center">
                                 <span className="text-gray-500">WB скидка</span>
-                                <Image
-                                    src="/assets/icons/control.svg"
-                                    alt="control1"
-                                    width={16}
-                                    height={16}
-                                    className="object-contain"
-                                />
-
+                                <ChevronRight className="w-3 h-3 text-[#8C8989] opacity-50" />
                             </div>
                             <div className="font-medium">до 30%</div>
                         </div>
+
                         <div className="col-span-3 bg-gray-100 p-3 rounded-[14px] text-sm flex flex-col h-full">
                             <span className="text-gray-500">Оплата при получении</span>
                             <div className="font-medium">до 137 100₽</div>
@@ -72,12 +62,12 @@ const ProfilePage: React.FC = () => {
                         <h4 className="font-medium text-sm text-gray-500">Финансы</h4>
                         <div className="flex flex-col gap-3 mt-2">
                             <div className="bg-gray-100 flex items-center gap-2 pl-3 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
-                                <CreditCard className="w-4 h-4" />
-                                <span className="mt-1 text-black">Способы оплаты</span>
+                                <CreditCard className="w-5 h-5 translate-y-[-1px]" />
+                                <span className="font-hauss text-black text-[17px]">Способы оплаты</span>
                             </div>
                             <div className="bg-gray-100 flex items-center gap-2 pl-3 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
-                                <CreditCard className="w-4 h-4" />
-                                <span className="mt-1 text-black">Реквизиты</span>
+                                <CreditCard className="w-5 h-5 translate-y-[-1px]" />
+                                <span className="font-hauss text-black text-[17px]">Реквизиты</span>
                             </div>
                         </div>
                     </div>
@@ -86,19 +76,19 @@ const ProfilePage: React.FC = () => {
                         <h4 className="font-medium text-sm text-gray-500">Управление</h4>
                         <div className="flex flex-col gap-3 mt-2">
                             <div className="bg-gray-100 flex items-center gap-2 pl-3 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
-                                <Settings className="w-4 h-4" />
-                                <span className="mt-1 text-black">Настройки</span>
+                                <Settings className="w-5 h-5 translate-y-[-1px]" />
+                                <span className="font-hauss text-black text-[17px]">Настройки</span>
                             </div>
                             <div className="bg-gray-100 flex items-center gap-2 pl-3 py-1 text-gray-600 rounded-[14px] hover:bg-gray-200 transition-all ease-in-out">
-                                <Smartphone className="w-4 h-4" />
-                                <span className="mt-1 text-black">Ваши устройства</span>
+                                <Smartphone className="w-5 h-5 translate-y-[-1px]" />
+                                <span className="font-hauss text-black text-[17px]">Ваши устройства</span>
                             </div>
                         </div>
                         <Button
                             className="w-full flex items-center justify-center gap-2 mt-4 p-3 bg-[#A232E8] hover:bg-[#AF4DFD] text-white rounded-[14px] font-semibold transition-all duration-300 ease-in-out"
                             onClick={handleLogout}>
                             <LogOut className="w-5 h-5 mb-0.5" />
-                            <h2 className="font-medium mt-1">Выйти</h2>
+                            <h2 className="font-medium">Выйти</h2>
                         </Button>
                     </div>
                 </div>

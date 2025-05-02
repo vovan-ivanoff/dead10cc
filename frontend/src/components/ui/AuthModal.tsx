@@ -178,7 +178,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
         code: enteredCode
       });
       
-      onAuthSuccess?.(profile); // Передаем профиль
+      onAuthSuccess?.(profile);
       onClose();
       resetForm();
       window.location.reload();
@@ -204,7 +204,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <>
-    {/* Темный оверлей под хедером */}
     <div 
       className="fixed inset-0 bg-black bg-opacity-30 z-40"
       style={{ 
@@ -234,7 +233,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
         <div className="bg-white rounded-[20px] shadow-lg w-[420px] max-w-[95vw] relative z-10 flex flex-col justify-center pb-6 mx-4">
           <button
             onClick={handleCloseModal}
-            className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
             aria-label="Закрыть"
           >
             <Image
@@ -251,7 +250,11 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
             <>
               <div className="mt-6 px-6">
-                <div className="w-full h-[45px] bg-[#E8E8F0] rounded-[10px] flex items-center px-4 focus-within:bg-white focus-within:ring-2 focus-within:ring-[#A232E8] relative">
+                <div className="w-full h-[45px] bg-[#E8E8F0] rounded-[10px] flex items-center px-4 focus-within:bg-white relative
+                  focus-within:ring-2 focus-within:ring-transparent
+                  focus-within:before:absolute focus-within:before:-inset-[2px] focus-within:before:rounded-[12px]
+                  focus-within:before:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)]
+                  focus-within:before:content-[''] focus-within:before:-z-10">
                   <button
                     onClick={() => setIsCountryListOpen(!isCountryListOpen)}
                     className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
@@ -281,7 +284,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                   {isCountryListOpen && (
                     <div
                       ref={countryListRef}
-                      className="absolute top-[60px] left-0 w-[300px] h-[400px] bg-white rounded-lg shadow-lg overflow-y-auto z-20"
+                      className="absolute top-[60px] left-0 w-[300px] h-[400px] bg-white rounded-xl shadow-lg overflow-y-auto z-20"
                     >
                       <div className="p-4">
                         <h3 className="text-lg font-hauss font-medium mb-2 ml-[10px]">Код страны</h3>
@@ -316,7 +319,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
                   <button
                     onClick={handleGetCodeClick}
                     disabled={isLoading}
-                    className={`w-full h-[45px] bg-[#A232E8] text-white font-hauss font-medium rounded-[10px] hover:bg-[#AF4DFD] focus:outline-none focus:ring-2 focus:ring-[#8A2BE2] transition-colors ${
+                    className={`w-full h-[45px] bg-black text-white font-hauss font-medium rounded-[10px] hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)] focus:outline-none focus:ring-2 focus:ring-[#8A2BE2] transition-colors ${
                       isLoading ? 'opacity-70 cursor-not-allowed' : ''
                     }`}
                     aria-label="Получить код подтверждения"
@@ -335,35 +338,64 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
               <div className="mt-6 px-6">
                 <div className="flex items-start">
-                  <input
-                    type="checkbox"
-                    id="agreement"
-                    checked={isAgreed}
-                    onChange={(e) => {
-                      setIsAgreed(e.target.checked);
-                      setAuthError(null);
-                    }}
-                    className="mt-1 mr-2"
-                  />
-                  <label htmlFor="agreement" className="text-sm text-gray-500">
-                    Соглашаюсь {' '}
-                    <a
-                      href="/rules"
-                      className="text-black hover:text-[#AF4DFD] transition-colors"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      с правилами пользования торговой площадкой
-                    </a>{' '}
-                    и{' '}
-                    <a
-                      href="/refund"
-                      className="text-black hover:text-[#AF4DFD] transition-colors"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      возврата
-                    </a>
+                  <label htmlFor="agreement" className="flex cursor-pointer">
+                    <div className="relative flex items-center h-5 mr-2">
+                      <input
+                        type="checkbox"
+                        id="agreement"
+                        checked={isAgreed}
+                        onChange={(e) => {
+                          setIsAgreed(e.target.checked);
+                          setAuthError(null);
+                        }}
+                        className="absolute opacity-0 w-0 h-0"
+                      />
+                      <div className={`
+                        w-4 h-4 border border-gray-300 rounded-[3px] flex items-center justify-center
+                        ${isAgreed ? 'bg-black border-black' : 'bg-white'}
+                        transition-colors duration-200
+                        mt-[2px] // Точная вертикальная центровка
+                      `}>
+                        {isAgreed && (
+                          <svg 
+                            width="10" 
+                            height="8" 
+                            viewBox="0 0 10 8" 
+                            fill="none" 
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="text-white"
+                          >
+                            <path 
+                              d="M9 1L3.5 6.5L1 4" 
+                              stroke="currentColor" 
+                              strokeWidth="1.5" 
+                              strokeLinecap="round" 
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-sm text-gray-500 leading-tight">
+                      Соглашаюсь{' '}
+                      <a
+                        href="/rules"
+                        className="text-black hover:text-[#AF4DFD] transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        с правилами пользования торговой площадкой
+                      </a>{' '}
+                      и{' '}
+                      <a
+                        href="/refund"
+                        className="text-black hover:text-[#AF4DFD] transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        возврата
+                      </a>
+                    </span>
                   </label>
                 </div>
               </div>
