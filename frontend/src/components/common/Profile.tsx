@@ -182,7 +182,7 @@ const ProfilePage: React.FC = () => {
               </span>
               <span className="text-gray-500 text-sm">230 товаров</span>
             </div>
-            <Heart className="w-7 h-7 text-[#6A11CB] hover:text-[#2575FC] hover:scale-110 cursor-pointer transition-all duration-200" />
+            <Heart className="w-7 h-7 text-[#6A11CB] group-hover:text-[#2575FC] group-hover:scale-110 cursor-pointer transition-all duration-200" />
           </div>
 
           <div className="group bg-white p-4 h-[100px] rounded-[20px] shadow-md flex items-center justify-between hover:scale-[1.01] transition-all duration-300">
@@ -192,7 +192,7 @@ const ProfilePage: React.FC = () => {
               </span>
               <span className="text-gray-500 text-sm">Смотреть</span>
             </div>
-            <ShoppingCart className="w-7 h-7 text-[#6A11CB] hover:text-[#2575FC] hover:scale-110 cursor-pointer transition-all duration-200" />
+            <ShoppingCart className="w-7 h-7 text-[#6A11CB] group-hover:text-[#2575FC] group-hover:scale-110 cursor-pointer transition-all duration-200" />
           </div>
 
           <div className="group bg-white p-4 h-[100px] rounded-[20px] shadow-md flex items-center justify-between hover:scale-[1.01] transition-all duration-300">
@@ -202,7 +202,7 @@ const ProfilePage: React.FC = () => {
               </span>
               <span className="text-gray-500 text-sm">29 товаров</span>
             </div>
-            <Star className="w-7 h-7 text-[#6A11CB] hover:text-[#2575FC] hover:scale-110 cursor-pointer transition-all duration-200" />
+            <Star className="w-7 h-7 text-[#6A11CB] group-hover:text-[#2575FC] group-hover:scale-110 cursor-pointer transition-all duration-200" />
           </div>
         </div>
 

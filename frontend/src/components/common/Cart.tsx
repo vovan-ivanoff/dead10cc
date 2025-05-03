@@ -65,9 +65,11 @@ export default function CartPage({ products }: ProductListProps) {
         return value.toLocaleString('ru-RU', {
             style: 'currency',
             currency: 'RUB',
-            minimumFractionDigits: 2,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         });
     };
+    
 
     const subtotal = normalizedProducts.reduce((total, product) => {
         if (!selectedItems[product.id]) return total;
@@ -81,8 +83,9 @@ export default function CartPage({ products }: ProductListProps) {
         return total + product.oldPrice * qty;
     }, 0);
 
-    const total = subtotal - 0.03 * subtotal;
-    const saleCount = 0.03 * subtotal;
+    const saleCount = Math.round(0.03 * subtotal);
+    const total = Math.round(subtotal - saleCount);
+
 
     const today = new Date();
     const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
@@ -116,182 +119,184 @@ export default function CartPage({ products }: ProductListProps) {
 
     return (
         <Container>
-            <div className="flex items-start">
-                {/* Левая колонка */}
-                <div className="flex flex-col flex-1 gap-4">
-                    {/* Корзина */}
-                    <div className="bg-white p-4 rounded-[20px] shadow-md">
-                        <div className="flex gap-4">
-                            <h2 className="text-2xl font-semibold mb-2 p-2">Корзина</h2>
-                            <h3 className="py-3 text-gray-400">{totalCount} {getProductWord(totalCount)}</h3>
-                        </div>
-                        <div className="space-y-4">
-                            {normalizedProducts.map((product) => (
-                                <CartItem
-                                    key={product.id}
-                                    image={product.image}
-                                    title={product.name}
-                                    description={product.description}
-                                    price={product.price}
-                                    oldPrice={product.oldPrice}
-                                    quantity={quantities[product.id] || 1}
-                                    onIncrease={() => handleIncrease(product.id)}
-                                    onDecrease={() => handleDecrease(product.id)}
-                                    selected={selectedItems[product.id] ?? true}
-                                    onSelect={() => handleSelect(product.id)}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Доставка */}
-                    <div className="bg-white p-4 rounded-[20px] shadow-md relative">
-                        <h2 className="text-xl font-semibold mb-2 p-2">Доставка</h2>
-                        <div className="px-2">
-                            <p className="text-base font-medium mb-1">Пункт выдачи: Москва, Волоколамское ш., д. 4</p>
-                            <p className="text-sm text-gray-500 mb-4">Доставка: {formattedTomorrow} — {formattedDayAfter}</p>
-
-                            <div className="flex flex-wrap gap-2">
+            <div className="w-full max-w-[1400px]">
+                <div className="flex items-start">
+                    {/* Левая колонка */}
+                    <div className="flex flex-col flex-1 gap-4">
+                        {/* Корзина */}
+                        <div className="bg-white p-4 rounded-[20px] shadow-md">
+                            <div className="flex gap-4">
+                                <h2 className="text-2xl font-semibold mb-2 p-2">Корзина</h2>
+                                <h3 className="py-3 text-gray-400">{totalCount} {getProductWord(totalCount)}</h3>
+                            </div>
+                            <div className="space-y-4">
                                 {normalizedProducts.map((product) => (
-                                    <div key={product.id} className="w-16 h-16 relative">
-                                        <Image
-                                            src={product.image}
-                                            alt={product.name}
-                                            fill
-                                            className="object-cover rounded-xl border"
-                                        />
-                                    </div>
+                                    <CartItem
+                                        key={product.id}
+                                        image={product.image}
+                                        title={product.name}
+                                        description={product.description}
+                                        price={product.price}
+                                        oldPrice={product.oldPrice}
+                                        quantity={quantities[product.id] || 1}
+                                        onIncrease={() => handleIncrease(product.id)}
+                                        onDecrease={() => handleDecrease(product.id)}
+                                        selected={selectedItems[product.id] ?? true}
+                                        onSelect={() => handleSelect(product.id)}
+                                    />
                                 ))}
                             </div>
                         </div>
-                        <Pencil size={18} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
-                    </div>
 
-                    {/* Способ оплаты и Мои данные */}
-                    <div className="flex gap-4">
-                        {/* Способ оплаты */}
-                        <div className="relative flex-1 bg-white p-4 rounded-[20px] shadow-md min-w-0">
-                            <h2 className="text-xl font-semibold mb-2 p-2">Способ оплаты</h2>
+                        {/* Доставка */}
+                        <div className="bg-white p-4 rounded-[20px] shadow-md relative">
+                            <h2 className="text-xl font-semibold mb-2 p-2">Доставка</h2>
                             <div className="px-2">
-                                <div className="flex justify-between items-center">
-                                    <label className="flex items-center gap-2">
-                                        <Image
-                                            src="/assets/icons/cash.svg"
-                                            alt="cash"
-                                            width={27}
-                                            height={22}
-                                            className="object-contain mb-1.5"
-                                        />
-                                        <h3 className="ml-2">WB кошелек</h3>
-                                    </label>
-                                    <div className="flex w-[50px] h-[25px] rounded-2xl bg-green-100 justify-center items-center mb-1.5">
-                                        <h3 className="text-green-600 font-medium">-3%</h3>
-                                    </div>
+                                <p className="text-base font-medium mb-1">Пункт выдачи: Москва, Волоколамское ш., д. 4</p>
+                                <p className="text-sm text-gray-500 mb-4">Доставка: {formattedTomorrow} — {formattedDayAfter}</p>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {normalizedProducts.map((product) => (
+                                        <div key={product.id} className="w-16 h-16 relative">
+                                            <Image
+                                                src={product.image}
+                                                alt={product.name}
+                                                fill
+                                                className="object-cover rounded-xl border"
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                             <Pencil size={18} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
                         </div>
 
-                        {/* Мои данные */}
-                        <div className="relative flex-1 bg-white p-4 rounded-[20px] shadow-md min-w-0">
-                            <h2 className="text-xl font-semibold mb-2 p-2">Мои данные</h2>
-                            <div className="px-2">
-                                <div className="flex items-center gap-2 mt-2">
-                                    <Image
-                                        src="/assets/icons/user_cart.svg"
-                                        alt="avatar"
-                                        width={25}
-                                        height={25}
-                                        className="object-contain mb-2 opacity-15"
-                                    />
-                                    <h3 className="ml-2">Имя</h3>
-                                    <h3 className="ml-2">+7 800 555-35-35</h3>
+                        {/* Способ оплаты и Мои данные */}
+                        <div className="flex gap-4">
+                            {/* Способ оплаты */}
+                            <div className="relative flex-1 bg-white p-4 rounded-[20px] shadow-md min-w-0">
+                                <h2 className="text-xl font-semibold mb-2 p-2">Способ оплаты</h2>
+                                <div className="px-2">
+                                    <div className="flex justify-between items-center">
+                                        <label className="flex items-center gap-2">
+                                            <Image
+                                                src="/assets/icons/cash.svg"
+                                                alt="cash"
+                                                width={27}
+                                                height={22}
+                                                className="object-contain mb-1.5"
+                                            />
+                                            <h3 className="ml-2">S кошелек</h3>
+                                        </label>
+                                        <div className="flex w-[50px] h-[25px] rounded-2xl bg-green-100 justify-center items-center mb-1.5">
+                                            <h3 className="text-green-600 font-medium">-3%</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <Pencil size={18} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
+                            </div>
+
+                            {/* Мои данные */}
+                            <div className="relative flex-1 bg-white p-4 rounded-[20px] shadow-md min-w-0">
+                                <h2 className="text-xl font-semibold mb-2 p-2">Мои данные</h2>
+                                <div className="px-2">
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <Image
+                                            src="/assets/icons/user_cart.svg"
+                                            alt="avatar"
+                                            width={25}
+                                            height={25}
+                                            className="object-contain mb-2 opacity-15"
+                                        />
+                                        <h3 className="ml-2">Имя</h3>
+                                        <h3 className="ml-2">+7 800 555-35-35</h3>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Правая колонка — Итого */}
-                <div className="w-[420px] ml-6 bg-white p-6 rounded-[20px] shadow-md flex flex-col sticky top-[100px] self-start">
-                    <div>
-                        <h2 className="text-xl font-medium mb-2">Доставка в пункт выдачи</h2>
-                        <p className="text-md text-gray-500 mb-1">Москва, Волоколамское ш., д. 4</p>
-                        <p className="text-md text-gray-500 mb-4">Ближайшая завтра</p>
-                        <div className="flex justify-between">
-                            <h3 className="font-medium mb-2">Оплата WB Кошельком</h3>
-                            <div className="flex w-[50px] h-[25px] rounded-2xl bg-green-100 justify-center items-center mb-1.5">
-                                <h3 className="text-green-600 font-medium">-3%</h3>
+                    {/* Правая колонка — Итого */}
+                    <div className="w-[420px] ml-6 bg-white p-6 rounded-[20px] shadow-md flex flex-col sticky top-[100px] self-start">
+                        <div>
+                            <h2 className="text-xl font-medium mb-2">Доставка в пункт выдачи</h2>
+                            <p className="text-md text-gray-500 mb-1">Москва, Волоколамское ш., д. 4</p>
+                            <p className="text-md text-gray-500 mb-4">Ближайшая завтра</p>
+                            <div className="flex justify-between">
+                                <h3 className="font-medium mb-2">Оплата SL Кошельком</h3>
+                                <div className="flex w-[50px] h-[25px] rounded-2xl bg-green-100 justify-center items-center mb-1.5">
+                                    <h3 className="text-green-600 font-medium">-3%</h3>
+                                </div>
+                            </div>
+                            <div className="flex gap-2 mb-4 bg-gray-200 rounded-[15px] p-1">
+                                <button
+                                    onClick={() => setPaymentOption('upon-receipt')}
+                                    className={`flex-1 py-1 rounded-[10px] font-medium transition ${paymentOption === 'upon-receipt'
+                                        ? 'bg-white text-black shadow'
+                                        : 'text-gray-600'
+                                        }`}
+                                >
+                                    При получении
+                                </button>
+                                <button
+                                    onClick={() => setPaymentOption('now')}
+                                    className={`flex-1 py-1 rounded-[10px] font-medium transition ${paymentOption === 'now'
+                                        ? 'bg-white text-black shadow'
+                                        : 'text-gray-600'
+                                        }`}
+                                >
+                                    Сразу
+                                </button>
+                            </div>
+
+                            <div className="flex justify-between mb-2">
+                                <span>Товары, {selectedCount} шт.</span>
+                                <span className="font-medium">{formatPrice(subtotal1)}</span>
+                            </div>
+                            <div className="flex justify-between mb-2">
+                                <span>Моя скидка</span>
+                                <span className="text-gray-500">{formatPrice(subtotal1 - subtotal)}</span>
+                            </div>
+                            <div className="flex justify-between mb-4">
+                                <span>Скидка SL Кошелька</span>
+                                <span className="text-transparent bg-clip-text bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)]">{formatPrice(saleCount)}</span>
+                            </div>
+
+                            <div className="flex justify-between font-semibold text-lg mb-4">
+                                <span>Итого</span>
+                                <span>{formatPrice(total)}</span>
+                            </div>
+
+                            <div className="flex gap-2">
+                                <Image
+                                    src="/assets/icons/dolki.svg"
+                                    alt="avatar"
+                                    width={27}
+                                    height={27}
+                                    className="object-contain"
+                                />
+                                <h3 className="font-medium mt-1.5">Частями</h3>
+                                <Image
+                                    src="/assets/icons/control.svg"
+                                    alt="control"
+                                    width={8}
+                                    height={8}
+                                    className="object-contain mt-0.5"
+                                />
                             </div>
                         </div>
-                        <div className="flex gap-2 mb-4 bg-gray-200 rounded-[15px] p-1">
-                            <button
-                                onClick={() => setPaymentOption('upon-receipt')}
-                                className={`flex-1 py-1 rounded-[10px] font-medium transition ${paymentOption === 'upon-receipt'
-                                    ? 'bg-white text-black shadow'
-                                    : 'text-gray-600'
-                                    }`}
-                            >
-                                При получении
-                            </button>
-                            <button
-                                onClick={() => setPaymentOption('now')}
-                                className={`flex-1 py-1 rounded-[10px] font-medium transition ${paymentOption === 'now'
-                                    ? 'bg-white text-black shadow'
-                                    : 'text-gray-600'
-                                    }`}
-                            >
-                                Сразу
-                            </button>
-                        </div>
-
-                        <div className="flex justify-between mb-2">
-                            <span>Товары, {selectedCount} шт.</span>
-                            <span className="font-medium">{formatPrice(subtotal1)}</span>
-                        </div>
-                        <div className="flex justify-between mb-2">
-                            <span>Моя скидка</span>
-                            <span className="text-gray-500">{formatPrice(subtotal1 - subtotal)}</span>
-                        </div>
-                        <div className="flex justify-between mb-4">
-                            <span>Скидка WB Кошелька</span>
-                            <span className="text-purple-600">{formatPrice(saleCount)}</span>
-                        </div>
-
-                        <div className="flex justify-between font-semibold text-lg mb-4">
-                            <span>Итого</span>
-                            <span>{formatPrice(total)}</span>
-                        </div>
-
-                        <div className="flex gap-2">
-                            <Image
-                                src="/assets/icons/dolki.svg"
-                                alt="avatar"
-                                width={27}
-                                height={27}
-                                className="object-contain"
+                        <button className="bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] hover:opacity-80 text-white py-2 rounded-[14px] transition mt-4">
+                            Заказать
+                        </button>
+                        <div className="flex mt-4">
+                            <input
+                                type="checkbox"
+                                className="mt-1 w-6 h-6 text-[#6A11CB] accent-[#6A11CB]"
                             />
-                            <h3 className="font-medium mt-1.5">Частями</h3>
-                            <Image
-                                src="/assets/icons/control.svg"
-                                alt="control"
-                                width={20}
-                                height={20}
-                                className="object-contain mt-0.5"
-                            />
+                            <p className="text-xs text-gray-500">
+                                Соглашаюсь с <a href="#" className="underline">правилами пользования торговой площадкой и возврата</a>
+                            </p>
                         </div>
-                    </div>
-                    <button className="bg-[#A232E8] hover:bg-[#AF4DFD] text-white py-2 rounded-[14px] transition mt-4">
-                        Заказать
-                    </button>
-                    <div className="flex mt-4">
-                        <input
-                            type="checkbox"
-                            className="mt-1 w-6 h-6 text-purple-600 accent-purple-600"
-                        />
-                        <p className="text-xs text-gray-500">
-                            Соглашаюсь с <a href="#" className="underline">правилами пользования торговой площадкой и возврата</a>
-                        </p>
                     </div>
                 </div>
             </div>
