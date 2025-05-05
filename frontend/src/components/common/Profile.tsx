@@ -139,8 +139,8 @@ const ProfilePage: React.FC = () => {
               </div>
               <span className="text-sm mt-2 text-gray-500">WB Кошелёк</span>
             </div>
-            <Button className="bg-gray-100 w-[100px] text-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] text-center hover:bg-gray-200 rounded-[10px] transition-all duration-300 ease-in-out">
-              <h1 className="mt-1">Пополнить</h1>
+            <Button className="bg-gray-100 w-[100px] text-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] text-center group-hover:bg-gray-200 rounded-[10px] transition-all duration-300 ease-in-out">
+              <h1 className="mt-1 font-normal">Пополнить</h1>
             </Button>
           </div>
 

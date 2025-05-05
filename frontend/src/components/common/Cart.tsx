@@ -186,7 +186,7 @@ export default function CartPage({ products }: ProductListProps) {
                                                 height={22}
                                                 className="object-contain mb-1.5"
                                             />
-                                            <h3 className="ml-2">S кошелек</h3>
+                                            <h3 className="ml-2">SL кошелек</h3>
                                         </label>
                                         <div className="flex w-[50px] h-[25px] rounded-2xl bg-green-100 justify-center items-center mb-1.5">
                                             <h3 className="text-green-600 font-medium">-3%</h3>
