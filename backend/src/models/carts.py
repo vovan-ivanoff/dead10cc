@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, JSON
+from sqlalchemy import ForeignKey, JSON, Sequence, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db.database import Base
@@ -8,7 +8,7 @@ from schemas.carts import CartSchema
 class Carts(Base):
     __tablename__ = "carts"
 
-    id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True, nullable=False, autoincrement=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     products: Mapped[dict | list | None] = mapped_column(JSON, nullable=True)
 
