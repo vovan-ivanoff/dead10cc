@@ -12,15 +12,15 @@ const Footer: React.FC = () => {
     };
 
     return (
-        <footer className="bg-transparent w-full py-8">
+        <footer className="bg-transparent w-full py-4">
             <Container>
-                <div className="flex flex-col items-center gap-6">
+                <div className="flex flex-col items-center gap-4">
                     <div className="flex justify-center">
                         <Image
                             src="/assets/images/pictures/qr1_1.svg"
                             alt="QR Code"
-                            width={120}
-                            height={120}
+                            width={140}
+                            height={140}
                             className="w-30 h-30"
                         />
                     </div>
