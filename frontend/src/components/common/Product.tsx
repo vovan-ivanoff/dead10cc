@@ -2,6 +2,7 @@ import {
     ArrowLeftIcon,
     CopyIcon,
     RotateCwIcon,
+    PieChart,
 } from "lucide-react";
 import React from "react";
 
@@ -242,13 +243,7 @@ export default function ProductPage() {
 
                                         <div className="mt-3 flex items-center">
                                             <div className="flex gap-2">
-                                                <Image
-                                                    src="/assets/icons/dolki.svg"
-                                                    alt="avatar"
-                                                    width={24}
-                                                    height={24}
-                                                    className="object-contain"
-                                                />
+                                                <PieChart className="w-[27px] h-[27px] text-current flex-shrink-0 self-center" />
                                                 <h3 className="font-medium mt-1.5">Частями</h3>
                                                 <Image
                                                     src="/assets/icons/control.svg"

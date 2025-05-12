@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { CartItem } from '../ui/CartItem';
 import Image from 'next/image';
 import Container from './Container';
-import { Pencil } from 'lucide-react';
+import { Pencil, Wallet, PieChart } from 'lucide-react';
 
 interface Product {
     id: number;
@@ -119,17 +119,17 @@ export default function CartPage({ products }: ProductListProps) {
 
     return (
         <Container>
-            <div className="w-full max-w-[1400px]">
-                <div className="flex items-start">
+            <div className="w-full max-w-[1400px] px-4">
+                <div className="flex flex-col lg:flex-row items-start gap-8">
                     {/* Левая колонка */}
-                    <div className="flex flex-col flex-1 gap-4">
+                    <div className="flex flex-col w-full lg:flex-1 gap-6">
                         {/* Корзина */}
-                        <div className="bg-white p-4 rounded-[20px] shadow-md">
-                            <div className="flex gap-4">
+                        <div className="bg-white p-5 rounded-[20px] shadow-md w-full">
+                            <div className="flex gap-4 flex-wrap">
                                 <h2 className="text-2xl font-semibold mb-2 p-2">Корзина</h2>
                                 <h3 className="py-3 text-gray-400">{totalCount} {getProductWord(totalCount)}</h3>
                             </div>
-                            <div className="space-y-4">
+                            <div className="space-y-6 w-full">
                                 {normalizedProducts.map((product) => (
                                     <CartItem
                                         key={product.id}
@@ -149,13 +149,13 @@ export default function CartPage({ products }: ProductListProps) {
                         </div>
 
                         {/* Доставка */}
-                        <div className="bg-white p-4 rounded-[20px] shadow-md relative">
+                        <div className="bg-white p-5 rounded-[20px] shadow-md relative">
                             <h2 className="text-xl font-semibold mb-2 p-2">Доставка</h2>
                             <div className="px-2">
                                 <p className="text-base font-medium mb-1">Пункт выдачи: Москва, Волоколамское ш., д. 4</p>
                                 <p className="text-sm text-gray-500 mb-4">Доставка: {formattedTomorrow} — {formattedDayAfter}</p>
 
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-3">
                                     {normalizedProducts.map((product) => (
                                         <div key={product.id} className="w-16 h-16 relative">
                                             <Image
@@ -172,21 +172,15 @@ export default function CartPage({ products }: ProductListProps) {
                         </div>
 
                         {/* Способ оплаты и Мои данные */}
-                        <div className="flex gap-4">
+                        <div className="flex flex-col sm:flex-row gap-6">
                             {/* Способ оплаты */}
-                            <div className="relative flex-1 bg-white p-4 rounded-[20px] shadow-md min-w-0">
+                            <div className="relative flex-1 bg-white p-5 rounded-[20px] shadow-md min-w-0">
                                 <h2 className="text-xl font-semibold mb-2 p-2">Способ оплаты</h2>
                                 <div className="px-2">
-                                    <div className="flex justify-between items-center">
+                                    <div className="flex justify-between items-center flex-wrap gap-2">
                                         <label className="flex items-center gap-2">
-                                            <Image
-                                                src="/assets/icons/cash.svg"
-                                                alt="cash"
-                                                width={27}
-                                                height={22}
-                                                className="object-contain mb-1.5"
-                                            />
-                                            <h3 className="ml-2">SL кошелек</h3>
+                                        <Wallet className="w-6 h-6 text-current flex-shrink-0 self-center" />
+                                        <h3 className="ml-2">SL кошелек</h3>
                                         </label>
                                         <div className="flex w-[50px] h-[25px] rounded-2xl bg-green-100 justify-center items-center mb-1.5">
                                             <h3 className="text-green-600 font-medium">-3%</h3>
@@ -197,10 +191,10 @@ export default function CartPage({ products }: ProductListProps) {
                             </div>
 
                             {/* Мои данные */}
-                            <div className="relative flex-1 bg-white p-4 rounded-[20px] shadow-md min-w-0">
+                            <div className="relative flex-1 bg-white p-5 rounded-[20px] shadow-md min-w-0">
                                 <h2 className="text-xl font-semibold mb-2 p-2">Мои данные</h2>
                                 <div className="px-2">
-                                    <div className="flex items-center gap-2 mt-2">
+                                    <div className="flex items-center gap-2 mt-2 flex-wrap">
                                         <Image
                                             src="/assets/icons/user_cart.svg"
                                             alt="avatar"
@@ -217,12 +211,12 @@ export default function CartPage({ products }: ProductListProps) {
                     </div>
 
                     {/* Правая колонка — Итого */}
-                    <div className="w-[420px] ml-6 bg-white p-6 rounded-[20px] shadow-md flex flex-col sticky top-[100px] self-start">
+                    <div className="w-full lg:w-[380px] xl:w-[420px] bg-white p-6 rounded-[20px] shadow-md flex flex-col lg:sticky lg:top-[100px] self-start">
                         <div>
                             <h2 className="text-xl font-medium mb-2">Доставка в пункт выдачи</h2>
                             <p className="text-md text-gray-500 mb-1">Москва, Волоколамское ш., д. 4</p>
                             <p className="text-md text-gray-500 mb-4">Ближайшая завтра</p>
-                            <div className="flex justify-between">
+                            <div className="flex justify-between flex-wrap gap-2">
                                 <h3 className="font-medium mb-2">Оплата SL Кошельком</h3>
                                 <div className="flex w-[50px] h-[25px] rounded-2xl bg-green-100 justify-center items-center mb-1.5">
                                     <h3 className="text-green-600 font-medium">-3%</h3>
@@ -268,13 +262,7 @@ export default function CartPage({ products }: ProductListProps) {
                             </div>
 
                             <div className="flex gap-2">
-                                <Image
-                                    src="/assets/icons/dolki.svg"
-                                    alt="avatar"
-                                    width={27}
-                                    height={27}
-                                    className="object-contain"
-                                />
+                                <PieChart className="w-[27px] h-[27px] text-current flex-shrink-0 self-center" />
                                 <h3 className="font-medium mt-1.5">Частями</h3>
                                 <Image
                                     src="/assets/icons/control.svg"
@@ -288,10 +276,10 @@ export default function CartPage({ products }: ProductListProps) {
                         <button className="bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] hover:opacity-80 text-white py-2 rounded-[14px] transition mt-4">
                             Заказать
                         </button>
-                        <div className="flex mt-4">
+                        <div className="flex mt-4 gap-2">
                             <input
                                 type="checkbox"
-                                className="mt-1 w-6 h-6 text-[#6A11CB] accent-[#6A11CB]"
+                                className="mt-1 w-6 h-6 text-[#6A11CB] accent-[#6A11CB] flex-shrink-0"
                             />
                             <p className="text-xs text-gray-500">
                                 Соглашаюсь с <a href="#" className="underline">правилами пользования торговой площадкой и возврата</a>
@@ -301,7 +289,5 @@ export default function CartPage({ products }: ProductListProps) {
                 </div>
             </div>
         </Container>
-
-
     );
 }

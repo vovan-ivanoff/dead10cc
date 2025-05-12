@@ -72,7 +72,7 @@ const ProfilePage: React.FC = () => {
           <div className="grid grid-cols-5 gap-3">
             <div className="col-span-2 bg-gray-100 p-3 rounded-[14px] text-sm flex flex-col hover:bg-gray-200 transition-all ease-in-out">
               <div className="flex items-center">
-                <span className="text-gray-500 leading-none">WB скидка</span>
+                <span className="text-gray-500 leading-none">SL скидка</span>
                 <ChevronRight className="w-3 h-3 text-[#8C8989] opacity-50 flex-shrink-0 self-center ml-1" />
               </div>
               <div className="font-medium leading-none mt-1">до 30%</div>
@@ -136,7 +136,7 @@ const ProfilePage: React.FC = () => {
                   0 ₽
                 </span>
               </div>
-              <span className="text-sm mt-2 text-gray-500">WB Кошелёк</span>
+              <span className="text-sm mt-2 text-gray-500">SL Кошелёк</span>
             </div>
             <Button className="bg-gray-100 w-[100px] text-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] text-center group-hover:bg-gray-200 rounded-[10px] transition-all duration-300 ease-in-out">
               <h1 className="mt-1 font-normal leading-none">Пополнить</h1>
