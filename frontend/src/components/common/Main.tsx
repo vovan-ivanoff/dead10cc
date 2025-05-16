@@ -2,18 +2,10 @@ import React from "react";
 import Container from "./Container";
 import Link from "next/link";
 import Image from "next/image";
+import { Product } from "../../types/product";
 
 interface ProductListProps {
   products: Product[];
-}
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  reviews: number;
-  author: string;
-  image: string;
 }
 
 const ProductList: React.FC<ProductListProps> = ({ products }) => {
@@ -21,7 +13,7 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
     <Container>
       <div className="w-full max-w-[1400px]">
         <div className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-          {products.map((product) => (
+          {products && products.length > 0 ? products.map((product) => (
             <Link
               key={product.id}
               href={`/product/${product.id}`}
@@ -62,7 +54,9 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
                 Добавить в корзину
               </button>
             </Link>
-          ))}
+          )) : (
+            <div className="col-span-full text-center py-10">Товары не найдены</div>
+          )}
         </div>
       </div>
     </Container>

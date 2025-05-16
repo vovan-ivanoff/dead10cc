@@ -273,7 +273,7 @@ export default function CartPage({ products }: ProductListProps) {
                                 />
                             </div>
                         </div>
-                        <button className="bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] hover:opacity-80 text-white py-2 rounded-[14px] transition mt-4">
+                        <button className="bg-[#1B2429] hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)] text-white py-2 rounded-[10px] transition mt-4">
                             Заказать
                         </button>
                         <div className="flex mt-4 gap-2">

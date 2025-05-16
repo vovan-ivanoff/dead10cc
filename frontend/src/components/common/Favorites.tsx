@@ -182,7 +182,7 @@ const FavoritesPage: React.FC<ProductListProps> = ({ products }) => {
                                         / {product.name}
                                     </p>
                                 </div>
-                                <button className="w-full p-2 bg-[#A232E8] hover:bg-[#AF4DFD] text-white rounded-xl transition-all border-radius-[15px] duration-300 ease-in-out">
+                                <button className="w-full p-2 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)]">
                                     Добавить в корзину
                                 </button>
                             </div>
