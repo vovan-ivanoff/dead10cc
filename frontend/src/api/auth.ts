@@ -1,5 +1,5 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
-const API_PREFIX = '/api/v1';
+const API_PREFIX = '/api/v1/phone_auth';
 
 export interface VerificationRequest {
   phone: string;
@@ -16,6 +16,7 @@ export interface VerificationResponse {
 export interface VerifyCodeRequest {
   phone: string;
   code: string;
+  country_code: string;
 }
 
 export interface Profile {
@@ -24,13 +25,29 @@ export interface Profile {
   name: string;
   email?: string;
   avatar_url?: string;
-  token: string;
+  token?: string;
 }
 
 interface ApiError {
   detail?: string;
   message?: string;
   code?: string;
+}
+export interface UserInfo {
+  phoneNumber: string;
+}
+
+export async function getUserInfo(): Promise<UserInfo> {
+  const response = await fetch(`${API_BASE_URL}${API_PREFIX}/info`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch user info');
+  }
+
+  return response.json();
 }
 
 const handleApiError = async (response: Response): Promise<never> => {
@@ -54,7 +71,7 @@ export const sendVerificationCode = async (
   data: VerificationRequest
 ): Promise<VerificationResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/send-code`, {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/send_code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -64,10 +81,15 @@ export const sendVerificationCode = async (
     });
 
     if (!response.ok) {
-      await handleApiError(response); // Ошибки сразу выбрасываем
+      await handleApiError(response);
     }
 
-    return await response.json();
+    const result = await response.json();
+    return {
+      success: result.success,
+      message: result.message,
+      code: result.data?.code,
+    };
   } catch (error) {
     console.error('[Auth API] Error sending verification code:', error);
     throw error;
@@ -76,9 +98,9 @@ export const sendVerificationCode = async (
 
 export const verifyCode = async (
   data: VerifyCodeRequest
-): Promise<Profile> => {
+): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/verify-code`, {
+    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/verify_code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -88,10 +110,10 @@ export const verifyCode = async (
     });
 
     if (!response.ok) {
-      await handleApiError(response); // Ошибки сразу выбрасываем
+      await handleApiError(response);
     }
 
-    return await response.json();
+    return true;
   } catch (error) {
     console.error('[Auth API] Error verifying code:', error);
     throw error;
@@ -123,7 +145,6 @@ export const checkAuth = async (): Promise<Profile | null> => {
   }
 };
 
-
 export const logout = async (): Promise<void> => {
   try {
     const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/logout`, {
@@ -135,7 +156,7 @@ export const logout = async (): Promise<void> => {
     });
 
     if (!response.ok) {
-      await handleApiError(response); // Ошибки сразу выбрасываем
+      await handleApiError(response);
     }
   } catch (error) {
     console.error('[Auth API] Error during logout:', error);
@@ -155,10 +176,9 @@ export const refreshToken = async (): Promise<Profile | null> => {
 
     if (!response.ok) {
       if (response.status === 401) {
-        // Обрабатываем ошибку 401
         return null;
       }
-      await handleApiError(response); // Ошибки сразу выбрасываем
+      await handleApiError(response);
     }
 
     return await response.json();

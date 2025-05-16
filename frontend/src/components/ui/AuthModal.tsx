@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { 
   sendVerificationCode,
@@ -46,16 +46,6 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const countryListRef = useRef<HTMLDivElement>(null);
 
-  const verifySession = useCallback(async () => {
-    try {
-      const profile = await checkAuth();
-      if (profile) {
-        onAuthSuccess?.(profile);
-      }
-    } catch {
-    }
-  }, [onAuthSuccess]);
-
   useEffect(() => {
     if (isOpen) {
       setAuthError(null);
@@ -64,40 +54,12 @@ const AuthModal: React.FC<AuthModalProps> = ({
       }
     }
   }, [isOpen, isCodeInputOpen]);
-
-  useEffect(() => {
-    const verifySession = async () => {
-      try {
-        const profile = await checkAuth();
-        if (profile) {
-          onAuthSuccess?.(profile);
-        }
-      } catch {
-        console.log('Пользователь не авторизован');
-      }
-    };
-  
-    if (isOpen) {
-      verifySession();
-      setAuthError(null);
-    }
-  }, [isOpen, onAuthSuccess]);
 
   useEffect(() => {
     if (isOpen && inputRef.current && !isCodeInputOpen) {
       inputRef.current.focus();
     }
   }, [isOpen, isCodeInputOpen]);
-
-  useEffect(() => {
-    if (isOpen) {
-      verifySession();
-      setAuthError(null);
-      if (inputRef.current && !isCodeInputOpen) {
-        inputRef.current.focus();
-      }
-    }
-  }, [isOpen, isCodeInputOpen, verifySession]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -168,26 +130,37 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const handleAuthorization = async (phoneNumber: string, code: string[]) => {
     const enteredCode = code.join('');
     if (enteredCode.length !== 6) return;
-    
+
     setIsLoading(true);
     setAuthError(null);
-    
+
     try {
-      const profile = await verifyCode({
+      const isVerified = await verifyCode({
         phone: phoneNumber,
-        code: enteredCode
+        code: enteredCode,
+        country_code: selectedCountry.code,
       });
-      
-      onAuthSuccess?.(profile);
-      onClose();
-      resetForm();
-      window.location.reload();
+
+      if (isVerified) {
+        const profile = await checkAuth();
+
+        if (profile) {
+          onAuthSuccess?.(profile);
+          onClose();
+          resetForm();
+        } else {
+          setAuthError('Не удалось получить данные профиля');
+        }
+      } else {
+        setAuthError('Не удалось верифицировать код');
+      }
     } catch (error) {
       setAuthError(error instanceof Error ? error.message : 'Неверный код подтверждения');
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const resetForm = () => {
     setIsCodeInputOpen(false);

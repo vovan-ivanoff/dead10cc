@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { Button } from "./AdminButton";
+import { checkAuth } from "../../api/auth";
 
 interface Props {
   isOpen: boolean;
@@ -11,7 +12,7 @@ interface Props {
   onLogout: () => void;
   onDelete: () => void;
   currentName: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   gender: string;
 }
 
@@ -22,16 +23,31 @@ const EditProfileModal: React.FC<Props> = ({
   onLogout,
   onDelete,
   currentName,
-  phoneNumber,
+  phoneNumber: propPhoneNumber,
   gender,
 }) => {
   const [name, setName] = useState(currentName);
   const [selectedGender, setSelectedGender] = useState(gender);
+  const [phoneNumber, setPhoneNumber] = useState(propPhoneNumber || "");
 
   useEffect(() => {
     setName(currentName);
     setSelectedGender(gender);
   }, [currentName, gender, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      checkAuth()
+        .then((profile) => {
+          if (profile && profile.phone) {
+            setPhoneNumber(profile.phone);
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load user info:", err);
+        });
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -80,20 +96,22 @@ const EditProfileModal: React.FC<Props> = ({
                     className="flex items-center gap-2 cursor-pointer"
                   >
                     <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${isSelected
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                        isSelected
                           ? "border-transparent bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)]"
                           : "border-gray-400"
-                        }`}
+                      }`}
                     >
                       {isSelected && (
                         <div className="w-2.5 h-2.5 rounded-full bg-white" />
                       )}
                     </div>
                     <span
-                      className={`text-sm ${isSelected
+                      className={`text-sm ${
+                        isSelected
                           ? "text-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] font-medium"
                           : "text-gray-700"
-                        }`}
+                      }`}
                     >
                       {option}
                     </span>

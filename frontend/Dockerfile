@@ -13,6 +13,8 @@ COPY package.json bun.lockb ./
 
 RUN bun install
 
+RUN bun add --dev @types/node
+
 COPY . .
 
 RUN bunx next build
