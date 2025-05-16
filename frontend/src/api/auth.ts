@@ -130,11 +130,11 @@ export const checkAuth = async (): Promise<Profile | null> => {
       credentials: 'include',
     });
 
+    if (response.status === 401) {
+      return null;
+    }
+
     if (!response.ok) {
-      if (response.status === 401) {
-        console.log("Unauthorized: User is not authenticated.");
-        return null;
-      }
       await handleApiError(response);
     }
 
