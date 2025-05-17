@@ -33,7 +33,8 @@ async def send_phone_code(request: PhoneAuthRequest, user_case: UserCase):
 
     return {
         "success": True,
-        "message": "Verification code sent"
+        "message": "Verification code sent",
+        "data": {"code": code}
     }
 
 

@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import Response
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from schemas.auth import UserInfoSchema, UserLoginSchema, UserRegisterSchema
 from schemas.exceptions import (IncorrectEmailOrPasswordException,
@@ -24,10 +24,10 @@ class UsersService:
             raise UserAlreadyExistException
         hashed_password = get_password_hash(user.password)
         user_id = await uow.users.add_one(
-            email=user.email, name=user.name, hashed_password=hashed_password
+            phone=user.phone, email=user.email, name=user.name, hashed_password=hashed_password
         )
 
-        cls.setup_access_token(user_id=user_id, response=response)
+        cls.setup_access_token(user_id=user_id, phone=user.phone, response=response)
         return user_id
 
     @staticmethod
@@ -58,7 +58,7 @@ class UsersService:
 
     @staticmethod
     async def authenticate_user(
-            uow: AbstractUOW, email: str, password: str
+            uow: AbstractUOW, email: EmailStr, password: str
     ) -> UserSchema:
         user = await uow.users.find_one(email=email)
         if not user or not verify_password(password, user.hashed_password):
@@ -100,6 +100,6 @@ class UsersService:
         user_id = await uow.users.add_one(
             phone=phone
         )
-
+        await uow.carts.add_one(id=user_id, user_id=user_id, products=dict())
         cls.setup_access_token(user_id=user_id, phone=phone, response=response)
         return await uow.users.find_one(id=user_id)
