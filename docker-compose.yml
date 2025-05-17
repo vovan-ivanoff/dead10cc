@@ -36,22 +36,14 @@ services:
     ports:
       - "5100:5100"
 
-  frontend:
-    container_name: "frontend"
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-    command: sh -c "npm install && npm run dev"
-    depends_on:
-      - fastapi_app
+
 
 volumes:
   postgres_data1:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./dbdata
+
   model_data:
