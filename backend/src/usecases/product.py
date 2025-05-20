@@ -1,6 +1,7 @@
 from typing import List
 
 from pydantic import BaseModel
+from fastapi import Response
 
 from domain.usecases.product import AbstractProductUseCase
 from schemas.actions import VIEWED
@@ -17,20 +18,21 @@ class ProductUseCase(AbstractProductUseCase):
     def __init__(self, uow: UOWDep):
         self.uow = uow
 
-    async def get_list(self) -> List[BaseModel]:
+    async def get_list(self, **filter_by) -> List[BaseModel]:
         async with self.uow:
-            products_list = await ProductsService.get_products_list(self.uow)
+            products_list = await ProductsService.get_products_list(self.uow, **filter_by)
 
         return products_list
 
-    async def get_page(self, user_id: int, iterators: dict | None) -> List[BaseModel]:
+    async def get_page(self, response: Response) -> List[BaseModel]:
         async with self.uow:
-            if iterators.get(user_id, None) is None:
-                iterators[user_id] = await ProductsService.get_iterator(self.uow, 40)
-
-            products_page = await ProductsService.get_next_page(iterators[user_id])
+            products_page = await ProductsService.get_next_page(self.uow, response)
 
         return products_page
+
+    def reset_paging(self, response: Response):
+        ProductsService.reset_paging(response)
+
 
     async def get_info(self, user_id: int, product_id: int) -> ProductInfoSchema:
         async with self.uow:

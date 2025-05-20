@@ -48,7 +48,7 @@ class UsersService:
             {"id": str(user_id), "ph": phone}
         )
         response.set_cookie(
-            key="TootEventToken",
+            key="SnaplyAuthToken",
             value=access_token,
             httponly=True,
             max_age=PHONE_ACCESS_TOKEN_EXPIRE_MINUTES * 60,
@@ -77,7 +77,7 @@ class UsersService:
 
     @staticmethod
     def logout_user(response: Response):
-        response.delete_cookie("TootEventToken")
+        response.delete_cookie("SnaplyAuthToken")
 
     @staticmethod
     async def user_is_moderator(uow: AbstractUOW, user_id: int) -> bool:

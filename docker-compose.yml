@@ -36,8 +36,6 @@ services:
     ports:
       - "5100:5100"
 
-
-
 volumes:
   postgres_data1:
     driver: local

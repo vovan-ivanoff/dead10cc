@@ -16,9 +16,9 @@ class NoteUseCase(AbstractNoteUseCase):
     def __init__(self, uow: UOWDep):
         self.uow = uow
 
-    async def get_list(self, user_id: int, **filter_by) -> List[BaseModel]:
+    async def get_list(self, current_user_id: int, **filter_by) -> List[BaseModel]:
         async with self.uow:
-            if not await UsersService.user_is_moderator(self.uow, user_id):
+            if not await UsersService.user_is_moderator(self.uow, current_user_id):
                 raise AccessForbiddenException
             notes = await NotesService.get_notes_list(self.uow, **filter_by)
 

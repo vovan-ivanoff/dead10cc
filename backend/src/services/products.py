@@ -4,6 +4,8 @@ from pydantic import BaseModel
 
 from schemas.products import ProductAddSchema, ProductInfoSchema
 from utils.unit_of_work import AbstractUOW
+from fastapi import Response
+from services.dependencies import get_page, increase_page
 
 
 class ProductsService:
@@ -30,23 +32,20 @@ class ProductsService:
     ) -> List[BaseModel]:
         return await uow.products.find_all(**filter_by)
 
-    @staticmethod
-    async def get_iterator(
-            uow: AbstractUOW,
-            size: int,
-            **filter_by
-    ) -> Iterator:
-        return await uow.products.get_iter(size)
 
     @staticmethod
     async def get_next_page(
-            iterator: Iterator
+            uow: AbstractUOW,
+            response: Response,
+            **filter_by
     ) -> List[BaseModel]:
-        try:
-            page = next(iterator)
-        except StopIteration:
-            return []
-        return [row[0].to_read_model() for row in page]
+        page = increase_page(response)
+        return await uow.products.get_page(page, **filter_by)
+
+    @staticmethod
+    def reset_paging(response: Response):
+        response.delete_cookie("SnaplyPaging")
+
 
     @staticmethod
     async def get_product_info(
