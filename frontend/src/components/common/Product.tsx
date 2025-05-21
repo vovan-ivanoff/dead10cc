@@ -33,7 +33,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                             <ArrowLeftIcon className="h-[30px] w-[34px] text-gray-500" />
                         </Button>
                         <span className="text-xs font-medium text-gray-500 mt-1">
-                            Каталог / {product.author} / {product.name}
+                            Каталог / {product.seller} / {product.seller}
                         </span>
 
                         <div className="ml-auto">
@@ -58,7 +58,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                             <div className="relative h-[524px] rounded-[15px] overflow-hidden">
                                 <Image
                                     src={product.image}
-                                    alt={product.name}
+                                    alt={product.seller}
                                     width={402}
                                     height={524}
                                     className="object-contain rounded-2xl"
@@ -80,11 +80,11 @@ export default function ProductPage({ product }: ProductPageProps) {
                         <div className="col-span-4">
                             <div className="flex h-[22px] w-[89px] rounded-[8px] bg-[#f1f1f1] px-0 py-0">
                                 <span className="flex w-full items-center justify-center text-[13px] font-medium mt-1">
-                                    {product.author}
+                                    {product.seller}
                                 </span>
                             </div>
 
-                            <h1 className="mt-2 whitespace-pre-line text-xl font-bold">{product.name}</h1>
+                            <h1 className="mt-2 whitespace-pre-line text-xl font-bold">{product.seller}</h1>
 
                             <div className="flex items-center">
                                 <Image
@@ -131,7 +131,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                     </div>
 
                                     <div className="font-medium text-gray-500">Производитель</div>
-                                    <div className="font-medium">{product.author}</div>
+                                    <div className="font-medium">{product.seller}</div>
 
                                     <div className="font-medium text-gray-500">Состав</div>
                                     <div className="font-medium">состав</div>
@@ -182,14 +182,6 @@ export default function ProductPage({ product }: ProductPageProps) {
                                         <div className="mb-1 text-3xl font-bold text-transparent bg-clip-text bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)]">
                                             {product.price} ₽
                                         </div>
-                                        <div className="ml-4 flex items-center">
-                                            <span className="text-md font-medium">
-                                                {product.oldPrice} ₽
-                                            </span>
-                                            <span className="ml-4 text-md font-medium text-[#908f8f] line-through">
-                                                {Math.round(product.price * 1.5)} ₽
-                                            </span>
-                                        </div>
                                     </div>
 
                                     <div className="mt-2 text-sm font-medium text-transparent bg-clip-text bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)]">
@@ -230,7 +222,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                                 height={20}
                                                 className="mr-2"
                                             />
-                                            <span className="text-[13px] font-medium mt-1 mr-2">{product.author}</span>
+                                            <span className="text-[13px] font-medium mt-1 mr-2">{product.seller}</span>
                                             <Image
                                                 src="/assets/icons/star-2.svg"
                                                 alt="Star"
