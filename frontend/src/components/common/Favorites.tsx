@@ -18,7 +18,6 @@ interface Product {
     name: string;
     description: string;
     price: number;
-    oldPrice: number;
     image: string;
     author: string;
     dateAdded: string;
@@ -168,9 +167,6 @@ const FavoritesPage: React.FC<ProductListProps> = ({ products }) => {
                                 <div className="flex items-center">
                                     <p className="text-xl font-semibold text-red-500 truncate">
                                         {product.price}₽
-                                    </p>
-                                    <p className="ml-2 text-sm text-gray-500 line-through truncate">
-                                        {product.oldPrice}₽
                                     </p>
                                 </div>
                                 <p className="text-sm text-red-500 mb-1 truncate">

@@ -7,7 +7,6 @@ type CartItemProps = {
     title: string;
     description: string;
     price: number;
-    oldPrice: number;
     delivery?: string;
     cancelNote?: string;
     quantity?: number;
@@ -16,7 +15,6 @@ type CartItemProps = {
     selected: boolean;
     onSelect: () => void;
     className?: string;
-    hideOldPrice?: string;
 };
 
 export const CartItem: FC<CartItemProps> = ({

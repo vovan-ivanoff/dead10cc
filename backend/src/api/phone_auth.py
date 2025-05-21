@@ -69,8 +69,3 @@ async def verify_phone_code(
         "success": True,
         "message": "Verification successful",
     }
-    
-@router.post("/phone/logout")
-async def logout_user(response: Response, user_case: UserCase):
-    user_case.logout(response=response)
-    return {"status": "ok"}

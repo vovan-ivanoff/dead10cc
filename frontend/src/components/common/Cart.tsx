@@ -11,7 +11,6 @@ interface Product {
     name: string;
     description: string;
     price: number | string;
-    oldPrice: number | string;
     image: string;
     author: string;
 }
@@ -29,7 +28,6 @@ export default function CartPage({ products }: ProductListProps) {
         return products.map(p => ({
             ...p,
             price: Math.floor(Number(p.price)),
-            oldPrice: Math.floor(Number(p.oldPrice)),
         }));
     }, [products]);
 
@@ -79,8 +77,7 @@ export default function CartPage({ products }: ProductListProps) {
 
     const subtotal1 = normalizedProducts.reduce((total, product) => {
         if (!selectedItems[product.id]) return total;
-        const qty = quantities[product.id] || 1;
-        return total + product.oldPrice * qty;
+        return total;
     }, 0);
 
     const saleCount = Math.round(0.03 * subtotal);
@@ -137,7 +134,6 @@ export default function CartPage({ products }: ProductListProps) {
                                         title={product.name}
                                         description={product.description}
                                         price={product.price}
-                                        oldPrice={product.oldPrice}
                                         quantity={quantities[product.id] || 1}
                                         onIncrease={() => handleIncrease(product.id)}
                                         onDecrease={() => handleDecrease(product.id)}

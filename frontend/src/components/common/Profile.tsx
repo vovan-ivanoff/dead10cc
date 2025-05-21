@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Bell,
   CreditCard,
@@ -20,12 +20,14 @@ import {
 import { Button } from "../ui/AdminButton";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { logout } from "../../api/auth";
+import { logout, checkAuth } from "../../api/auth";
 import EditProfileModal from "../ui/EditProfileModal";
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
   const [isModalOpen, setModalOpen] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleLogout = async () => {
     try {
@@ -44,6 +46,47 @@ const ProfilePage: React.FC = () => {
   const handleDeleteProfile = () => {
     console.log("Профиль удалён");
   };
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const user = await checkAuth();
+        if (user) {
+          setIsAuthorized(true);
+        } else {
+          setIsAuthorized(false);
+          router.push('/');
+        }
+      } catch (error) {
+        console.error("Ошибка проверки авторизации:", error);
+        setIsAuthorized(false);
+        router.push('/');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, [router]);
+
+  if (isLoading || isAuthorized === null) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div>Проверка авторизации...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthorized) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Доступ запрещен</h1>
+          <p>Пожалуйста, авторизуйтесь для доступа к этой странице</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col md:flex-row gap-6 xl:px-8 md:px-4 transition-all duration-300 ease-in-out">

@@ -148,6 +148,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
           onAuthSuccess?.(profile);
           onClose();
           resetForm();
+          window.location.reload();
         } else {
           setAuthError('Не удалось получить данные профиля');
         }

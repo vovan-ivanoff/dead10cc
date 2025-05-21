@@ -147,7 +147,7 @@ export const checkAuth = async (): Promise<Profile | null> => {
 
 export const logout = async (): Promise<void> => {
   try {
-    const response = await fetch(`${API_BASE_URL}${API_PREFIX}/phone/logout`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
