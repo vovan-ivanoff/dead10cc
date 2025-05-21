@@ -100,7 +100,13 @@ export default function Home() {
       <Header />
       <Container>
         <main className="flex-grow">
-          <ProductList products={productList} />
+          {loading ? (
+            <div className="text-center p-10">Загрузка...</div>
+          ) : error ? (
+            <div className="text-center p-10 text-red-500">Ошибка: {error}</div>
+          ) : (
+            <ProductList products={productList} />
+          )}
         </main>
       </Container>
       <Footer />
