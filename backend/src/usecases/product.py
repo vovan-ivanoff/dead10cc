@@ -1,11 +1,11 @@
-from typing import List
+from typing import List, Dict
 
 from pydantic import BaseModel
 from fastapi import Response
 
 from domain.usecases.product import AbstractProductUseCase
 from schemas.actions import VIEWED
-from schemas.exceptions import AccessForbiddenException
+from schemas.exceptions import AccessForbiddenException, InvalidData
 from schemas.products import ProductAddSchema, ProductInfoSchema, ProductSchema
 from services.products import ProductsService
 from services.stats import NotesService
@@ -41,10 +41,30 @@ class ProductUseCase(AbstractProductUseCase):
 
         return product
 
-    async def get_info_by_article(self, article: int) -> ProductInfoSchema:
+    async def find_list(self, page_index: int, page_size: int, **field) -> List[BaseModel] | Dict[str, str]:
+        result_list = []
+        skip = page_index * page_size
+
+        if len(field) > 1:
+            raise InvalidData
+
         async with self.uow:
-            product = await ProductsService.get_product_info(self.uow, article=article)
-        return product
+            key, value_list = list(field.items())[0]
+            if not isinstance(value_list, list):
+                raise InvalidData
+
+            if (length := len(value_list)) <= skip:
+                return {"paging": "reached end"}
+
+            value_list = value_list[skip : min(skip + page_size, length)]
+
+            for value in value_list:
+                d = dict()
+                d[key] = value
+                product = await ProductsService.get_product_info(self.uow, **d)
+                result_list.append(product)
+
+        return result_list
 
     async def add(
             self,

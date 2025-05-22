@@ -53,7 +53,7 @@ class UsersService:
             httponly=True,
             max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
             secure=True,
-            samesite="lax"
+            samesite=None
         )
 
     @staticmethod

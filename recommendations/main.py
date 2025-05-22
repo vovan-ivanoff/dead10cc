@@ -80,7 +80,7 @@ def get_recommendations(count: int):
     skus = request.json['interesting_products']
     skus_count = len(skus)
     for sku in skus:
-        recommended.extend(get_model_rec(sku, (count + skus_count) // skus_count))
+        recommended.extend(get_model_rec(sku, (count + skus_count - 1) // skus_count))
 
     result = json.dumps({"recommended": recommended[:count]}, ensure_ascii=True, indent=4)
     return result, 201

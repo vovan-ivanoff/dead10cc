@@ -36,7 +36,7 @@ async def find_notes(
     return await note_case.get_list(current_user_id, **filter_by)
 
 
-@router.get("/{user_id}")
+@router.get("/rec_stat/{user_id}")
 async def get_statistics(
         note_case: NoteCase,
         user_id: int = Depends(get_current_user_id),
