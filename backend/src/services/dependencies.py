@@ -1,22 +1,17 @@
-from fastapi import Depends, Request, HTTPException, Response
+from pydantic import BaseModel
+
+from schemas.exceptions import InvalidData
 
 
+def validate(data: dict, schema: BaseModel):
+    valid = False
+    for key in data.keys():
+        if not hasattr(schema, key):
 
-def get_page(request: Request, response: Response) -> int:
-    page = request.cookies.get("SnaplyPaging")
-    if not page:
-        response.set_cookie(
-            key="SnaplyPaging",
-            value="0",
-        )
-        return 0
+            break
+    else:
+        if len(data) > 0:
+            valid = True
 
-    return int(page)
-
-
-def increase_page(response: Response, page: int = Depends(get_page)):
-    response.set_cookie(
-        key="SnaplyPaging",
-        value=str(page + 1),
-    )
-    return page
+    if not valid:
+        raise InvalidData

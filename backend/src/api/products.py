@@ -17,6 +17,7 @@ async def get_list(
 ):
     return await product_case.get_list()
 
+
 @router.post("/find")
 async def find_product(
         product_case: ProductCase,
@@ -25,33 +26,29 @@ async def find_product(
     return await product_case.get_list(**filter_by)
 
 
-@router.get("/get_page")
+@router.post("/get_page")
 async def get_page(
+        page_index: int,
+        page_size: int,
         product_case: ProductCase,
-        response: Response,
+        filter_by: dict
 ):
-    page = await product_case.get_page(response=response)
+    page = await product_case.get_page(page_index, page_size, **filter_by)
     if len(page) == 0:
         return {"pages": "reached end"}
     return page
-
-
-@router.delete("/reset_paging")
-async def reset_paging(
-        response: Response,
-        product_case: ProductCase,
-):
-    product_case.reset_paging(response=response)
-    return {"status": "OK"}
 
 
 @router.get("/{product_id}")
 async def get(
         product_case: ProductCase,
         product_id: int,
-        user_id: int = Depends(get_current_user_id)
 ):
-    return await product_case.get_info(user_id, product_id)
+    user_id: int | None = None
+    try:
+        user_id = get_current_user_id()
+    finally:
+        return await product_case.get_info(user_id, product_id)
 
 
 @router.post("/")
@@ -71,8 +68,7 @@ async def edit_info(
         changes: dict,
         user_id: int = Depends(get_current_user_id),
 ):
-    await product_case.edit_info(user_id, product_id, **changes)
-    return {"status": "OK"}
+    return await product_case.edit_info(user_id, product_id, **changes)
 
 
 @router.delete("/{product_id}")

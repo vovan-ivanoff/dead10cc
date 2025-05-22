@@ -6,11 +6,12 @@ from fastapi import Response
 from domain.usecases.product import AbstractProductUseCase
 from schemas.actions import VIEWED
 from schemas.exceptions import AccessForbiddenException
-from schemas.products import ProductAddSchema, ProductInfoSchema
+from schemas.products import ProductAddSchema, ProductInfoSchema, ProductSchema
 from services.products import ProductsService
 from services.stats import NotesService
 from services.users import UsersService
 from utils.dependencies import UOWDep
+from services.dependencies import validate
 
 
 class ProductUseCase(AbstractProductUseCase):
@@ -24,21 +25,18 @@ class ProductUseCase(AbstractProductUseCase):
 
         return products_list
 
-    async def get_page(self, response: Response) -> List[BaseModel]:
+    async def get_page(self, page_index: int, page_size: int, **filter_by) -> List[BaseModel]:
         async with self.uow:
-            products_page = await ProductsService.get_next_page(self.uow, response)
+            products_page = await ProductsService.get_page(self.uow, page_index, page_size, **filter_by)
 
         return products_page
 
-    def reset_paging(self, response: Response):
-        ProductsService.reset_paging(response)
-
-
-    async def get_info(self, user_id: int, product_id: int) -> ProductInfoSchema:
+    async def get_info(self, user_id: int | None, product_id: int) -> ProductInfoSchema:
         async with self.uow:
             product = await ProductsService.get_product_info(self.uow, id=product_id)
 
-            await NotesService.add_note(self.uow, user_id, product_id, VIEWED)
+            if not user_id is None:
+                await NotesService.add_note(self.uow, user_id, product_id, VIEWED)
             await self.uow.commit()
 
         return product
@@ -61,7 +59,7 @@ class ProductUseCase(AbstractProductUseCase):
             await self.uow.commit()
         return product_id
 
-    async def delete(self, product_id: int, user_id: int):
+    async def delete(self, user_id: int, product_id: int):
         async with self.uow:
             if not await UsersService.user_is_moderator(self.uow, user_id):
                 raise AccessForbiddenException
@@ -73,9 +71,12 @@ class ProductUseCase(AbstractProductUseCase):
         async with self.uow:
             if not await UsersService.user_is_moderator(self.uow, user_id):
                 raise AccessForbiddenException
-            await ProductsService.edit_product_info(self.uow, product_id, **changes)
+
+            validate(changes, ProductSchema)
+            result = await ProductsService.edit_product_info(self.uow, product_id, **changes)
 
             await self.uow.commit()
+            return result
 
     async def add_review(self, user_id: int, product_id: int, mark: float):
         mark = min(mark, 10.0)

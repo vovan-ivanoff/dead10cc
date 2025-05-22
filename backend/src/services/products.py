@@ -2,10 +2,10 @@ from typing import List, Iterator
 
 from pydantic import BaseModel
 
-from schemas.products import ProductAddSchema, ProductInfoSchema
+from schemas.exceptions import InvalidData
+from schemas.products import ProductAddSchema, ProductInfoSchema, ProductSchema
 from utils.unit_of_work import AbstractUOW
 from fastapi import Response
-from services.dependencies import get_page, increase_page
 
 
 class ProductsService:
@@ -34,13 +34,14 @@ class ProductsService:
 
 
     @staticmethod
-    async def get_next_page(
+    async def get_page(
             uow: AbstractUOW,
-            response: Response,
+            page_index: int,
+            page_size: int,
             **filter_by
     ) -> List[BaseModel]:
-        page = increase_page(response)
-        return await uow.products.get_page(page, **filter_by)
+
+        return await uow.products.get_page(page_index, page_size, **filter_by)
 
     @staticmethod
     def reset_paging(response: Response):
@@ -53,6 +54,7 @@ class ProductsService:
             **field
     ) -> ProductInfoSchema:
         return ProductInfoSchema(**(await uow.products.find_one(**field)).dict())
+
 
     @staticmethod
     async def delete_product(
@@ -67,4 +69,6 @@ class ProductsService:
             product_id: int,
             **data
     ):
-        await uow.products.update_by_id(product_id, **data)
+
+        return await uow.products.update_by_id(product_id, **data)
+

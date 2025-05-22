@@ -9,6 +9,11 @@ class BException(HTTPException):
         super().__init__(status_code=self.status_code, detail=self.detail)
 
 
+class InvalidData(BException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "invalid data. Check if you misspelled a field"
+
+
 class UserAlreadyExistException(BException):
     status_code = status.HTTP_409_CONFLICT
     detail = "Пользователь уже существует"
