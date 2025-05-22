@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import Container from "../components/common/Container";
@@ -6,19 +6,8 @@ import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import ProductList from "../components/common/Main";
 import { checkAuth } from "../api/auth";
-import { getProductPage } from "../api/admin/products";
-import '../styles/globals.css';
-
-interface ApiProduct {
-  id: number;
-  title: string;
-  price: number;
-  seller: string;
-  image: string;
-  rating?: number;
-  description?: string;
-  preview?: string;
-}
+import { getRecommendedProducts } from "../api/recomendations";
+import "../styles/globals.css";
 
 interface LocalProduct {
   id: number;
@@ -35,7 +24,7 @@ interface Product {
   price: number;
   seller: string;
   image: string;
-  rating?: number;
+  rating: number; // теперь строго number
   reviews?: number;
   preview?: string;
 }
@@ -44,6 +33,8 @@ export default function Home() {
   const [productList, setProductList] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  type ApiProduct = Omit<Product, "rating"> & { rating?: number };
+
   const transformLocalProduct = (item: LocalProduct): Product => ({
     id: item.id,
     title: item.name,
@@ -51,16 +42,28 @@ export default function Home() {
     seller: item.author,
     image: item.image,
     reviews: item.reviews,
-    rating: item.reviews
+    rating: item.reviews ?? 0,
   });
 
   useEffect(() => {
     const loadProducts = async () => {
+      const normalizeApiProduct = (item: ApiProduct): Product => ({
+        id: item.id,
+        title: item.title ?? "Без названия",
+        price: item.price,
+        seller: item.seller ?? "Неизвестно",
+        image: item.image,
+        preview: item.preview,
+        reviews: item.reviews,
+        rating: item.rating ?? 0,
+      });
+
       try {
         const user = await checkAuth();
         if (user) {
-          const apiProducts: ApiProduct[] = await getProductPage();
-          setProductList(apiProducts);
+          const recommended: ApiProduct[] = await getRecommendedProducts();
+          const formattedProducts = recommended.map(normalizeApiProduct);
+          setProductList(formattedProducts);
         } else {
           const response = await fetch("/data/data.json");
           const localProducts: LocalProduct[] = await response.json();
@@ -100,11 +103,7 @@ export default function Home() {
       <Header />
       <Container>
         <main className="flex-grow">
-          {isLoading ? (
-            <div className="text-center p-10">Загрузка...</div>
-          ) : (
-            <ProductList products={productList} />
-          )}
+          <ProductList products={productList} />
         </main>
       </Container>
       <Footer />

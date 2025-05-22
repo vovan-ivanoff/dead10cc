@@ -8,6 +8,7 @@ export interface ProductBase {
   rating: number;
   reviews: number;
   tags: string[];
+  preview?: string;
 }
 
 export interface Product extends ProductBase {

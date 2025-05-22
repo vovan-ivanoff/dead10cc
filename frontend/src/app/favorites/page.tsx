@@ -6,13 +6,14 @@ import Header from "../../components/common/Header";
 import Footer from "../../components/common/Footer";
 import '../../styles/globals.css';
 import FavoritesPage from "@/components/common/Favorites";
-import { getProducts } from "@/api/products";
+
 
 export default function Favorites() {
   const [productList, setProductList] = useState([]);
 
   useEffect(() => {
-    getProducts()
+    fetch("/data/data.json")
+      .then((res) => res.json())
       .then((data) => setProductList(data))
       .catch((error) => console.error("Ошибка загрузки данных:", error));
   }, []);

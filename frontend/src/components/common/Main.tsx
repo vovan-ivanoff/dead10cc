@@ -14,6 +14,7 @@ interface ProductListProps {
     image: string;
     preview?: string;
     reviews?: number;
+    rating: number;
   }>;
 }
 
@@ -36,10 +37,9 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
                   fill
                   style={{ objectFit: 'contain' }}
                   className="rounded-[10px]"
-                  unoptimized={process.env.NODE_ENV !== 'production'} // Отключаем оптимизацию только в dev режиме
-                  priority={false} // Для ленивой загрузки
+                  unoptimized={process.env.NODE_ENV !== 'production'}
+                  priority={false}
                   onError={(e) => {
-                    // Fallback на обычный img при ошибке загрузки
                     const target = e.currentTarget;
                     target.onerror = null;
                     target.src = '/images/fallback-product.png';
@@ -64,7 +64,9 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
               <div className="flex items-center mb-2">
                 <div className="flex space-x-0.5">
                   {[...Array(5)].map((_, i) => (
-                    <span key={i} className="text-yellow-500 text-xl">★</span>
+                    <span key={i} className={`text-xl ${i < Math.round(product.rating) ? 'text-yellow-500' : 'text-gray-300'}`}>
+                      ★
+                    </span>
                   ))}
                 </div>
                 <span className="ml-1 text-sm text-gray-500">

@@ -14,13 +14,9 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { Heart } from "lucide-react";
 import { MessageCircleIcon } from "lucide-react";
 import Container from "./Container";
-import { Product } from "@/types/product";
 
-interface ProductPageProps {
-    product: Product;
-}
 
-export default function ProductPage({ product }: ProductPageProps) {
+export default function ProductPage() {
     const [liked, setLiked] = useState(false);
 
     return (
@@ -33,7 +29,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                             <ArrowLeftIcon className="h-[30px] w-[34px] text-gray-500" />
                         </Button>
                         <span className="text-xs font-medium text-gray-500 mt-1">
-                            Каталог / {product.seller} / {product.seller}
+                            Шаблон путь к товару
                         </span>
 
                         <div className="ml-auto">
@@ -57,8 +53,8 @@ export default function ProductPage({ product }: ProductPageProps) {
                         <div className="col-span-4">
                             <div className="relative h-[524px] rounded-[15px] overflow-hidden">
                                 <Image
-                                    src={product.image}
-                                    alt={product.seller}
+                                    src='/assets/icons/rect-52.svg'
+                                    alt="background"
                                     width={402}
                                     height={524}
                                     className="object-contain rounded-2xl"
@@ -74,17 +70,23 @@ export default function ProductPage({ product }: ProductPageProps) {
                                     <h3 className="text-sm font-medium text-gray-800 mt-1">Похожие</h3>
                                 </div>
                             </div>
+
+
+                            <div className="mt-4 flex space-x-4">
+                                <div className="h-[81px] w-[63px] rounded-[10px] bg-[#d9d9d9]"></div>
+                                <div className="h-[81px] w-[63px] rounded-[10px] bg-[#d9d9d9]"></div>
+                            </div>
                         </div>
 
                         {/* Product details */}
                         <div className="col-span-4">
                             <div className="flex h-[22px] w-[89px] rounded-[8px] bg-[#f1f1f1] px-0 py-0">
                                 <span className="flex w-full items-center justify-center text-[13px] font-medium mt-1">
-                                    {product.seller}
+                                    Продавец
                                 </span>
                             </div>
 
-                            <h1 className="mt-2 whitespace-pre-line text-xl font-bold">{product.seller}</h1>
+                            <h1 className="mt-2 whitespace-pre-line text-xl font-bold">Название товара</h1>
 
                             <div className="flex items-center">
                                 <Image
@@ -104,8 +106,8 @@ export default function ProductPage({ product }: ProductPageProps) {
                             </div>
 
                             <div className="flex mt-2 text-md">
-                                <h3 className="font-bold">Описание:</h3>
-                                <h3 className="ml-1 font-medium">{product.description}</h3>
+                                <h3 className="font-bold">Цвет:</h3>
+                                <h3 className="ml-1 font-medium">черный</h3>
                             </div>
 
                             <div className="mt-4 text-sm font-medium text-[#605f5f]">
@@ -126,13 +128,9 @@ export default function ProductPage({ product }: ProductPageProps) {
                                 <div className="grid grid-cols-2 gap-x-2 gap-y-3 text-xs">
                                     <div className="font-medium text-gray-500">Артикул</div>
                                     <div className="flex items-center font-medium">
-                                        {product.id}
+                                        1337133752
                                         <CopyIcon className="ml-2 h-[15px] w-[15px]" />
                                     </div>
-
-                                    <div className="font-medium text-gray-500">Производитель</div>
-                                    <div className="font-medium">{product.seller}</div>
-
                                     <div className="font-medium text-gray-500">Состав</div>
                                     <div className="font-medium">состав</div>
 
@@ -143,7 +141,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                     <div className="font-medium">размер</div>
 
                                     <div className="font-medium text-gray-500">Рост модели</div>
-                                    <div className="font-medium">рост</div>
+                                    <div className="font-medium">Рост</div>
                                 </div>
                             </div>
 
@@ -180,7 +178,15 @@ export default function ProductPage({ product }: ProductPageProps) {
                                 <CardContent className="p-8">
                                     <div className="flex">
                                         <div className="mb-1 text-3xl font-bold text-transparent bg-clip-text bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)]">
-                                            {product.price} ₽
+                                            1000 ₽
+                                        </div>
+                                        <div className="ml-4 flex items-center">
+                                            <span className="text-md font-medium">
+                                                1200 ₽
+                                            </span>
+                                            <span className="ml-4 text-md font-medium text-[#908f8f] line-through">
+                                                1500 ₽
+                                            </span>
                                         </div>
                                     </div>
 
@@ -192,11 +198,11 @@ export default function ProductPage({ product }: ProductPageProps) {
                                         Осталось 52 шт.
                                     </div>
 
-                                    <button className="mt-2 w-full h-11 p-2 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)]">
+                                    <button className="mt-2 w-full h-11 p-2 bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] hover:opacity-80 text-white text-lg rounded-2xl transition-all duration-300 ease-in-out">
                                         <h3 className="mt-0.5">Добавить в корзину</h3>
                                     </button>
 
-                                    <button className="mt-3 w-full h-11 p-2 opacity-60 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)] hover:opacity-70">
+                                    <button className="mt-3 w-full h-11 p-2 opacity-60 bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] hover:opacity-70 text-white text-lg rounded-2xl transition-all duration-300 ease-in-out">
                                         <h3 className="mt-0.5">Купить сейчас</h3>
                                     </button>
 
@@ -222,7 +228,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                                 height={20}
                                                 className="mr-2"
                                             />
-                                            <span className="text-[13px] font-medium mt-1 mr-2">{product.seller}</span>
+                                            <span className="text-[13px] font-medium mt-1 mr-2">Продавец</span>
                                             <Image
                                                 src="/assets/icons/star-2.svg"
                                                 alt="Star"
@@ -274,5 +280,5 @@ export default function ProductPage({ product }: ProductPageProps) {
                 </main>
             </div>
         </Container>
-    );
+    )
 }

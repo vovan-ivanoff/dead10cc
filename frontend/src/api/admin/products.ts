@@ -78,6 +78,42 @@ export const getProductPage = async (): Promise<Product[]> => {
   }
 };
 
+export const getProduct = async (id: number): Promise<Product> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}${PUBLIC_PREFIX}/products/${id}`, {
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Failed to fetch product with id ${id}`);
+    }
+
+    const product: ApiProduct = await response.json();
+
+    let preview: string | undefined;
+    try {
+      const previewUrl = `${API_BASE_URL}${PUBLIC_PREFIX}/products/preview/${id}`;
+      const previewResponse = await fetch(previewUrl, { credentials: 'include' });
+      if (previewResponse.ok) {
+        preview = previewUrl;
+      }
+    } catch (previewError) {
+      console.error(`Error fetching preview for product ${id}:`, previewError);
+    }
+
+    return {
+      ...product,
+      price: Math.round(Number(product.price)),
+      preview,
+    };
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    throw error;
+  }
+};
+
+
 export const getProductPreview = async (productId: number): Promise<string> => {
   try {
     const response = await fetch(`${API_BASE_URL}${PUBLIC_PREFIX}/products/preview/${productId}`, {
