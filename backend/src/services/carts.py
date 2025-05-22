@@ -8,7 +8,7 @@ class CartsService:
             uow: AbstractUOW,
             user_id: int
     ):
-        await uow.carts.add_one(user_id=user_id, products=dict())
+        await uow.carts.add_one(id=user_id, user_id=user_id, products=dict())
 
     @staticmethod
     async def get_cart(

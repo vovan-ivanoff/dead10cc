@@ -31,13 +31,8 @@
   width: 350px;
   height: calc(100vh - var(--header-height));
   background: white;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   z-index: 40;
-  overflow-y: auto;
-}
-
-.side-menu-content {
-  padding: 1rem;
+  overflow: hidden;
 }
 
 .side-menu-item {
@@ -61,4 +56,24 @@
   font-family: 'Hauss', sans-serif;
   font-size: 1rem;
   color: #1f2937;
+}
+
+.side-menu-content {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.10) transparent;
+}
+
+.side-menu-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.side-menu-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.side-menu-content::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.25);
+  border-radius: 3px;
 }

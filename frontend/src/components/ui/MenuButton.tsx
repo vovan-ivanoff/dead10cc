@@ -16,7 +16,6 @@ const MenuButton: React.FC<MenuButtonProps> = ({
   isAnimating,
   className = ''
 }) => {
-
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -28,13 +27,22 @@ const MenuButton: React.FC<MenuButtonProps> = ({
   return (
     <button 
       onClick={handleClick}
-      className={`ml-[18px] relative w-[60px] h-[60px] group appearance-none focus:outline-none min-w-[60px] min-h-[60px] ${className}`}
+      className={`ml-[5px] mr-[15px] relative w-[60px] h-[60px] group appearance-none focus:outline-none min-w-[60px] min-h-[60px] ${className}`}
       disabled={isAnimating}
     >
       <div
-        className="w-full h-full rounded-[15px] border border-black opacity-35 group-hover:opacity-100 transition-opacity"
-        style={{ borderWidth: '1px' }}
-      />
+        className={`w-full h-full rounded-[15px] border-[2px] transition-all duration-300 ${
+          isMenuOpen || 'group-hover:border-transparent'
+        } ${
+          isMenuOpen || 'group-hover:bg-gradient-to-br from-[#6A11CB] to-[#2575FC]'
+        }`}
+      >
+        <div className={`w-full h-full rounded-[14px] ${
+          isMenuOpen ? 'bg-white' : 
+          'group-hover:bg-white bg-transparent'
+        }`} />
+      </div>
+      
       <motion.div
         className="absolute top-7 left-[19px] transform -translate-x-1/2 -translate-y-1/2"
         variants={menuIconVariants}
@@ -43,12 +51,16 @@ const MenuButton: React.FC<MenuButtonProps> = ({
         {[0, 1, 2].map((index) => (
           <motion.div
             key={index}
-            className="w-[30px] h-[3px] bg-black rounded-full absolute left-[-3px] transform -translate-x-1/2"
+            className={`w-[30px] h-[3px] rounded-full absolute left-[-3px] transform -translate-x-1/2 ${
+              isMenuOpen || 'group-hover:bg-gradient-to-r from-[#6A11CB] to-[#2575FC]'
+            }`}
             variants={lineVariants}
             custom={index}
             style={{
               top: `${index * 4 - 4}px`,
-              borderRadius: '50px',
+              background: isMenuOpen 
+                ? 'linear-gradient(105deg, #6A11CB 0%, #2575FC 100%)' 
+                : 'black',
             }}
           />
         ))}

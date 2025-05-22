@@ -17,6 +17,7 @@ __pycache__
 /.next/
 /out/
 /build
+/dbdata
 .DS_Store
 *.pem
 npm-debug.log*
