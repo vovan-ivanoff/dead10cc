@@ -1,22 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Container from "../components/common/Container";
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import ProductList from "../components/common/Main";
-import { checkAuth } from "../api/auth";
-import { getRecommendedProducts } from "../api/recomendations";
+import { getRecommendedProducts, getAllProducts } from "../api/recomendations";
 import "../styles/globals.css";
-
-interface LocalProduct {
-  id: number;
-  name: string;
-  price: number;
-  author: string;
-  image: string;
-  reviews?: number;
-}
 
 interface Product {
   id: number;
@@ -24,89 +14,94 @@ interface Product {
   price: number;
   seller: string;
   image: string;
-  rating: number; // теперь строго number
+  rating: number;
   reviews?: number;
   preview?: string;
 }
 
 export default function Home() {
-  const [productList, setProductList] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [displayCount, setDisplayCount] = useState(20);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const productsPerPage = 20;
 
-  type ApiProduct = Omit<Product, "rating"> & { rating?: number };
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [recommended, all] = await Promise.all([
+        getRecommendedProducts(10),
+        getAllProducts()
+      ]);
+      setRecommendedProducts(recommended);
+      setAllProducts(all.slice(0, displayCount));
+      setHasMore(all.length > displayCount);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [displayCount]);
 
-  const transformLocalProduct = (item: LocalProduct): Product => ({
-    id: item.id,
-    title: item.name,
-    price: item.price,
-    seller: item.author,
-    image: item.image,
-    reviews: item.reviews,
-    rating: item.reviews ?? 0,
-  });
+  const loadMoreProducts = useCallback(() => {
+    if (!hasMore || isLoadingMore) return;
+    
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      const newCount = displayCount + productsPerPage;
+      setDisplayCount(newCount);
+      setAllProducts(prevProducts => {
+        const allProducts = [...prevProducts];
+        return allProducts.slice(0, newCount);
+      });
+      setHasMore(allProducts.length > newCount);
+      setIsLoadingMore(false);
+    }, 300);
+  }, [displayCount, allProducts, hasMore, isLoadingMore]);
 
   useEffect(() => {
-    const loadProducts = async () => {
-      const normalizeApiProduct = (item: ApiProduct): Product => ({
-        id: item.id,
-        title: item.title ?? "Без названия",
-        price: item.price,
-        seller: item.seller ?? "Неизвестно",
-        image: item.image,
-        preview: item.preview,
-        reviews: item.reviews,
-        rating: item.rating ?? 0,
-      });
+    loadProducts();
+  }, [loadProducts]);
 
-      try {
-        const user = await checkAuth();
-        if (user) {
-          const recommended: ApiProduct[] = await getRecommendedProducts();
-          const formattedProducts = recommended.map(normalizeApiProduct);
-          setProductList(formattedProducts);
-        } else {
-          const response = await fetch("/data/data.json");
-          const localProducts: LocalProduct[] = await response.json();
-          const formattedProducts = localProducts.map(transformLocalProduct);
-          setProductList(formattedProducts);
-        }
-      } catch (error) {
-        console.error("Ошибка загрузки товаров:", error);
-        const response = await fetch("/data/data.json");
-        const localProducts: LocalProduct[] = await response.json();
-        const formattedProducts = localProducts.map(transformLocalProduct);
-        setProductList(formattedProducts);
-      } finally {
-        setIsLoading(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isLoadingMore || !hasMore) return;
+      
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight - 100) {
+        loadMoreProducts();
       }
     };
 
-    loadProducts();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <Container>
-          <main className="flex-grow flex items-center justify-center">
-            <div className="text-center">Загрузка...</div>
-          </main>
-        </Container>
-        <Footer />
-      </div>
-    );
-  }
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isLoadingMore, hasMore, loadMoreProducts]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <main>
       <Header />
       <Container>
-        <main className="flex-grow">
-          <ProductList products={productList} />
-        </main>
+        {loading ? (
+          <div className="text-center py-4">Загрузка товаров...</div>
+        ) : (
+          <>
+            {recommendedProducts.length > 0 && (
+              <div className="mb-8">
+                <ProductList products={recommendedProducts} />
+              </div>
+            )}
+            <div>
+              <ProductList products={allProducts} />
+            </div>
+            {isLoadingMore && (
+              <div className="text-center py-4">Загрузка следующих товаров...</div>
+            )}
+          </>
+        )}
       </Container>
       <Footer />
-    </div>
+    </main>
   );
 }

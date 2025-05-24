@@ -4,15 +4,18 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { CartItem } from '../ui/CartItem';
 import Image from 'next/image';
 import Container from './Container';
-import { Pencil, Wallet, PieChart } from 'lucide-react';
+import { PieChart } from 'lucide-react';
+import { addToCart, removeFromCart } from '@/api/cart';
+import { trackUserAction } from '@/api/recomendations';
 
 interface Product {
     id: number;
-    name: string;
+    title: string;
     description: string;
-    price: number | string;
+    price: number;
     image: string;
-    author: string;
+    seller: string;
+    quantity: number;
 }
 
 interface ProductListProps {
@@ -32,24 +35,31 @@ export default function CartPage({ products }: ProductListProps) {
     }, [products]);
 
     useEffect(() => {
-        const initialQuantities = Object.fromEntries(normalizedProducts.map(p => [p.id, 1]));
+        const initialQuantities = Object.fromEntries(normalizedProducts.map(p => [p.id, p.quantity]));
         const initialSelections = Object.fromEntries(normalizedProducts.map(p => [p.id, true]));
         setQuantities(initialQuantities);
         setSelectedItems(initialSelections);
     }, [normalizedProducts]);
 
-    const handleIncrease = (id: number) => {
-        setQuantities(prev => ({
-            ...prev,
-            [id]: (prev[id] || 1) + 1,
-        }));
+    const handleIncrease = async (id: number) => {
+        const success = await addToCart(id, 1);
+        if (success) {
+            setQuantities(prev => ({
+                ...prev,
+                [id]: (prev[id] || 1) + 1,
+            }));
+            await trackUserAction(id, 'ADDED_TO_CART');
+        }
     };
 
-    const handleDecrease = (id: number) => {
-        setQuantities(prev => ({
-            ...prev,
-            [id]: Math.max(1, (prev[id] || 1) - 1),
-        }));
+    const handleDecrease = async (id: number) => {
+        const success = await removeFromCart(id, 1);
+        if (success) {
+            setQuantities(prev => ({
+                ...prev,
+                [id]: Math.max(1, (prev[id] || 1) - 1),
+            }));
+        }
     };
 
     const handleSelect = (id: number) => {
@@ -67,7 +77,6 @@ export default function CartPage({ products }: ProductListProps) {
             maximumFractionDigits: 0,
         });
     };
-    
 
     const subtotal = normalizedProducts.reduce((total, product) => {
         if (!selectedItems[product.id]) return total;
@@ -75,42 +84,27 @@ export default function CartPage({ products }: ProductListProps) {
         return total + product.price * qty;
     }, 0);
 
-    const subtotal1 = normalizedProducts.reduce((total, product) => {
-        if (!selectedItems[product.id]) return total;
-        return total;
-    }, 0);
-
     const saleCount = Math.round(0.03 * subtotal);
-    const total = Math.round(subtotal - saleCount);
-
-
-    const today = new Date();
-    const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
-
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-
-    const dayAfterTomorrow = new Date(today);
-    dayAfterTomorrow.setDate(today.getDate() + 2);
-
-    const formattedTomorrow = tomorrow.toLocaleDateString('ru-RU', options);
-    const formattedDayAfter = dayAfterTomorrow.toLocaleDateString('ru-RU', options);
-
-    const selectedCount = normalizedProducts.reduce((count, product) => {
-        if (!selectedItems[product.id]) return count;
-        return count + (quantities[product.id] || 1);
-    }, 0);
-
-    const totalCount = normalizedProducts.reduce((count, product) => {
-        return count + (quantities[product.id] || 1);
-    }, 0);
+    const total = subtotal - saleCount;
+    const totalCount = normalizedProducts.length;
+    const selectedCount = Object.values(selectedItems).filter(Boolean).length;
 
     const getProductWord = (count: number) => {
-        const mod10 = count % 10;
-        const mod100 = count % 100;
+        const lastDigit = count % 10;
+        const lastTwoDigits = count % 100;
 
-        if (mod10 === 1 && mod100 !== 11) return 'товар';
-        if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return 'товара';
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+            return 'товаров';
+        }
+
+        if (lastDigit === 1) {
+            return 'товар';
+        }
+
+        if (lastDigit >= 2 && lastDigit <= 4) {
+            return 'товара';
+        }
+
         return 'товаров';
     };
 
@@ -118,9 +112,7 @@ export default function CartPage({ products }: ProductListProps) {
         <Container>
             <div className="w-full max-w-[1400px] px-4">
                 <div className="flex flex-col lg:flex-row items-start gap-8">
-                    {/* Левая колонка */}
                     <div className="flex flex-col w-full lg:flex-1 gap-6">
-                        {/* Корзина */}
                         <div className="bg-white p-5 rounded-[20px] shadow-md w-full">
                             <div className="flex gap-4 flex-wrap">
                                 <h2 className="text-2xl font-semibold mb-2 p-2">Корзина</h2>
@@ -131,82 +123,20 @@ export default function CartPage({ products }: ProductListProps) {
                                     <CartItem
                                         key={product.id}
                                         image={product.image}
-                                        title={product.name}
+                                        title={product.title}
                                         description={product.description}
                                         price={product.price}
                                         quantity={quantities[product.id] || 1}
                                         onIncrease={() => handleIncrease(product.id)}
                                         onDecrease={() => handleDecrease(product.id)}
-                                        selected={selectedItems[product.id] ?? true}
+                                        selected={selectedItems[product.id] ?? false}
                                         onSelect={() => handleSelect(product.id)}
                                     />
                                 ))}
                             </div>
                         </div>
-
-                        {/* Доставка */}
-                        <div className="bg-white p-5 rounded-[20px] shadow-md relative">
-                            <h2 className="text-xl font-semibold mb-2 p-2">Доставка</h2>
-                            <div className="px-2">
-                                <p className="text-base font-medium mb-1">Пункт выдачи: Москва, Волоколамское ш., д. 4</p>
-                                <p className="text-sm text-gray-500 mb-4">Доставка: {formattedTomorrow} — {formattedDayAfter}</p>
-
-                                <div className="flex flex-wrap gap-3">
-                                    {normalizedProducts.map((product) => (
-                                        <div key={product.id} className="w-16 h-16 relative">
-                                            <Image
-                                                src={product.image}
-                                                alt={product.name}
-                                                fill
-                                                className="object-cover rounded-xl border"
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                            <Pencil size={18} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
-                        </div>
-
-                        {/* Способ оплаты и Мои данные */}
-                        <div className="flex flex-col sm:flex-row gap-6">
-                            {/* Способ оплаты */}
-                            <div className="relative flex-1 bg-white p-5 rounded-[20px] shadow-md min-w-0">
-                                <h2 className="text-xl font-semibold mb-2 p-2">Способ оплаты</h2>
-                                <div className="px-2">
-                                    <div className="flex justify-between items-center flex-wrap gap-2">
-                                        <label className="flex items-center gap-2">
-                                        <Wallet className="w-6 h-6 text-current flex-shrink-0 self-center" />
-                                        <h3 className="ml-2">SL кошелек</h3>
-                                        </label>
-                                        <div className="flex w-[50px] h-[25px] rounded-2xl bg-green-100 justify-center items-center mb-1.5">
-                                            <h3 className="text-green-600 font-medium">-3%</h3>
-                                        </div>
-                                    </div>
-                                </div>
-                                <Pencil size={18} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
-                            </div>
-
-                            {/* Мои данные */}
-                            <div className="relative flex-1 bg-white p-5 rounded-[20px] shadow-md min-w-0">
-                                <h2 className="text-xl font-semibold mb-2 p-2">Мои данные</h2>
-                                <div className="px-2">
-                                    <div className="flex items-center gap-2 mt-2 flex-wrap">
-                                        <Image
-                                            src="/assets/icons/user_cart.svg"
-                                            alt="avatar"
-                                            width={25}
-                                            height={25}
-                                            className="object-contain mb-2 opacity-15"
-                                        />
-                                        <h3 className="ml-2">Имя</h3>
-                                        <h3 className="ml-2">+7 800 555-35-35</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
-                    {/* Правая колонка — Итого */}
                     <div className="w-full lg:w-[380px] xl:w-[420px] bg-white p-6 rounded-[20px] shadow-md flex flex-col lg:sticky lg:top-[100px] self-start">
                         <div>
                             <h2 className="text-xl font-medium mb-2">Доставка в пункт выдачи</h2>
@@ -241,11 +171,7 @@ export default function CartPage({ products }: ProductListProps) {
 
                             <div className="flex justify-between mb-2">
                                 <span>Товары, {selectedCount} шт.</span>
-                                <span className="font-medium">{formatPrice(subtotal1)}</span>
-                            </div>
-                            <div className="flex justify-between mb-2">
-                                <span>Моя скидка</span>
-                                <span className="text-gray-500">{formatPrice(subtotal1 - subtotal)}</span>
+                                <span className="font-medium">{formatPrice(subtotal)}</span>
                             </div>
                             <div className="flex justify-between mb-4">
                                 <span>Скидка SL Кошелька</span>

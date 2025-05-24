@@ -7,7 +7,7 @@ from schemas.auth import UserInfoSchema, UserLoginSchema, UserRegisterSchema
 from schemas.exceptions import (IncorrectEmailOrPasswordException,
                                 UnauthorizedException,
                                 UserAlreadyExistException)
-from schemas.phone_auth import PHONE_ACCESS_TOKEN_EXPIRE_MINUTES
+from schemas.phone_auth import ACCESS_TOKEN_EXPIRE_MINUTES
 from schemas.users import UserSchema
 from services.auth.auth import (create_access_token, get_password_hash,
                                 verify_password)
@@ -48,12 +48,12 @@ class UsersService:
             {"id": str(user_id), "ph": phone}
         )
         response.set_cookie(
-            key="TootEventToken",
+            key="SnaplyAuthToken",
             value=access_token,
             httponly=True,
-            max_age=PHONE_ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
             secure=True,
-            samesite="lax"
+            samesite=None
         )
 
     @staticmethod
@@ -77,7 +77,7 @@ class UsersService:
 
     @staticmethod
     def logout_user(response: Response):
-        response.delete_cookie("TootEventToken")
+        response.delete_cookie("SnaplyAuthToken")
 
     @staticmethod
     async def user_is_moderator(uow: AbstractUOW, user_id: int) -> bool:

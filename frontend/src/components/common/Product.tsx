@@ -14,10 +14,31 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
 import { Heart } from "lucide-react";
 import { MessageCircleIcon } from "lucide-react";
 import Container from "./Container";
+import { Product } from "@/types/product";
+import { addToCart } from "@/api/cart";
+import { trackUserAction } from "@/api/recomendations";
 
+interface ProductPageProps {
+    product: Product;
+}
 
-export default function ProductPage() {
+export default function ProductPage({ product }: ProductPageProps) {
     const [liked, setLiked] = useState(false);
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
+
+    const handleAddToCart = async () => {
+        setIsAddingToCart(true);
+        try {
+            const success = await addToCart(product.id);
+            if (success) {
+                await trackUserAction(product.id, 'ADDED_TO_CART');
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+        } finally {
+            setIsAddingToCart(false);
+        }
+    };
 
     return (
         <Container>
@@ -29,7 +50,7 @@ export default function ProductPage() {
                             <ArrowLeftIcon className="h-[30px] w-[34px] text-gray-500" />
                         </Button>
                         <span className="text-xs font-medium text-gray-500 mt-1">
-                            Шаблон путь к товару
+                            Каталог / {product.seller} / {product.seller}
                         </span>
 
                         <div className="ml-auto">
@@ -53,8 +74,8 @@ export default function ProductPage() {
                         <div className="col-span-4">
                             <div className="relative h-[524px] rounded-[15px] overflow-hidden">
                                 <Image
-                                    src='/assets/icons/rect-52.svg'
-                                    alt="background"
+                                    src={product.image}
+                                    alt={product.seller}
                                     width={402}
                                     height={524}
                                     className="object-contain rounded-2xl"
@@ -70,23 +91,17 @@ export default function ProductPage() {
                                     <h3 className="text-sm font-medium text-gray-800 mt-1">Похожие</h3>
                                 </div>
                             </div>
-
-
-                            <div className="mt-4 flex space-x-4">
-                                <div className="h-[81px] w-[63px] rounded-[10px] bg-[#d9d9d9]"></div>
-                                <div className="h-[81px] w-[63px] rounded-[10px] bg-[#d9d9d9]"></div>
-                            </div>
                         </div>
 
                         {/* Product details */}
                         <div className="col-span-4">
                             <div className="flex h-[22px] w-[89px] rounded-[8px] bg-[#f1f1f1] px-0 py-0">
                                 <span className="flex w-full items-center justify-center text-[13px] font-medium mt-1">
-                                    Продавец
+                                    {product.seller}
                                 </span>
                             </div>
 
-                            <h1 className="mt-2 whitespace-pre-line text-xl font-bold">Название товара</h1>
+                            <h1 className="mt-2 whitespace-pre-line text-xl font-bold">{product.seller}</h1>
 
                             <div className="flex items-center">
                                 <Image
@@ -106,8 +121,8 @@ export default function ProductPage() {
                             </div>
 
                             <div className="flex mt-2 text-md">
-                                <h3 className="font-bold">Цвет:</h3>
-                                <h3 className="ml-1 font-medium">черный</h3>
+                                <h3 className="font-bold">Описание:</h3>
+                                <h3 className="ml-1 font-medium">{product.description}</h3>
                             </div>
 
                             <div className="mt-4 text-sm font-medium text-[#605f5f]">
@@ -128,9 +143,13 @@ export default function ProductPage() {
                                 <div className="grid grid-cols-2 gap-x-2 gap-y-3 text-xs">
                                     <div className="font-medium text-gray-500">Артикул</div>
                                     <div className="flex items-center font-medium">
-                                        1337133752
+                                        {product.article}
                                         <CopyIcon className="ml-2 h-[15px] w-[15px]" />
                                     </div>
+
+                                    <div className="font-medium text-gray-500">Производитель</div>
+                                    <div className="font-medium">{product.seller}</div>
+
                                     <div className="font-medium text-gray-500">Состав</div>
                                     <div className="font-medium">состав</div>
 
@@ -141,7 +160,7 @@ export default function ProductPage() {
                                     <div className="font-medium">размер</div>
 
                                     <div className="font-medium text-gray-500">Рост модели</div>
-                                    <div className="font-medium">Рост</div>
+                                    <div className="font-medium">рост</div>
                                 </div>
                             </div>
 
@@ -178,15 +197,7 @@ export default function ProductPage() {
                                 <CardContent className="p-8">
                                     <div className="flex">
                                         <div className="mb-1 text-3xl font-bold text-transparent bg-clip-text bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)]">
-                                            1000 ₽
-                                        </div>
-                                        <div className="ml-4 flex items-center">
-                                            <span className="text-md font-medium">
-                                                1200 ₽
-                                            </span>
-                                            <span className="ml-4 text-md font-medium text-[#908f8f] line-through">
-                                                1500 ₽
-                                            </span>
+                                            {product.price} ₽
                                         </div>
                                     </div>
 
@@ -198,11 +209,17 @@ export default function ProductPage() {
                                         Осталось 52 шт.
                                     </div>
 
-                                    <button className="mt-2 w-full h-11 p-2 bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] hover:opacity-80 text-white text-lg rounded-2xl transition-all duration-300 ease-in-out">
-                                        <h3 className="mt-0.5">Добавить в корзину</h3>
+                                    <button 
+                                        onClick={handleAddToCart}
+                                        disabled={isAddingToCart}
+                                        className="mt-2 w-full h-11 p-2 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)] disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <h3 className="mt-0.5">
+                                            {isAddingToCart ? 'Добавление...' : 'Добавить в корзину'}
+                                        </h3>
                                     </button>
 
-                                    <button className="mt-3 w-full h-11 p-2 opacity-60 bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] hover:opacity-70 text-white text-lg rounded-2xl transition-all duration-300 ease-in-out">
+                                    <button className="mt-3 w-full h-11 p-2 opacity-60 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)] hover:opacity-70">
                                         <h3 className="mt-0.5">Купить сейчас</h3>
                                     </button>
 
@@ -228,7 +245,7 @@ export default function ProductPage() {
                                                 height={20}
                                                 className="mr-2"
                                             />
-                                            <span className="text-[13px] font-medium mt-1 mr-2">Продавец</span>
+                                            <span className="text-[13px] font-medium mt-1 mr-2">{product.seller}</span>
                                             <Image
                                                 src="/assets/icons/star-2.svg"
                                                 alt="Star"
@@ -280,5 +297,5 @@ export default function ProductPage() {
                 </main>
             </div>
         </Container>
-    )
+    );
 }

@@ -1,0 +1,54 @@
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+
+export const getCart = async (): Promise<{ products: Record<string, number> }> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/carts`, {
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch cart');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    return { products: {} };
+  }
+};
+
+export const addToCart = async (productId: number, count: number = 1): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/carts/${productId}`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ count }),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('Error adding to cart:', error);
+    return false;
+  }
+};
+
+export const removeFromCart = async (productId: number, count: number = 1): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/carts/${productId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ count }),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('Error removing from cart:', error);
+    return false;
+  }
+}; 

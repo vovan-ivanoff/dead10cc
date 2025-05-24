@@ -48,18 +48,9 @@ export const getRecommendedProducts = async (count: number = 4): Promise<Product
     const data = await recResponse.json();
     console.log('Recommendations API response:', data);
 
-    // Если API возвращает массив — используем его, иначе ищем поле recommendedIds
-    let recommendedIds: number[] = [];
-
-    if (Array.isArray(data)) {
-      recommendedIds = data;
-    } else if (Array.isArray(data.recommendedIds)) {
-      recommendedIds = data.recommendedIds;
-    } else {
-      console.error('Cannot find recommendedIds array in API response');
-      return [];
-    }
-
+    // Получаем список рекомендованных товаров
+    const recommendedIds = data.recommended || [];
+    
     if (!Array.isArray(recommendedIds)) {
       console.error('recommendedIds is not an array:', recommendedIds);
       return [];
@@ -77,6 +68,82 @@ export const getRecommendedProducts = async (count: number = 4): Promise<Product
     return products.filter(Boolean) as Product[];
   } catch (error) {
     console.error('Recommendation error:', error);
+    return [];
+  }
+};
+
+// Добавляем новые функции для работы с другими типами рекомендаций
+export const getInterestingProducts = async (): Promise<number[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/recommendations`, {
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.interesting_products || [];
+  } catch (error) {
+    console.error('Error fetching interesting products:', error);
+    return [];
+  }
+};
+
+export const getSimilarUsers = async (): Promise<Array<{user_id: number, similarity: number}>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/recommendations`, {
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.similar_users || [];
+  } catch (error) {
+    console.error('Error fetching similar users:', error);
+    return [];
+  }
+};
+
+export const getRelevantProducts = async (): Promise<Array<{article: number, relevance: number}>> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/recommendations`, {
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.relevant_products || [];
+  } catch (error) {
+    console.error('Error fetching relevant products:', error);
+    return [];
+  }
+};
+
+export const getAllProducts = async (): Promise<Product[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/products`, {
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch products');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching products:', error);
     return [];
   }
 };

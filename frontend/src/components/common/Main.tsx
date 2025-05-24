@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import Container from "./Container";
 import Link from "next/link";
 import Image from "next/image";
+import { addToCart } from "@/api/cart";
+import { trackUserAction } from "@/api/recomendations";
+import { AddToCartModal } from "@/components/ui/AddToCartModal";
 
 interface ProductListProps {
   products: Array<{
@@ -19,10 +22,32 @@ interface ProductListProps {
 }
 
 const ProductList: React.FC<ProductListProps> = ({ products }) => {
+  const [selectedProduct, setSelectedProduct] = useState<{ id: number; name: string } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddToCart = async (e: React.MouseEvent, productId: number, productName: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setSelectedProduct({ id: productId, name: productName });
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmAddToCart = async () => {
+    if (selectedProduct) {
+      const success = await addToCart(selectedProduct.id);
+      if (success) {
+        await trackUserAction(selectedProduct.id, 'ADDED_TO_CART');
+      }
+    }
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+  };
+
   return (
     <Container>
       <div className="w-full max-w-[1400px]">
-        <div className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {products && products.length > 0 ? products.map((product) => (
             <Link
               key={product.id}
@@ -73,8 +98,10 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
                   ({product.reviews || 0})
                 </span>
               </div>
-              <button className="w-full py-2 bg-[#1B2429] text-white rounded-[10px] transition-all 
-                  hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)]">
+              <button 
+                onClick={(e) => handleAddToCart(e, product.id, product.title || product.name || '')}
+                className="w-full py-2 bg-[#1B2429] text-white rounded-[10px] transition-all 
+                    hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)]">
                 Добавить в корзину
               </button>
             </Link>
@@ -83,6 +110,13 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
           )}
         </div>
       </div>
+
+      <AddToCartModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmAddToCart}
+        productName={selectedProduct?.name || ''}
+      />
     </Container>
   );
 };

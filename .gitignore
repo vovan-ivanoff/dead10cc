@@ -39,3 +39,5 @@ next-env.d.ts
 /frontend/.vercel
 /frontend/*.tsbuildinfo
 /frontend/next-env.d.ts
+/frontend/Dockerfile
+Dockerfile
