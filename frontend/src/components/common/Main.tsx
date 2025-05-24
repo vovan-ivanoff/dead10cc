@@ -8,7 +8,7 @@ import { AddToCartModal } from "@/components/ui/AddToCartModal";
 
 interface ProductListProps {
   products: Array<{
-    id: number;
+    id: number | string;
     name?: string;
     title?: string;
     price: number;
@@ -22,10 +22,10 @@ interface ProductListProps {
 }
 
 const ProductList: React.FC<ProductListProps> = ({ products }) => {
-  const [selectedProduct, setSelectedProduct] = useState<{ id: number; name: string } | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<{ id: number | string; name: string } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleAddToCart = async (e: React.MouseEvent, productId: number, productName: string) => {
+  const handleAddToCart = async (e: React.MouseEvent, productId: number | string, productName: string) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -35,13 +35,26 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
 
   const handleConfirmAddToCart = async () => {
     if (selectedProduct) {
-      const success = await addToCart(selectedProduct.id);
+      // Безопасное преобразование ID в число
+      const numericId = typeof selectedProduct.id === 'string' 
+        ? parseInt(selectedProduct.id.split('_')[1] || selectedProduct.id) 
+        : selectedProduct.id;
+      
+      const success = await addToCart(numericId);
       if (success) {
-        await trackUserAction(selectedProduct.id, 'ADDED_TO_CART');
+        await trackUserAction(numericId, 'ADDED_TO_CART');
       }
     }
     setIsModalOpen(false);
     setSelectedProduct(null);
+  };
+
+  const getProductId = (id: number | string): string => {
+    if (typeof id === 'string') {
+      const parts = id.split('_');
+      return parts.length > 1 ? parts[1] : id;
+    }
+    return id.toString();
   };
 
   return (
@@ -51,7 +64,7 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
           {products && products.length > 0 ? products.map((product) => (
             <Link
               key={product.id}
-              href={`/product/${product.id}`}
+              href={`/product/${getProductId(product.id)}`}
               className="p-4 bg-white rounded-xl hover:shadow-lg transition-all"
               style={{ width: 'var(--card-width)' }}
             >
@@ -67,7 +80,7 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
                   onError={(e) => {
                     const target = e.currentTarget;
                     target.onerror = null;
-                    target.src = '/images/fallback-product.png';
+                    target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM2QjZCNkIiPk5vIGltYWdlPC90ZXh0Pjwvc3ZnPg==';
                   }}
                 />
               </div>

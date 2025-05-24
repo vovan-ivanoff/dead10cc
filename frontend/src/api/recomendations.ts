@@ -28,12 +28,15 @@ export const trackUserAction = async (productId: number, action: UserAction['act
   }
 };
 
-export const getRecommendedProducts = async (count: number = 4): Promise<Product[]> => {
+export const getRecommendedProducts = async (pageIndex: number = 0, pageSize: number = 20): Promise<{
+  content: Product[],
+  collaborative: Product[]
+}> => {
   try {
     const user = await checkAuth();
     if (!user) throw new Error('User not authenticated');
 
-    const recResponse = await fetch(`${API_BASE_URL}/api/v1/recommendations?count=${count}`, {
+    const recResponse = await fetch(`${API_BASE_URL}/api/v1/recommendations?page_index=${pageIndex}&page_size=${pageSize}`, {
       credentials: 'include',
       headers: {
         'Accept': 'application/json',
@@ -42,33 +45,14 @@ export const getRecommendedProducts = async (count: number = 4): Promise<Product
 
     if (!recResponse.ok) {
       console.error('Failed to fetch recommendations, status:', recResponse.status);
-      return [];
+      return { content: [], collaborative: [] };
     }
 
     const data = await recResponse.json();
-    console.log('Recommendations API response:', data);
-
-    // Получаем список рекомендованных товаров
-    const recommendedIds = data.recommended || [];
-    
-    if (!Array.isArray(recommendedIds)) {
-      console.error('recommendedIds is not an array:', recommendedIds);
-      return [];
-    }
-
-    if (recommendedIds.length === 0) {
-      console.warn('Recommended products list is empty');
-      return [];
-    }
-
-    const products = await Promise.all(
-      recommendedIds.map(id => getProduct(id).catch(() => null))
-    );
-
-    return products.filter(Boolean) as Product[];
+    return data;
   } catch (error) {
     console.error('Recommendation error:', error);
-    return [];
+    return { content: [], collaborative: [] };
   }
 };
 
