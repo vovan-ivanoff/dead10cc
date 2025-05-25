@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Container from "../components/common/Container";
 import Header from "../components/common/Header";
 import Footer from "../components/common/Footer";
 import ProductList from "../components/common/Main";
 import { getRecommendedProducts } from "../api/recomendations";
+import { checkAuth } from "../api/auth";
 import "../styles/globals.css";
 
 interface Product {
@@ -22,96 +23,81 @@ interface Product {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [pageIndex, setPageIndex] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const pageSize = 24;
+  const [nextPageIndex, setNextPageIndex] = useState(0);
+  const loadingRef = useRef(false);
+  const authCheckedRef = useRef(false);
 
-  const loadProducts = useCallback(async (isInitialLoad: boolean = false) => {
-    if (isLoadingMore) return;
+  const loadProducts = useCallback(async (isInitialLoad: boolean) => {
+    if (loadingRef.current) return;
     
-    setIsLoadingMore(true);
+    loadingRef.current = true;
+    if (isInitialLoad) setLoading(true);
+
     try {
-      console.log('Loading page:', pageIndex);
-      const { content, collaborative } = await getRecommendedProducts(pageIndex, pageSize);
-      
-      // Генерируем уникальные ID для контентных товаров
-      const contentWithIds = content.map((product, index) => ({
-        ...product,
-        id: `content_${product.id}_${pageIndex}_${index}`
-      }));
-      
-      // Генерируем уникальные ID для коллаборативных товаров
-      const collaborativeWithIds = collaborative.map((product, index) => ({
-        ...product,
-        id: `collab_${product.id}_${pageIndex}_${index}`
+      const currentPageIndex = isInitialLoad ? 0 : nextPageIndex;
+      const response = await getRecommendedProducts(
+        currentPageIndex,
+        24,
+        isInitialLoad
+      );
+
+      const newProducts = response.content.map((p, i) => ({ 
+        ...p, 
+        id: `content_${p.article}_${currentPageIndex}_${i}`,
+        image: p.image || '', // Заглушка для изображения
+        seller: p.seller || 'Не указан' // Заглушка для продавца
       }));
 
-      const newProducts = [...contentWithIds, ...collaborativeWithIds];
-      console.log('New products count:', newProducts.length);
-      
-      setProducts(prev => {
-        const updatedProducts = [...prev, ...newProducts];
-        console.log('Total products after update:', updatedProducts.length);
-        return updatedProducts;
-      });
+      setProducts(prev => 
+        isInitialLoad ? newProducts : [...prev, ...newProducts]
+      );
 
-      // Проверяем, есть ли еще товары для загрузки
-      const hasMoreProducts = content.length > 0 || collaborative.length > 0;
-      console.log('Has more products:', hasMoreProducts);
-      setHasMore(hasMoreProducts);
+      // Увеличиваем индекс СРАЗУ после успешной загрузки
+      if (!isInitialLoad) {
+        setNextPageIndex(currentPageIndex + 1);
+      } else {
+        setNextPageIndex(1); // После первой загрузки следующая страница - 1
+      }
     } catch (error) {
-      console.error('Error fetching products:', error);
-      setHasMore(false);
+      console.error('Error loading products:', error);
     } finally {
-      setIsLoadingMore(false);
+      loadingRef.current = false;
       setLoading(false);
     }
-  }, [pageIndex, isLoadingMore]);
+  }, [nextPageIndex]);
 
-  const loadMoreProducts = useCallback(() => {
-    if (!hasMore || isLoadingMore) return;
-    console.log('Loading more products, current pageIndex:', pageIndex);
-    setPageIndex(prev => prev + 1);
-  }, [hasMore, isLoadingMore, pageIndex]);
-
-  // Начальная загрузка
+  // Первая загрузка и проверка авторизации
   useEffect(() => {
-    loadProducts(true);
-  }, []);
-
-  // Загрузка при изменении pageIndex
-  useEffect(() => {
-    if (pageIndex > 0) {
-      loadProducts(false);
-    }
-  }, [pageIndex, loadProducts]);
-
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    if (authCheckedRef.current) return;
     
+    const verifyAuth = async () => {
+      try {
+        await checkAuth();
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      } finally {
+        authCheckedRef.current = true;
+        loadProducts(true);
+      }
+    };
+    
+    verifyAuth();
+  }, [loadProducts]);
+
+  // Подгрузка при скролле
+  useEffect(() => {
     const handleScroll = () => {
-      if (isLoadingMore || !hasMore) return;
+      if (loadingRef.current) return;
       
       const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-      const scrollPosition = scrollTop + clientHeight;
-      const scrollThreshold = scrollHeight - 500;
-
-      if (scrollPosition >= scrollThreshold) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-          console.log('Scroll threshold reached, triggering load more');
-          loadMoreProducts();
-        }, 300);
+      if (scrollTop + clientHeight >= scrollHeight - 500) {
+        loadProducts(false);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      clearTimeout(timeoutId);
-    };
-  }, [isLoadingMore, hasMore, loadMoreProducts]);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadProducts]);
 
   return (
     <main>
@@ -120,7 +106,12 @@ export default function Home() {
         {loading ? (
           <div className="text-center py-4">Загрузка товаров...</div>
         ) : (
-          <ProductList products={products} />
+          <>
+            <ProductList products={products} />
+            {loadingRef.current && (
+              <div className="text-center py-4">Загрузка...</div>
+            )}
+          </>
         )}
       </Container>
       <Footer />

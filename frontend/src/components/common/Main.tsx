@@ -21,23 +21,39 @@ interface ProductListProps {
   }>;
 }
 
+// Заготовка для изображения-заглушки
+const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM2QjZCNkIiPk5vIGltYWdlPC90ZXh0Pjwvc3ZnPg==';
+
 const ProductList: React.FC<ProductListProps> = ({ products }) => {
   const [selectedProduct, setSelectedProduct] = useState<{ id: number | string; name: string } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
-  const handleAddToCart = async (e: React.MouseEvent, productId: number | string, productName: string) => {
+   const handleAddToCart = async (e: React.MouseEvent, productId: number | string, productName: string) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     setSelectedProduct({ id: productId, name: productName });
     setIsModalOpen(true);
+  };
+
+  const handleImageError = (src: string) => {
+    setFailedImages(prev => new Set(prev).add(src));
+  };
+
+  const getSafeImageSrc = (preview?: string, image?: string) => {
+    const imgSrc = preview || image;
+    if (!imgSrc || failedImages.has(imgSrc)) {
+      return placeholderImage;
+    }
+    return imgSrc;
   };
 
   const handleConfirmAddToCart = async () => {
     if (selectedProduct) {
       // Безопасное преобразование ID в число
       const numericId = typeof selectedProduct.id === 'string' 
-        ? parseInt(selectedProduct.id.split('_')[1] || selectedProduct.id) 
+        ? parseInt(selectedProduct.id.split('_')[1] || selectedProduct.id, 10) 
         : selectedProduct.id;
       
       const success = await addToCart(numericId);
@@ -52,9 +68,14 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
   const getProductId = (id: number | string): string => {
     if (typeof id === 'string') {
       const parts = id.split('_');
-      return parts.length > 1 ? parts[1] : id;
+      return parts.length > 1 && parts[1] !== undefined ? parts[1] : id;
     }
     return id.toString();
+  };
+
+  // Функция для безопасного получения строкового значения
+  const getSafeString = (value?: string, defaultValue: string = ''): string => {
+    return value || defaultValue;
   };
 
   return (
@@ -70,32 +91,28 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
             >
               <div className="w-[190px] h-[250px] mx-auto mb-4 bg-gray-300 rounded-[10px] flex items-center justify-center overflow-hidden relative">
                 <Image
-                  src={product.preview || product.image}
-                  alt={product.title || product.name || 'Product'}
+                  src={getSafeImageSrc(product.preview, product.image)}
+                  alt={getSafeString(product.title, product.name || 'Product')}
                   fill
                   style={{ objectFit: 'contain' }}
                   className="rounded-[10px]"
                   unoptimized={process.env.NODE_ENV !== 'production'}
                   priority={false}
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.onerror = null;
-                    target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM2QjZCNkIiPk5vIGltYWdlPC90ZXh0Pjwvc3ZnPg==';
-                  }}
+                  onError={() => handleImageError(product.preview || product.image || '')}
                 />
               </div>
 
-              <p className="text-xl font-bold text-black hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)] hover:bg-clip-text hover:text-transparent">
+              <p className="text-xl font-bold text-black hover:bg-gradient-to-r from-[#6A11CB] to-[#2575FC] hover:bg-clip-text hover:text-transparent">
                 {product.price}₽
               </p>
 
               <h3 className="text-[15px] font-Hauss truncate">
                 <span className="font-book text-black">
-                  {product.seller || product.author}
+                  {getSafeString(product.seller, product.author)}
                 </span>
+                {product.seller || product.author ? ' / ' : ''}
                 <span className="text-gray-600">
-                  {' / '}
-                  {product.title || product.name}
+                  {getSafeString(product.title, product.name)}
                 </span>
               </h3>
 
@@ -112,9 +129,8 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
                 </span>
               </div>
               <button 
-                onClick={(e) => handleAddToCart(e, product.id, product.title || product.name || '')}
-                className="w-full py-2 bg-[#1B2429] text-white rounded-[10px] transition-all 
-                    hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)]">
+                onClick={(e) => handleAddToCart(e, product.id, getSafeString(product.title, product.name || 'Unknown Product'))}
+                className="w-full py-2 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-gradient-to-r from-[#6A11CB] to-[#2575FC]">
                 Добавить в корзину
               </button>
             </Link>
@@ -128,7 +144,7 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmAddToCart}
-        productName={selectedProduct?.name || ''}
+        productName={selectedProduct?.name || 'Unknown Product'}
       />
     </Container>
   );

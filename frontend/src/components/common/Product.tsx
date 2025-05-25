@@ -19,19 +19,22 @@ import { addToCart } from "@/api/cart";
 import { trackUserAction } from "@/api/recomendations";
 
 interface ProductPageProps {
-    product: Product;
+    product: Product & { article?: string | number };
 }
 
 export default function ProductPage({ product }: ProductPageProps) {
     const [liked, setLiked] = useState(false);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
 
+    const productId = product.article || product.id;
+
     const handleAddToCart = async () => {
         setIsAddingToCart(true);
         try {
-            const success = await addToCart(product.id);
+            const idToSend = typeof productId === 'string' ? parseInt(productId) : productId;
+            const success = await addToCart(idToSend);
             if (success) {
-                await trackUserAction(product.id, 'ADDED_TO_CART');
+                await trackUserAction(idToSend, 'ADDED_TO_CART');
             }
         } catch (error) {
             console.error('Error adding to cart:', error);
@@ -44,7 +47,6 @@ export default function ProductPage({ product }: ProductPageProps) {
         <Container>
             <div className="w-full max-w-[1400px]">
                 <main className="mt-2 mb-6">
-                    {/* Back button and breadcrumbs */}
                     <div className="mb-6 flex items-center">
                         <Button variant="ghost" className="mr-4 p-0">
                             <ArrowLeftIcon className="h-[30px] w-[34px] text-gray-500" />
@@ -70,7 +72,6 @@ export default function ProductPage({ product }: ProductPageProps) {
                     </div>
 
                     <div className="grid grid-cols-12 gap-4">
-                        {/* Product image */}
                         <div className="col-span-4">
                             <div className="relative h-[524px] rounded-[15px] overflow-hidden">
                                 <Image
@@ -93,7 +94,6 @@ export default function ProductPage({ product }: ProductPageProps) {
                             </div>
                         </div>
 
-                        {/* Product details */}
                         <div className="col-span-4">
                             <div className="flex h-[22px] w-[89px] rounded-[8px] bg-[#f1f1f1] px-0 py-0">
                                 <span className="flex w-full items-center justify-center text-[13px] font-medium mt-1">
@@ -143,7 +143,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                 <div className="grid grid-cols-2 gap-x-2 gap-y-3 text-xs">
                                     <div className="font-medium text-gray-500">Артикул</div>
                                     <div className="flex items-center font-medium">
-                                        {product.article}
+                                        {product.article || product.id}
                                         <CopyIcon className="ml-2 h-[15px] w-[15px]" />
                                     </div>
 
@@ -191,7 +191,6 @@ export default function ProductPage({ product }: ProductPageProps) {
                             </div>
                         </div>
 
-                        {/* Purchase section */}
                         <div className="col-span-4">
                             <Card className="rounded-[20px] bg-white">
                                 <CardContent className="p-8">
@@ -291,7 +290,6 @@ export default function ProductPage({ product }: ProductPageProps) {
                                     </TabsTrigger>
                                 </TabsList>
                             </Tabs>
-
                         </div>
                     </div>
                 </main>
