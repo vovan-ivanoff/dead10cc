@@ -18,6 +18,9 @@ import { Product } from "@/types/product";
 import { addToCart } from "@/api/cart";
 import { trackUserAction } from "@/api/recomendations";
 
+// Заготовка для изображения-заглушки
+const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAyIiBoZWlnaHQ9IjUyNCIgdmlld0JveD0iMCAwIDQwMiA1MjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMiIgaGVpZ2h0PSI1MjQiIGZpbGw9IiNFNUU3RUIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM2QjZCNkIiPk5vIGltYWdlPC90ZXh0Pjwvc3ZnPg==';
+
 interface ProductPageProps {
     product: Product & { article?: string | number };
 }
@@ -25,22 +28,24 @@ interface ProductPageProps {
 export default function ProductPage({ product }: ProductPageProps) {
     const [liked, setLiked] = useState(false);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
-
-    const productId = product.article || product.id;
+    const [imageError, setImageError] = useState(false);
 
     const handleAddToCart = async () => {
         setIsAddingToCart(true);
         try {
-            const idToSend = typeof productId === 'string' ? parseInt(productId) : productId;
-            const success = await addToCart(idToSend);
+            const success = await addToCart(product.id);
             if (success) {
-                await trackUserAction(idToSend, 'ADDED_TO_CART');
+                await trackUserAction(product.id, 'ADDED_TO_CART');
             }
         } catch (error) {
             console.error('Error adding to cart:', error);
         } finally {
             setIsAddingToCart(false);
         }
+    };
+
+    const handleImageError = () => {
+        setImageError(true);
     };
 
     return (
@@ -75,11 +80,12 @@ export default function ProductPage({ product }: ProductPageProps) {
                         <div className="col-span-4">
                             <div className="relative h-[524px] rounded-[15px] overflow-hidden">
                                 <Image
-                                    src={product.image}
+                                    src={imageError ? placeholderImage : product.image}
                                     alt={product.seller}
                                     width={402}
                                     height={524}
                                     className="object-contain rounded-2xl"
+                                    onError={handleImageError}
                                 />
                                 <div className="bottom-4 right-4 flex items-center gap-2 px-2 py-1 w-fit bg-white rounded-xl shadow-sm">
                                     <Image

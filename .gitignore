@@ -41,3 +41,4 @@ next-env.d.ts
 /frontend/next-env.d.ts
 /frontend/Dockerfile
 Dockerfile
+/frontend/yarn.lock

@@ -66,10 +66,19 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
   };
 
   const getProductId = (id: number | string): string => {
+    console.log('Original product ID:', id);
     if (typeof id === 'string') {
+      // Извлекаем article из формата content_article_page_index
       const parts = id.split('_');
-      return parts.length > 1 && parts[1] !== undefined ? parts[1] : id;
+      if (parts.length >= 2 && parts[0] === 'content' && parts[1]) {
+        const result = parts[1];
+        console.log('Extracted article ID:', result);
+        return result;
+      }
+      console.log('Using original string ID:', id);
+      return id;
     }
+    console.log('Using numeric ID:', id.toString());
     return id.toString();
   };
 

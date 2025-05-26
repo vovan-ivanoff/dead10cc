@@ -193,6 +193,34 @@ export const deleteProduct = async (id: number): Promise<void> => {
   }
 };
 
+export const findProductByArticle = async (article: number): Promise<Product[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}${PUBLIC_PREFIX}/products/find`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ article }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || `Failed to find product with article ${article}`);
+    }
+
+    const products: ApiProduct[] = await response.json();
+    return products.map(product => ({
+      ...product,
+      price: Math.round(Number(product.price)),
+      image: product.image || '/assets/images/pictures/no-image.svg',
+    }));
+  } catch (error) {
+    console.error('Error finding product:', error);
+    throw error;
+  }
+};
+
 const prepareProductData = async (
   productData: ProductCreate | ProductForm | ProductUpdate
 ) => {

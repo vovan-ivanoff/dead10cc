@@ -7,7 +7,7 @@ import '@/styles/globals.css';
 import ProductPage from "@/components/common/Product";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { getProduct } from "@/api/admin/products";
+import { findProductByArticle } from "@/api/admin/products";
 import { Product } from "@/types/product";
 import { checkAuth } from "@/api/auth";
 
@@ -18,6 +18,18 @@ interface LocalProduct {
     author: string;
     image: string;
     reviews?: number;
+}
+
+interface ApiProductResponse {
+    id: number;
+    article: number;
+    title: string;
+    price: number;
+    tags: string[];
+    seller: string;
+    rating: number;
+    reviews: number;
+    description: string;
 }
 
 const transformLocalProduct = (item: LocalProduct): Product => ({
@@ -31,6 +43,19 @@ const transformLocalProduct = (item: LocalProduct): Product => ({
     article: item.id,
     description: "",
     tags: []
+});
+
+const transformApiProduct = (item: ApiProductResponse): Product => ({
+    id: item.id,
+    article: item.article,
+    title: item.title,
+    price: item.price,
+    seller: item.seller,
+    image: '/assets/images/pictures/no-image.svg', // дефолтное изображение
+    reviews: item.reviews,
+    rating: item.rating,
+    description: item.description,
+    tags: item.tags
 });
 
 export default function ProductDetail() {
@@ -50,10 +75,22 @@ export default function ProductDetail() {
                 
                 if (user) {
                     // Если пользователь авторизован, получаем данные с сервера
-                    console.log('Fetching product with ID from API:', productId);
-                    const data = await getProduct(Number(productId));
-                    console.log('Received product data from API:', data);
-                    setProduct(data);
+                    console.log('Fetching product with article:', productId);
+                    // Извлекаем article из ID
+                    const article = typeof productId === 'string' 
+                        ? parseInt(productId.split('_')[1] || productId, 10)
+                        : Number(productId);
+                    console.log('Extracted article:', article);
+                    const response = await findProductByArticle(article);
+                    // Получаем первый элемент из массива, так как API возвращает массив
+                    const productData = Array.isArray(response) ? response[0] : response;
+                    if (productData) {
+                        const transformedProduct = transformApiProduct(productData);
+                        console.log('Received product data from API:', transformedProduct);
+                        setProduct(transformedProduct);
+                    } else {
+                        setError("Товар не найден");
+                    }
                 } else {
                     // Если пользователь не авторизован, получаем данные из локального JSON
                     console.log('Fetching product with ID from local data:', productId);
@@ -70,16 +107,14 @@ export default function ProductDetail() {
                     }
                 }
             } catch (error) {
-                console.error("Ошибка загрузки данных:", error);
+                console.error('Error fetching product:', error);
                 setError("Ошибка при загрузке товара");
             } finally {
                 setLoading(false);
             }
         };
 
-        if (productId) {
-            fetchProduct();
-        }
+        fetchProduct();
     }, [productId]);
 
     return (

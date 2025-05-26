@@ -7,6 +7,7 @@ from api.routers import all_routers
 
 app = FastAPI(title="TootEvent")
 
+# Настройки CORS для разработки
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[

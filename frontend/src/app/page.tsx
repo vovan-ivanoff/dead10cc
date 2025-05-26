@@ -20,12 +20,45 @@ interface Product {
   preview?: string;
 }
 
+interface DataJsonProduct {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  image: string;
+  author: string;
+}
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [nextPageIndex, setNextPageIndex] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const loadingRef = useRef(false);
   const authCheckedRef = useRef(false);
+
+  const loadDataJsonProducts = useCallback(async () => {
+    try {
+      const response = await fetch('/data/data.json');
+      const data: DataJsonProduct[] = await response.json();
+      
+      const formattedProducts = data.map(product => ({
+        id: product.id,
+        title: product.name,
+        price: Number(product.price),
+        seller: product.author,
+        image: `/assets/images/pictures/${product.image.split('/').pop()}`,
+        rating: 0,
+        preview: product.description
+      }));
+
+      setProducts(formattedProducts);
+    } catch (error) {
+      console.error('Error loading data.json products:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const loadProducts = useCallback(async (isInitialLoad: boolean) => {
     if (loadingRef.current) return;
@@ -44,19 +77,18 @@ export default function Home() {
       const newProducts = response.content.map((p, i) => ({ 
         ...p, 
         id: `content_${p.article}_${currentPageIndex}_${i}`,
-        image: p.image || '', // Заглушка для изображения
-        seller: p.seller || 'Не указан' // Заглушка для продавца
+        image: p.image || '/assets/images/pictures/no-image.svg',
+        seller: p.seller || 'Не указан'
       }));
 
       setProducts(prev => 
         isInitialLoad ? newProducts : [...prev, ...newProducts]
       );
 
-      // Увеличиваем индекс СРАЗУ после успешной загрузки
       if (!isInitialLoad) {
         setNextPageIndex(currentPageIndex + 1);
       } else {
-        setNextPageIndex(1); // После первой загрузки следующая страница - 1
+        setNextPageIndex(1);
       }
     } catch (error) {
       console.error('Error loading products:', error);
@@ -66,26 +98,32 @@ export default function Home() {
     }
   }, [nextPageIndex]);
 
-  // Первая загрузка и проверка авторизации
   useEffect(() => {
     if (authCheckedRef.current) return;
     
     const verifyAuth = async () => {
       try {
-        await checkAuth();
+        const isAuth = await checkAuth();
+        setIsAuthenticated(!!isAuth);
+        if (isAuth) {
+          loadProducts(true);
+        } else {
+          loadDataJsonProducts();
+        }
       } catch (error) {
         console.error('Auth check failed:', error);
+        loadDataJsonProducts();
       } finally {
         authCheckedRef.current = true;
-        loadProducts(true);
       }
     };
     
     verifyAuth();
-  }, [loadProducts]);
+  }, [loadProducts, loadDataJsonProducts]);
 
-  // Подгрузка при скролле
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     const handleScroll = () => {
       if (loadingRef.current) return;
       
@@ -97,7 +135,7 @@ export default function Home() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [loadProducts]);
+  }, [loadProducts, isAuthenticated]);
 
   return (
     <main>
@@ -108,7 +146,7 @@ export default function Home() {
         ) : (
           <>
             <ProductList products={products} />
-            {loadingRef.current && (
+            {loadingRef.current && isAuthenticated && (
               <div className="text-center py-4">Загрузка...</div>
             )}
           </>
