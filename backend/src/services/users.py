@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr
 from schemas.auth import UserInfoSchema, UserLoginSchema, UserRegisterSchema
 from schemas.exceptions import (IncorrectEmailOrPasswordException,
                                 UnauthorizedException,
-                                UserAlreadyExistException)
+                                UserAlreadyExistException, UserDoesNotExistException)
 from schemas.phone_auth import ACCESS_TOKEN_EXPIRE_MINUTES
 from schemas.users import UserSchema
 from services.auth.auth import (create_access_token, get_password_hash,
@@ -34,7 +34,7 @@ class UsersService:
     async def get_user_info(uow: AbstractUOW, **field) -> UserInfoSchema:
         user = await uow.users.find_one(**field)
         if not user:
-            raise UnauthorizedException
+            raise UserDoesNotExistException
         return UserInfoSchema(**user.dict())
 
     @staticmethod
