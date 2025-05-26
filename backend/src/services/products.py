@@ -38,11 +38,11 @@ class ProductsService:
             uow: AbstractUOW,
             page_index: int,
             page_size: int,
-            offset: int,
+            offs: int,
             **filter_by
     ) -> List[BaseModel]:
 
-        return await uow.products.get_page(page_index, page_size, offset, **filter_by)
+        return await uow.products.get_page(page_index, page_size, offs, **filter_by)
 
 
     @staticmethod

@@ -1,7 +1,6 @@
 import json
 
 import requests
-from PIL.ImageChops import offset
 from fastapi import APIRouter, Depends
 
 from services.auth.dependencies import get_current_user_id
@@ -21,7 +20,6 @@ async def get_recommendation(
         product_case: ProductCase,
         user_id: int = Depends(get_current_user_id)
 ):
-    amount = (page_index + 1) * page_size
     statistics = await note_case.get_statistics(user_id)
 
     data = json.dumps(statistics, ensure_ascii=True, indent=4)
