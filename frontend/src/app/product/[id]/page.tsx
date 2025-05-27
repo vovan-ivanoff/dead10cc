@@ -30,6 +30,7 @@ interface ApiProductResponse {
     rating: number;
     reviews: number;
     description: string;
+    image?: string;
 }
 
 const transformLocalProduct = (item: LocalProduct): Product => ({
@@ -51,7 +52,7 @@ const transformApiProduct = (item: ApiProductResponse): Product => ({
     title: item.title,
     price: item.price,
     seller: item.seller,
-    image: '/assets/images/pictures/no-image.svg', // дефолтное изображение
+    image: item.image || '/assets/images/pictures/default.jpg', // дефолтное изображение
     reviews: item.reviews,
     rating: item.rating,
     description: item.description,

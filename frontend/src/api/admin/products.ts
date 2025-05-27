@@ -89,7 +89,7 @@ export const getProductPage = async (
         title: apiProduct.title,
         price: apiProduct.price,
         seller: apiProduct.seller || "Не указан",
-        image: apiProduct.image || '/assets/images/pictures/no-image.svg',
+        image: apiProduct.image || '/assets/images/pictures/default.jpg',
         rating: apiProduct.rating,
         reviews: apiProduct.reviews,
         preview: previewResponse.ok ? previewUrl : undefined,
@@ -102,7 +102,7 @@ export const getProductPage = async (
         title: apiProduct.title,
         price: apiProduct.price,
         seller: apiProduct.seller || "Не указан",
-        image: apiProduct.image || '/assets/images/pictures/no-image.svg',
+        image: apiProduct.image || '/assets/images/pictures/default.jpg',
         rating: apiProduct.rating,
         reviews: apiProduct.reviews,
         preview: undefined,
@@ -250,7 +250,7 @@ export const findProductByArticle = async (article: number): Promise<Product[]> 
     return products.map(product => ({
       ...product,
       price: Math.round(Number(product.price)),
-      image: product.image || '/assets/images/pictures/no-image.svg',
+      image: product.image || '/assets/images/pictures/default.jpg',
     }));
   } catch (error) {
     console.error('Error finding product:', error);

@@ -5,7 +5,7 @@ import { CartItem } from '../ui/CartItem';
 import Image from 'next/image';
 import Container from './Container';
 import { PieChart } from 'lucide-react';
-import { addToCart, deleteFromCart, removeFromCart } from '@/api/cart';
+import { addToCart, deleteFromCart } from '@/api/cart';
 import { trackUserAction } from '@/api/recomendations';
 
 interface Product {
@@ -61,7 +61,7 @@ export default function CartPage({ products }: ProductListProps) {
         try {
             const currentQuantity = quantities[id] || 1;
             if (currentQuantity > 1) {
-                const success = await removeFromCart(id, 1);
+                const success = await deleteFromCart(id, 1);
                 if (success) {
                     setQuantities(prev => ({
                         ...prev,
@@ -76,7 +76,7 @@ export default function CartPage({ products }: ProductListProps) {
 
     const handleDelete = async (id: number) => {
         try {
-            const success = await deleteFromCart(id);
+            const success = await deleteFromCart(id, 0);
             if (success) {
                 setProductList(prev => prev.filter(p => p.id !== id));
                 setQuantities(prev => {
