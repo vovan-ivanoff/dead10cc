@@ -2,7 +2,7 @@ from typing import List, Iterator
 
 from pydantic import BaseModel
 
-from schemas.exceptions import InvalidData
+from schemas.exceptions import InvalidData, ProductDoesNotExistException
 from schemas.products import ProductAddSchema, ProductInfoSchema, ProductSchema
 from utils.unit_of_work import AbstractUOW
 from fastapi import Response
@@ -38,22 +38,22 @@ class ProductsService:
             uow: AbstractUOW,
             page_index: int,
             page_size: int,
+            offs: int,
             **filter_by
     ) -> List[BaseModel]:
 
-        return await uow.products.get_page(page_index, page_size, **filter_by)
-
-    @staticmethod
-    def reset_paging(response: Response):
-        response.delete_cookie("SnaplyPaging")
+        return await uow.products.get_page(page_index, page_size, offs, **filter_by)
 
 
     @staticmethod
     async def get_product_info(
             uow: AbstractUOW,
             **field
-    ) -> ProductInfoSchema:
-        return ProductInfoSchema(**(await uow.products.find_one(**field)).dict())
+    ) -> ProductSchema:
+        product = await uow.products.find_one(**field)
+        if not product:
+            raise ProductDoesNotExistException
+        return ProductSchema(**product.dict())
 
 
     @staticmethod

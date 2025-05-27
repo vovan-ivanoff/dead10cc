@@ -5,7 +5,7 @@ import { CartItem } from '../ui/CartItem';
 import Image from 'next/image';
 import Container from './Container';
 import { PieChart } from 'lucide-react';
-import { addToCart, removeFromCart } from '@/api/cart';
+import { addToCart, deleteFromCart, removeFromCart } from '@/api/cart';
 import { trackUserAction } from '@/api/recomendations';
 
 interface Product {
@@ -26,13 +26,14 @@ export default function CartPage({ products }: ProductListProps) {
     const [quantities, setQuantities] = useState<Record<number, number>>({});
     const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>({});
     const [paymentOption, setPaymentOption] = useState('upon-receipt');
+    const [productList, setProductList] = useState(products);
 
     const normalizedProducts = useMemo(() => {
-        return products.map(p => ({
+        return productList.map(p => ({
             ...p,
             price: Math.floor(Number(p.price)),
         }));
-    }, [products]);
+    }, [productList]);
 
     useEffect(() => {
         const initialQuantities = Object.fromEntries(normalizedProducts.map(p => [p.id, p.quantity]));
@@ -42,23 +43,55 @@ export default function CartPage({ products }: ProductListProps) {
     }, [normalizedProducts]);
 
     const handleIncrease = async (id: number) => {
-        const success = await addToCart(id, 1);
-        if (success) {
-            setQuantities(prev => ({
-                ...prev,
-                [id]: (prev[id] || 1) + 1,
-            }));
-            await trackUserAction(id, 'ADDED_TO_CART');
+        try {
+            const success = await addToCart(id, 1);
+            if (success) {
+                setQuantities(prev => ({
+                    ...prev,
+                    [id]: (prev[id] || 1) + 1,
+                }));
+                await trackUserAction(id, 'ADDED_TO_CART');
+            }
+        } catch (error) {
+            console.error('Error increasing quantity:', error);
         }
     };
 
     const handleDecrease = async (id: number) => {
-        const success = await removeFromCart(id, 1);
-        if (success) {
-            setQuantities(prev => ({
-                ...prev,
-                [id]: Math.max(1, (prev[id] || 1) - 1),
-            }));
+        try {
+            const currentQuantity = quantities[id] || 1;
+            if (currentQuantity > 1) {
+                const success = await removeFromCart(id, 1);
+                if (success) {
+                    setQuantities(prev => ({
+                        ...prev,
+                        [id]: currentQuantity - 1,
+                    }));
+                }
+            }
+        } catch (error) {
+            console.error('Error decreasing quantity:', error);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        try {
+            const success = await deleteFromCart(id);
+            if (success) {
+                setProductList(prev => prev.filter(p => p.id !== id));
+                setQuantities(prev => {
+                    const newQuantities = { ...prev };
+                    delete newQuantities[id];
+                    return newQuantities;
+                });
+                setSelectedItems(prev => {
+                    const newSelectedItems = { ...prev };
+                    delete newSelectedItems[id];
+                    return newSelectedItems;
+                });
+            }
+        } catch (error) {
+            console.error('Error deleting item:', error);
         }
     };
 
@@ -86,7 +119,10 @@ export default function CartPage({ products }: ProductListProps) {
 
     const saleCount = Math.round(0.03 * subtotal);
     const total = subtotal - saleCount;
-    const totalCount = normalizedProducts.length;
+    const totalCount = normalizedProducts.reduce((total, product) => {
+        if (!selectedItems[product.id]) return total;
+        return total + (quantities[product.id] || 1);
+    }, 0);
     const selectedCount = Object.values(selectedItems).filter(Boolean).length;
 
     const getProductWord = (count: number) => {
@@ -122,6 +158,7 @@ export default function CartPage({ products }: ProductListProps) {
                                 {normalizedProducts.map((product) => (
                                     <CartItem
                                         key={product.id}
+                                        id={product.id}
                                         image={product.image}
                                         title={product.title}
                                         description={product.description}
@@ -131,6 +168,7 @@ export default function CartPage({ products }: ProductListProps) {
                                         onDecrease={() => handleDecrease(product.id)}
                                         selected={selectedItems[product.id] ?? false}
                                         onSelect={() => handleSelect(product.id)}
+                                        onDelete={() => handleDelete(product.id)}
                                     />
                                 ))}
                             </div>
@@ -170,7 +208,7 @@ export default function CartPage({ products }: ProductListProps) {
                             </div>
 
                             <div className="flex justify-between mb-2">
-                                <span>Товары, {selectedCount} шт.</span>
+                                <span>Товары, {totalCount} шт.</span>
                                 <span className="font-medium">{formatPrice(subtotal)}</span>
                             </div>
                             <div className="flex justify-between mb-4">

@@ -24,8 +24,8 @@ async def add_product(
         count: int = 1,
         user_id: int = Depends(get_current_user_id)
 ):
-    await cart_case.add_product_my(user_id, product_id, count)
-    return {"status": "OK"}
+    return await cart_case.add_product_my(user_id, product_id, count)
+
 
 
 @router.delete("/{product_id}")

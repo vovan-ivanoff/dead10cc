@@ -34,9 +34,15 @@ class SqlAlchemyRepo(AbstractRepo):
     async def add_one(self, **data) -> int:
         stmt = insert(self.model).values(**data).returning(self.model.id)
         result = await self.session.execute(stmt)
+
         return result.scalar_one()
 
-    async def update_by_id(self, model_id: int, **data):
+    async def update_by_id(self, model_id: int, **data) -> BaseModel:
         stmt = update(self.model).where(self.model.id == model_id).values(**data)
+        await self.session.execute(stmt)
+
+        stmt = select(self.model).where(self.model.id == model_id)
         result = await self.session.execute(stmt)
-        return result.scalar_one()
+
+        result = result.scalar_one_or_none()
+        return result.to_read_model()

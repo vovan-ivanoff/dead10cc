@@ -35,6 +35,24 @@ export const addToCart = async (productId: number, count: number = 1): Promise<b
   }
 };
 
+export const deleteFromCart = async (productId: number): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/carts/${productId}`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ count: 0 }),
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('Error deleting from cart:', error);
+    return false;
+  }
+};
+
 export const removeFromCart = async (productId: number, count: number = 1): Promise<boolean> => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/v1/carts/${productId}`, {

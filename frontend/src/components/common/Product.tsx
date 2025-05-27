@@ -17,6 +17,7 @@ import Container from "./Container";
 import { Product } from "@/types/product";
 import { addToCart } from "@/api/cart";
 import { trackUserAction } from "@/api/recomendations";
+import { AddToCartModal } from "@/components/ui/AddToCartModal";
 
 // Заготовка для изображения-заглушки
 const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAyIiBoZWlnaHQ9IjUyNCIgdmlld0JveD0iMCAwIDQwMiA1MjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMiIgaGVpZ2h0PSI1MjQiIGZpbGw9IiNFNUU3RUIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM2QjZCNkIiPk5vIGltYWdlPC90ZXh0Pjwvc3ZnPg==';
@@ -29,23 +30,44 @@ export default function ProductPage({ product }: ProductPageProps) {
     const [liked, setLiked] = useState(false);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
     const [imageError, setImageError] = useState(false);
-
-    const handleAddToCart = async () => {
-        setIsAddingToCart(true);
-        try {
-            const success = await addToCart(product.id);
-            if (success) {
-                await trackUserAction(product.id, 'ADDED_TO_CART');
-            }
-        } catch (error) {
-            console.error('Error adding to cart:', error);
-        } finally {
-            setIsAddingToCart(false);
-        }
-    };
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<{ id: number; name: string } | null>(null);
 
     const handleImageError = () => {
         setImageError(true);
+    };
+
+    const handleAddToCart = async () => {
+        try {
+            setSelectedProduct({
+                id: Number(product.id),
+                name: product.title || 'Unknown Product'
+            });
+            setIsModalOpen(true);
+        } catch (error) {
+            console.error('Error preparing product for cart:', error);
+        }
+    };
+
+    const handleConfirmAddToCart = async () => {
+        if (!selectedProduct) return;
+        
+        setIsAddingToCart(true);
+        
+        try {
+            // Добавляем товар в корзину
+            const success = await addToCart(Number(selectedProduct.id));
+            
+            if (success) {
+                // Отслеживаем действие пользователя
+                await trackUserAction(Number(selectedProduct.id), 'ADDED_TO_CART');
+            }
+        } catch (error) {
+            console.error('Error adding product to cart:', error);
+        } finally {
+            setIsAddingToCart(false);
+            setIsModalOpen(false);
+        }
     };
 
     return (
@@ -215,8 +237,8 @@ export default function ProductPage({ product }: ProductPageProps) {
                                     </div>
 
                                     <button 
-                                        onClick={handleAddToCart}
                                         disabled={isAddingToCart}
+                                        onClick={handleAddToCart}
                                         className="mt-2 w-full h-11 p-2 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)] disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         <h3 className="mt-0.5">
@@ -300,6 +322,13 @@ export default function ProductPage({ product }: ProductPageProps) {
                     </div>
                 </main>
             </div>
+
+            <AddToCartModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={handleConfirmAddToCart}
+                productName={selectedProduct?.name || 'Unknown Product'}
+            />
         </Container>
     );
 }

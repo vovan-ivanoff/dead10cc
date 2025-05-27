@@ -5,6 +5,7 @@ import Image from "next/image";
 import { addToCart } from "@/api/cart";
 import { trackUserAction } from "@/api/recomendations";
 import { AddToCartModal } from "@/components/ui/AddToCartModal";
+import { findProductByArticle } from "@/api/admin/products";
 
 interface ProductListProps {
   products: Array<{
@@ -28,14 +29,7 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
   const [selectedProduct, setSelectedProduct] = useState<{ id: number | string; name: string } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
-
-   const handleAddToCart = async (e: React.MouseEvent, productId: number | string, productName: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    setSelectedProduct({ id: productId, name: productName });
-    setIsModalOpen(true);
-  };
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleImageError = (src: string) => {
     setFailedImages(prev => new Set(prev).add(src));
@@ -47,22 +41,6 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
       return placeholderImage;
     }
     return imgSrc;
-  };
-
-  const handleConfirmAddToCart = async () => {
-    if (selectedProduct) {
-      // Безопасное преобразование ID в число
-      const numericId = typeof selectedProduct.id === 'string' 
-        ? parseInt(selectedProduct.id.split('_')[1] || selectedProduct.id, 10) 
-        : selectedProduct.id;
-      
-      const success = await addToCart(numericId);
-      if (success) {
-        await trackUserAction(numericId, 'ADDED_TO_CART');
-      }
-    }
-    setIsModalOpen(false);
-    setSelectedProduct(null);
   };
 
   const getProductId = (id: number | string): string => {
@@ -85,6 +63,70 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
   // Функция для безопасного получения строкового значения
   const getSafeString = (value?: string, defaultValue: string = ''): string => {
     return value || defaultValue;
+  };
+
+  const handleAddToCart = async (e: React.MouseEvent, product: ProductListProps['products'][0]) => {
+    e.preventDefault(); // Предотвращаем переход по ссылке
+    
+    try {
+      let article: number;
+      
+      if (typeof product.id === 'string') {
+        const parts = product.id.split('_');
+        if (parts.length >= 2 && parts[0] === 'content' && parts[1]) {
+          article = parseInt(parts[1]);
+        } else {
+          throw new Error('Invalid product ID format');
+        }
+      } else {
+        article = product.id;
+      }
+
+      if (isNaN(article)) {
+        throw new Error('Invalid article number');
+      }
+
+      // Ищем товар по артикулу
+      const foundProducts = await findProductByArticle(article);
+      
+      if (foundProducts && foundProducts.length > 0) {
+        const productToAdd = foundProducts[0];
+        
+        if (!productToAdd) {
+          throw new Error('Product not found');
+        }
+
+        // Открываем модальное окно для подтверждения
+        setSelectedProduct({
+          id: productToAdd.id,
+          name: productToAdd.title
+        });
+        setIsModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error preparing product for cart:', error);
+    }
+  };
+
+  const handleConfirmAddToCart = async () => {
+    if (!selectedProduct) return;
+    
+    setIsLoading(true);
+    
+    try {
+      // Добавляем товар в корзину
+      const success = await addToCart(Number(selectedProduct.id));
+      
+      if (success) {
+        // Отслеживаем действие пользователя
+        await trackUserAction(Number(selectedProduct.id), 'ADDED_TO_CART');
+      }
+    } catch (error) {
+      console.error('Error adding product to cart:', error);
+    } finally {
+      setIsLoading(false);
+      setIsModalOpen(false);
+    }
   };
 
   return (
@@ -138,9 +180,10 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
                 </span>
               </div>
               <button 
-                onClick={(e) => handleAddToCart(e, product.id, getSafeString(product.title, product.name || 'Unknown Product'))}
-                className="w-full py-2 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-gradient-to-r from-[#6A11CB] to-[#2575FC]">
-                Добавить в корзину
+                onClick={(e) => handleAddToCart(e, product)}
+                disabled={isLoading}
+                className="w-full py-2 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-gradient-to-r from-[#6A11CB] to-[#2575FC] disabled:opacity-50 disabled:cursor-not-allowed">
+                {isLoading ? 'Добавление...' : 'Добавить в корзину'}
               </button>
             </Link>
           )) : (

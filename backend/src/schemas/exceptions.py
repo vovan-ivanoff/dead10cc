@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from sympy.categories.baseclasses import Class
 
 
 class BException(HTTPException):
@@ -23,6 +24,13 @@ class UnauthorizedException(BException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Не авторизован"
 
+class UserDoesNotExistException(BException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "Пользователь с таким id не существует"
+
+class ProductDoesNotExistException(BException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "Товар не существует"
 
 class IncorrectEmailOrPasswordException(BException):
     status_code = status.HTTP_401_UNAUTHORIZED

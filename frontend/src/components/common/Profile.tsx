@@ -28,6 +28,7 @@ const ProfilePage: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [userName, setUserName] = useState<string>("");
 
   const handleLogout = async () => {
     try {
@@ -40,6 +41,7 @@ const ProfilePage: React.FC = () => {
 
   const handleSaveProfile = (name: string, gender: string) => {
     console.log("Сохранено:", name, gender);
+    setUserName(name);
     setModalOpen(false);
   };
 
@@ -53,6 +55,7 @@ const ProfilePage: React.FC = () => {
         const user = await checkAuth();
         if (user) {
           setIsAuthorized(true);
+          setUserName(user.name || "Имя пользователя");
         } else {
           setIsAuthorized(false);
           router.push('/');
@@ -107,7 +110,7 @@ const ProfilePage: React.FC = () => {
               className="flex-shrink-0 self-center mr-4"
             />
             <h3 className="text-lg font-[570] leading-none self-center group-hover:bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)] group-hover:bg-clip-text group-hover:text-transparent duration-500 ease-in-out transition-opacity opacity-100 group-hover:opacity-100">
-              Имя пользователя
+              {userName}
             </h3>
             <ChevronRight className="w-6 h-6 text-[#8C8989] opacity-50 flex-shrink-0 self-center" />
           </div>
@@ -260,7 +263,7 @@ const ProfilePage: React.FC = () => {
         onSave={handleSaveProfile}
         onLogout={handleLogout}
         onDelete={handleDeleteProfile}
-        currentName="Имя пользователя"
+        currentName={userName}
         phoneNumber="+7 900 000-00-00"
         gender="Мужской"
       />
