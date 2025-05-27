@@ -35,8 +35,7 @@ async def delete_product(
         count: int = 0,
         user_id: int = Depends(get_current_user_id)
 ):
-    await cart_case.delete_product_my(user_id, product_id, count)
-    return {"status": "OK"}
+    return await cart_case.delete_product_my(user_id, product_id, count)
 
 
 @router.delete("/")
