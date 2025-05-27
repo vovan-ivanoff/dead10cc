@@ -29,6 +29,27 @@ interface DataJsonProduct {
   author: string;
 }
 
+interface RawProduct {
+  article: number;
+  title: string;
+  price: number;
+  seller?: string;
+  image?: string;
+  rating: number;
+  reviews?: number;
+  description?: string;
+}
+
+type RecommendationBlock = {
+  paging: string;
+} | RawProduct[];
+
+interface RecommendationResponse {
+  content: RecommendationBlock;
+  collaborative: RecommendationBlock;
+  base?: RawProduct[];
+}
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,71 +57,110 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const loadingRef = useRef(false);
   const authCheckedRef = useRef(false);
+  const baseOffsetRef = useRef(0);
+
+  const isProductArray = (data: RecommendationBlock): data is RawProduct[] => {
+    return Array.isArray(data);
+  };
 
   const loadDataJsonProducts = useCallback(async () => {
     try {
-      const response = await fetch('/data/data.json');
+      const response = await fetch("/data/data.json");
       const data: DataJsonProduct[] = await response.json();
-      
-      const formattedProducts = data.map(product => ({
+
+      const formattedProducts = data.map((product) => ({
         id: product.id,
         title: product.name,
         price: Number(product.price),
         seller: product.author,
-        image: `/assets/images/pictures/${product.image.split('/').pop()}`,
+        image: `/assets/images/pictures/${product.image.split("/").pop()}`,
         rating: 0,
-        preview: product.description
+        preview: product.description,
       }));
 
       setProducts(formattedProducts);
     } catch (error) {
-      console.error('Error loading data.json products:', error);
+      console.error("Error loading data.json products:", error);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const loadProducts = useCallback(async (isInitialLoad: boolean) => {
-    if (loadingRef.current) return;
-    
-    loadingRef.current = true;
-    if (isInitialLoad) setLoading(true);
+  const loadProducts = useCallback(
+    async (isInitialLoad: boolean) => {
+      if (loadingRef.current) return;
 
-    try {
-      const currentPageIndex = isInitialLoad ? 0 : nextPageIndex;
-      const response = await getRecommendedProducts(
-        currentPageIndex,
-        24,
-        isInitialLoad
-      );
+      loadingRef.current = true;
+      if (isInitialLoad) setLoading(true);
 
-      const newProducts = response.content.map((p, i) => ({ 
-        ...p, 
-        id: `content_${p.article}_${currentPageIndex}_${i}`,
-        image: p.image || '/assets/images/pictures/no-image.svg',
-        seller: p.seller || 'Не указан'
-      }));
+      try {
+        const currentPageIndex = isInitialLoad ? 0 : nextPageIndex;
+        const response: RecommendationResponse = await getRecommendedProducts(
+          currentPageIndex,
+          24,
+          isInitialLoad
+        );
 
-      setProducts(prev => 
-        isInitialLoad ? newProducts : [...prev, ...newProducts]
-      );
+        let contentItems: RawProduct[] = [];
+        let collaborativeItems: RawProduct[] = [];
 
-      if (!isInitialLoad) {
+        if (isProductArray(response.content)) {
+          contentItems = response.content;
+        }
+        if (isProductArray(response.collaborative)) {
+          collaborativeItems = response.collaborative;
+        }
+
+        const contentEnded = contentItems.length === 0;
+        const collaborativeEnded = collaborativeItems.length === 0;
+
+        const newProducts: Product[] = [...contentItems, ...collaborativeItems].map(
+          (p: RawProduct, i: number) => ({
+            id: `${isProductArray(response.content) ? "content" : "collab"}_${p.article}_${currentPageIndex}_${i}`,
+            title: p.title,
+            price: p.price,
+            seller: p.seller || "Не указан",
+            image: p.image || "/assets/images/pictures/no-image.svg",
+            rating: p.rating,
+            reviews: p.reviews,
+            preview: p.description,
+          })
+        );
+
+        if (contentEnded && collaborativeEnded && Array.isArray(response.base)) {
+          const baseProducts: Product[] = response.base.map((p: RawProduct, i: number) => ({
+            id: `base_${p.article}_${baseOffsetRef.current + i}`,
+            title: p.title,
+            price: p.price,
+            seller: p.seller || "Не указан",
+            image: p.image || "/assets/images/pictures/no-image.svg",
+            rating: p.rating,
+            reviews: p.reviews,
+            preview: p.description,
+          }));
+
+          baseOffsetRef.current += response.base.length;
+          newProducts.push(...baseProducts);
+        }
+
+        setProducts((prev) =>
+          isInitialLoad ? newProducts : [...prev, ...newProducts]
+        );
+
         setNextPageIndex(currentPageIndex + 1);
-      } else {
-        setNextPageIndex(1);
+      } catch (error) {
+        console.error("Error loading products:", error);
+      } finally {
+        loadingRef.current = false;
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error loading products:', error);
-    } finally {
-      loadingRef.current = false;
-      setLoading(false);
-    }
-  }, [nextPageIndex]);
+    },
+    [nextPageIndex]
+  );
 
   useEffect(() => {
     if (authCheckedRef.current) return;
-    
+
     const verifyAuth = async () => {
       try {
         const isAuth = await checkAuth();
@@ -111,13 +171,13 @@ export default function Home() {
           loadDataJsonProducts();
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error("Auth check failed:", error);
         loadDataJsonProducts();
       } finally {
         authCheckedRef.current = true;
       }
     };
-    
+
     verifyAuth();
   }, [loadProducts, loadDataJsonProducts]);
 
@@ -126,15 +186,15 @@ export default function Home() {
 
     const handleScroll = () => {
       if (loadingRef.current) return;
-      
+
       const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
       if (scrollTop + clientHeight >= scrollHeight - 500) {
         loadProducts(false);
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [loadProducts, isAuthenticated]);
 
   return (
