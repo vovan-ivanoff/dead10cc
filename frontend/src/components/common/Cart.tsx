@@ -76,8 +76,11 @@ export default function CartPage({ products }: ProductListProps) {
 
     const handleDelete = async (id: number) => {
         try {
+            console.log('Cart: Начало удаления товара:', id);
             const success = await deleteFromCart(id, 0);
+            console.log('Cart: Результат удаления:', success);
             if (success) {
+                console.log('Cart: Обновление состояния');
                 setProductList(prev => prev.filter(p => p.id !== id));
                 setQuantities(prev => {
                     const newQuantities = { ...prev };
@@ -89,6 +92,7 @@ export default function CartPage({ products }: ProductListProps) {
                     delete newSelectedItems[id];
                     return newSelectedItems;
                 });
+                console.log('Cart: Состояние обновлено');
             }
         } catch (error) {
             console.error('Error deleting item:', error);

@@ -28,11 +28,11 @@ async def add_product(
 
 
 
-@router.delete("/{product_id}")
+@router.delete("/{product_id}/{count}")
 async def delete_product(
         cart_case: CartCase,
         product_id: int,
-        count: int = 0,
+        count: int,
         user_id: int = Depends(get_current_user_id)
 ):
     await cart_case.delete_product_my(user_id, product_id, count)

@@ -40,6 +40,7 @@ export const CartItem: FC<CartItemProps> = ({
     const [liked, setLiked] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
 
     const handleIncrease = () => {
         onIncrease();
@@ -52,7 +53,8 @@ export const CartItem: FC<CartItemProps> = ({
     };
 
     const handleDelete = async () => {
-        const success = await deleteFromCart(id);
+        setIsVisible(false);
+        const success = await deleteFromCart(id, 0);
         if (success && onDelete) {
             onDelete();
         }
@@ -68,6 +70,8 @@ export const CartItem: FC<CartItemProps> = ({
 
     const totalDiscounted = Math.round(discountedPrice * quantity);
     const totalOriginal = Math.round(crossedOutPrice * quantity);
+
+    if (!isVisible) return null;
 
     return (
         <>

@@ -37,13 +37,12 @@ export const addToCart = async (productId: number, count: number = 1): Promise<b
 
 export const deleteFromCart = async (productId: number, count: number): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/carts/${productId}`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/carts/${productId}/${count}`, {
       method: 'DELETE',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ count }),
+      }
     });
 
     return response.ok;
