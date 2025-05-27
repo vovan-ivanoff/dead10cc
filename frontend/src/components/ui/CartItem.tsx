@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from "react";
+import { FC, useState } from "react";
 import { Minus, Plus, Heart, Trash } from "lucide-react";
 import Image from "next/image";
 import { DeleteFromCartModal } from "./DeleteFromCartModal";

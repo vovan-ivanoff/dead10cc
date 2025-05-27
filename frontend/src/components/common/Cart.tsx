@@ -123,7 +123,6 @@ export default function CartPage({ products }: ProductListProps) {
         if (!selectedItems[product.id]) return total;
         return total + (quantities[product.id] || 1);
     }, 0);
-    const selectedCount = Object.values(selectedItems).filter(Boolean).length;
 
     const getProductWord = (count: number) => {
         const lastDigit = count % 10;
