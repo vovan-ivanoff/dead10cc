@@ -7,6 +7,7 @@ import Footer from "../components/common/Footer";
 import ProductList from "../components/common/Main";
 import { getRecommendedProducts } from "../api/recomendations";
 import { checkAuth } from "../api/auth";
+import { getProductPage } from "../api/admin/products"; // Импортируем функцию получения страницы товаров
 import "../styles/globals.css";
 
 interface Product {
@@ -20,15 +21,6 @@ interface Product {
   preview?: string;
 }
 
-interface DataJsonProduct {
-  id: number;
-  name: string;
-  description: string;
-  price: string;
-  image: string;
-  author: string;
-}
-
 interface RawProduct {
   article: number;
   title: string;
@@ -40,9 +32,7 @@ interface RawProduct {
   description?: string;
 }
 
-type RecommendationBlock = {
-  paging: string;
-} | RawProduct[];
+type RecommendationBlock = RawProduct[] | { paging: string };
 
 interface RecommendationResponse {
   content: RecommendationBlock;
@@ -63,29 +53,44 @@ export default function Home() {
     return Array.isArray(data);
   };
 
-  const loadDataJsonProducts = useCallback(async () => {
-    try {
-      const response = await fetch("/data/data.json");
-      const data: DataJsonProduct[] = await response.json();
+  // Загрузка продуктов для неавторизованного пользователя через getProductPage
+  const loadProductsForGuest = useCallback(
+    async (isInitialLoad: boolean) => {
+      if (loadingRef.current) return;
+      loadingRef.current = true;
+      if (isInitialLoad) setLoading(true);
 
-      const formattedProducts = data.map((product) => ({
-        id: product.id,
-        title: product.name,
-        price: Number(product.price),
-        seller: product.author,
-        image: `/assets/images/pictures/${product.image.split("/").pop()}`,
-        rating: 0,
-        preview: product.description,
-      }));
+      try {
+        const currentPageIndex = isInitialLoad ? 0 : nextPageIndex;
+        const pageSize = 24;
 
-      setProducts(formattedProducts);
-    } catch (error) {
-      console.error("Error loading data.json products:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        // Передаём только pageIndex и pageSize
+        const apiProducts = await getProductPage(currentPageIndex, pageSize);
 
+        const newProducts: Product[] = apiProducts.map((p, i) => ({
+          id: `guest_${p.id}_${currentPageIndex}_${i}`,
+          title: p.title,
+          price: p.price,
+          seller: p.seller || "Не указан",
+          image: p.image || "/assets/images/pictures/no-image.svg",
+          rating: p.rating,
+          reviews: p.reviews,
+          preview: p.preview || p.description,
+        }));
+
+        setProducts((prev) => (isInitialLoad ? newProducts : [...prev, ...newProducts]));
+        setNextPageIndex(currentPageIndex + 1);
+      } catch (error) {
+        console.error("Error loading guest products:", error);
+      } finally {
+        loadingRef.current = false;
+        setLoading(false);
+      }
+    },
+    [nextPageIndex]
+  );
+
+  // Загрузка продуктов для авторизованного пользователя (оставляем без изменений)
   const loadProducts = useCallback(
     async (isInitialLoad: boolean) => {
       if (loadingRef.current) return;
@@ -143,10 +148,7 @@ export default function Home() {
           newProducts.push(...baseProducts);
         }
 
-        setProducts((prev) =>
-          isInitialLoad ? newProducts : [...prev, ...newProducts]
-        );
-
+        setProducts((prev) => (isInitialLoad ? newProducts : [...prev, ...newProducts]));
         setNextPageIndex(currentPageIndex + 1);
       } catch (error) {
         console.error("Error loading products:", error);
@@ -165,36 +167,53 @@ export default function Home() {
       try {
         const isAuth = await checkAuth();
         setIsAuthenticated(!!isAuth);
+
         if (isAuth) {
           loadProducts(true);
         } else {
-          loadDataJsonProducts();
+          loadProductsForGuest(true);
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-        loadDataJsonProducts();
+        loadProductsForGuest(true);
       } finally {
         authCheckedRef.current = true;
       }
     };
 
     verifyAuth();
-  }, [loadProducts, loadDataJsonProducts]);
+  }, [loadProducts, loadProductsForGuest]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) {
+      const handleScroll = () => {
+        if (loadingRef.current) return;
 
-    const handleScroll = () => {
-      if (loadingRef.current) return;
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+        if (scrollTop + clientHeight >= scrollHeight - 500) {
+          loadProductsForGuest(false);
+        }
+      };
 
-      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-      if (scrollTop + clientHeight >= scrollHeight - 500) {
-        loadProducts(false);
-      }
-    };
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
+  }, [loadProductsForGuest, isAuthenticated]);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+  useEffect(() => {
+    if (isAuthenticated) {
+      const handleScroll = () => {
+        if (loadingRef.current) return;
+
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+        if (scrollTop + clientHeight >= scrollHeight - 500) {
+          loadProducts(false);
+        }
+      };
+
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
   }, [loadProducts, isAuthenticated]);
 
   return (
@@ -206,9 +225,7 @@ export default function Home() {
         ) : (
           <>
             <ProductList products={products} />
-            {loadingRef.current && isAuthenticated && (
-              <div className="text-center py-4">Загрузка...</div>
-            )}
+            {loadingRef.current && <div className="text-center py-4">Загрузка...</div>}
           </>
         )}
       </Container>
