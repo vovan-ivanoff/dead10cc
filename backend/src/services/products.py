@@ -1,6 +1,7 @@
 from typing import List, Iterator
 
 from pydantic import BaseModel
+from watchfiles import awatch
 
 from schemas.exceptions import InvalidData, ProductDoesNotExistException
 from schemas.products import ProductAddSchema, ProductInfoSchema, ProductSchema
@@ -72,3 +73,13 @@ class ProductsService:
 
         return await uow.products.update_by_id(product_id, **data)
 
+    @staticmethod
+    async def find(
+            uow: AbstractUOW,
+            query: str
+    ):
+        products = await uow.products.find_all()
+        found = []
+        for word in query.split():
+            found.extend([product for product in products if (word.strip(",.;'\" ").lower() in product.__repr__()) and (product not in found)])
+        return found

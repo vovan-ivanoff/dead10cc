@@ -75,6 +75,12 @@ class ProductUseCase(AbstractProductUseCase):
 
         return result_list
 
+    async def find(self, query: str) -> List[BaseModel]:
+        async with self.uow:
+            products = await ProductsService.find(self.uow, query)
+
+            return products
+
     async def add(
             self,
             product: ProductAddSchema,

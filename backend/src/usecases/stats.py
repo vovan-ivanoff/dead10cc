@@ -73,12 +73,12 @@ class NoteUseCase(AbstractNoteUseCase):
                     }
                     for (_id, similarity) in similar_users.items()],
 
-                "relevant_products": [
+                "relevant_products": sorted([
                     {
                         "article": (await ProductsService.get_product_info(self.uow, id=product_id)).article,
                         "relevance": relevant_products[product_id]
                     }
-                    for (product_id, relevance) in relevant_products.items()]
+                    for (product_id, relevance) in relevant_products.items()], key=(lambda x: -x["relevance"]))
             }
 
         return result

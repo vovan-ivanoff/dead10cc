@@ -28,11 +28,11 @@ async def add_product(
 
 
 
-@router.delete("/{product_id}/{count}")
+@router.patch("/delete/{product_id}")
 async def delete_product(
         cart_case: CartCase,
         product_id: int,
-        count: int,
+        count: int = 0,
         user_id: int = Depends(get_current_user_id)
 ):
     """при count = 0 удаляется фулл товар"""

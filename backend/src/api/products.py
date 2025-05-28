@@ -26,6 +26,14 @@ async def find_product(
     return await product_case.get_list(**filter_by)
 
 
+@router.get("/find/{query}")
+async def find_product(
+        product_case: ProductCase,
+        query: str,
+):
+    return await product_case.find(query)
+
+
 @router.post("/get_page")
 async def get_page(
         page_index: int,
