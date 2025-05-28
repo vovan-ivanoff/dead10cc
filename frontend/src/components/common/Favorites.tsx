@@ -18,7 +18,6 @@ interface Product {
     name: string;
     description: string;
     price: number;
-    oldPrice: number;
     image: string;
     author: string;
     dateAdded: string;
@@ -169,9 +168,6 @@ const FavoritesPage: React.FC<ProductListProps> = ({ products }) => {
                                     <p className="text-xl font-semibold text-red-500 truncate">
                                         {product.price}₽
                                     </p>
-                                    <p className="ml-2 text-sm text-gray-500 line-through truncate">
-                                        {product.oldPrice}₽
-                                    </p>
                                 </div>
                                 <p className="text-sm text-red-500 mb-1 truncate">
                                     с WB Кошельком
@@ -182,7 +178,7 @@ const FavoritesPage: React.FC<ProductListProps> = ({ products }) => {
                                         / {product.name}
                                     </p>
                                 </div>
-                                <button className="w-full p-2 bg-[#A232E8] hover:bg-[#AF4DFD] text-white rounded-xl transition-all border-radius-[15px] duration-300 ease-in-out">
+                                <button className="w-full p-2 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)]">
                                     Добавить в корзину
                                 </button>
                             </div>

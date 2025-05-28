@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from typing import Optional
 
-from fastapi import Depends, Request, HTTPException
+from fastapi import Depends, Request, HTTPException, Response
 from jose import JWTError, jwt
 
 from config import settings
@@ -12,7 +12,7 @@ from schemas.phone_auth import PHONE_AUTH_SECRET_KEY, PHONE_AUTH_ALGORITHM
 
 
 def get_token(request: Request):
-    token = request.cookies.get("TootEventToken")
+    token = request.cookies.get("SnaplyAuthToken")
     if not token:
         raise TokenAbsentException
     return token
@@ -60,3 +60,5 @@ async def get_current_user_phone(token: str = Depends(get_token)):
     if phone is None:
         raise credentials_exception
     return phone
+
+
