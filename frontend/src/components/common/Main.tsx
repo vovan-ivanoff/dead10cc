@@ -46,7 +46,7 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
     if (typeof id === 'string') {
       // Извлекаем article из формата type_article_page_index
       const parts = id.split('_');
-      if (parts.length >= 2 && parts[0] && ['content', 'base', 'collaborative'].includes(parts[0])) {
+      if (parts.length >= 2 && parts[0] && ['content', 'base', 'collaborative', 'guest'].includes(parts[0])) {
         const articleId = parts[1];
         if (typeof articleId === 'string') {
           console.log('Extracted article ID:', articleId);

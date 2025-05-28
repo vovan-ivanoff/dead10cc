@@ -18,6 +18,26 @@ import { Product } from "@/types/product";
 import { addToCart } from "@/api/cart";
 import { trackUserAction } from "@/api/recomendations";
 
+// Функция для склонения слова "оценка"
+const getRatingWord = (count: number): string => {
+    const lastDigit = count % 10;
+    const lastTwoDigits = count % 100;
+
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+        return 'оценок';
+    }
+
+    if (lastDigit === 1) {
+        return 'оценка';
+    }
+
+    if (lastDigit >= 2 && lastDigit <= 4) {
+        return 'оценки';
+    }
+
+    return 'оценок';
+};
+
 // Заготовка для изображения-заглушки
 const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAyIiBoZWlnaHQ9IjUyNCIgdmlld0JveD0iMCAwIDQwMiA1MjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMiIgaGVpZ2h0PSI1MjQiIGZpbGw9IiNFNUU3RUIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM2QjZCNkIiPk5vIGltYWdlPC90ZXh0Pjwvc3ZnPg==';
 
@@ -128,10 +148,10 @@ export default function ProductPage({ product }: ProductPageProps) {
                                     className="mr-1"
                                 />
                                 <span className="mt-1.5 mr-6 text-md font-medium">
-                                    5.0
+                                    {product.rating}
                                 </span>
                                 <span className="mt-1.5 text-md font-medium">
-                                    10 оценок
+                                    {product.reviews} {getRatingWord(product.reviews)}
                                     <span className="ml-1 text-[#605f5f]">&gt;</span>
                                 </span>
                             </div>
@@ -141,7 +161,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                 <h3 className="ml-1 font-medium">{product.description}</h3>
                             </div>
 
-                            <div className="mt-4 text-sm font-medium text-[#605f5f]">
+                            {/* <div className="mt-4 text-sm font-medium text-[#605f5f]">
                                 Таблица размеров &gt;
                             </div>
 
@@ -153,7 +173,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                 >
                                     <span className="mt-1 text-md font-medium">50-52</span>
                                 </Button>
-                            </div>
+                            </div> */}
 
                             <div className="mt-6">
                                 <div className="grid grid-cols-2 gap-x-2 gap-y-3 text-xs">
@@ -277,7 +297,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                                 className="mr-1"
                                             />
                                             <span className="mt-1.5 mr-6 text-md font-medium">
-                                                5.0
+                                                {product.rating}
                                             </span>
                                         </div>
 

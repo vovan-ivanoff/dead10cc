@@ -60,6 +60,6 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ./dbdata
+      device: ./testdata
 
   model_data:

@@ -51,3 +51,20 @@ export const deleteFromCart = async (productId: number, count: number): Promise<
     return false;
   }
 };
+
+export const clearCart = async (): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/carts`, {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+    return false;
+  }
+};

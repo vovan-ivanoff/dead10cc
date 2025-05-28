@@ -17,6 +17,7 @@ interface LocalProduct {
     price: number;
     author: string;
     image: string;
+    rating: number;
     reviews?: number;
 }
 
@@ -40,7 +41,7 @@ const transformLocalProduct = (item: LocalProduct): Product => ({
     seller: item.author,
     image: item.image,
     reviews: item.reviews || 0,
-    rating: 5,
+    rating: item.rating,
     article: item.id,
     description: "",
     tags: []

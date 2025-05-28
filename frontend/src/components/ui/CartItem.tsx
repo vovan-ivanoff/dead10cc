@@ -73,6 +73,8 @@ export const CartItem: FC<CartItemProps> = ({
 
     if (!isVisible) return null;
 
+    const imageSrc = !image || imageError ? placeholderImage : image;
+
     return (
         <>
             <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-[20px] shadow-md">
@@ -85,7 +87,7 @@ export const CartItem: FC<CartItemProps> = ({
                     />
                     <div className="relative w-[120px] h-[120px] rounded-[10px] overflow-hidden flex-shrink-0">
                         <Image
-                            src={imageError ? placeholderImage : image}
+                            src={imageSrc}
                             alt={title}
                             fill
                             className="object-cover"

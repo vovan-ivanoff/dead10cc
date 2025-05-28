@@ -4,9 +4,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { CartItem } from '../ui/CartItem';
 import Image from 'next/image';
 import Container from './Container';
-import { PieChart } from 'lucide-react';
-import { addToCart, deleteFromCart } from '@/api/cart';
+import { PieChart, Trash2 } from 'lucide-react';
+import { addToCart, deleteFromCart, clearCart } from '@/api/cart';
 import { trackUserAction } from '@/api/recomendations';
+import { ClearCartModal } from '../ui/ClearCartModal';
+
+// Заготовка для изображения-заглушки
+const placeholderImage = '/assets/images/pictures/default.jpg';
 
 interface Product {
     id: number;
@@ -27,6 +31,8 @@ export default function CartPage({ products }: ProductListProps) {
     const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>({});
     const [paymentOption, setPaymentOption] = useState('upon-receipt');
     const [productList, setProductList] = useState(products);
+    const [imageErrors] = useState<Record<number, boolean>>({});
+    const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
     const normalizedProducts = useMemo(() => {
         return productList.map(p => ({
@@ -41,6 +47,13 @@ export default function CartPage({ products }: ProductListProps) {
         setQuantities(initialQuantities);
         setSelectedItems(initialSelections);
     }, [normalizedProducts]);
+
+    const getImageSrc = (product: Product) => {
+        if (!product.image || imageErrors[product.id]) {
+            return placeholderImage;
+        }
+        return product.image;
+    };
 
     const handleIncrease = async (id: number) => {
         try {
@@ -147,22 +160,47 @@ export default function CartPage({ products }: ProductListProps) {
         return 'товаров';
     };
 
+    const handleClearCart = async () => {
+        try {
+            const success = await clearCart();
+            if (success) {
+                setProductList([]);
+                setQuantities({});
+                setSelectedItems({});
+            }
+        } catch (error) {
+            console.error('Error clearing cart:', error);
+        }
+        setIsClearModalOpen(false);
+    };
+
     return (
         <Container>
             <div className="w-full max-w-[1400px] px-4">
                 <div className="flex flex-col lg:flex-row items-start gap-8">
                     <div className="flex flex-col w-full lg:flex-1 gap-6">
                         <div className="bg-white p-5 rounded-[20px] shadow-md w-full">
-                            <div className="flex gap-4 flex-wrap">
-                                <h2 className="text-2xl font-semibold mb-2 p-2">Корзина</h2>
-                                <h3 className="py-3 text-gray-400">{totalCount} {getProductWord(totalCount)}</h3>
+                            <div className="flex gap-4 flex-wrap items-center justify-between">
+                                <div className="flex gap-4 flex-wrap items-center">
+                                    <h2 className="text-2xl font-semibold mb-2 p-2">Корзина</h2>
+                                    <h3 className="py-3 text-gray-400">{totalCount} {getProductWord(totalCount)}</h3>
+                                </div>
+                                {totalCount > 0 && (
+                                    <button
+                                        onClick={() => setIsClearModalOpen(true)}
+                                        className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 transition-colors"
+                                    >
+                                        <Trash2 size={20} />
+                                        <span>Очистить корзину</span>
+                                    </button>
+                                )}
                             </div>
                             <div className="space-y-6 w-full">
                                 {normalizedProducts.map((product) => (
                                     <CartItem
                                         key={product.id}
                                         id={product.id}
-                                        image={product.image}
+                                        image={getImageSrc(product)}
                                         title={product.title}
                                         description={product.description}
                                         price={product.price}
@@ -251,6 +289,12 @@ export default function CartPage({ products }: ProductListProps) {
                     </div>
                 </div>
             </div>
+
+            <ClearCartModal
+                isOpen={isClearModalOpen}
+                onClose={() => setIsClearModalOpen(false)}
+                onConfirm={handleClearCart}
+            />
         </Container>
     );
 }
