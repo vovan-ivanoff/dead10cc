@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr
 from schemas.auth import UserInfoSchema, UserLoginSchema, UserRegisterSchema
 from schemas.exceptions import (IncorrectEmailOrPasswordException,
                                 UnauthorizedException,
-                                UserAlreadyExistException, UserDoesNotExistException)
+                                UserAlreadyExistException)
 from schemas.phone_auth import ACCESS_TOKEN_EXPIRE_MINUTES
 from schemas.users import UserSchema
 from services.auth.auth import (create_access_token, get_password_hash,
@@ -34,7 +34,7 @@ class UsersService:
     async def get_user_info(uow: AbstractUOW, **field) -> UserInfoSchema:
         user = await uow.users.find_one(**field)
         if not user:
-            raise UserDoesNotExistException
+            raise UnauthorizedException
         return UserInfoSchema(**user.dict())
 
     @staticmethod
@@ -50,7 +50,10 @@ class UsersService:
         response.set_cookie(
             key="SnaplyAuthToken",
             value=access_token,
-            httponly=True
+            httponly=True,
+            max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+            secure=True,
+            samesite=None
         )
 
     @staticmethod

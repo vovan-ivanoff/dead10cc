@@ -6,7 +6,7 @@ from starlette.responses import Response
 from domain.usecases.user import AbstractUserUseCase
 from schemas.auth import UserInfoSchema, UserLoginSchema, UserRegisterSchema
 from schemas.exceptions import (AccessForbiddenException,
-                                UserIsAlreadyModeratorException, UserDoesNotExistException)
+                                UserIsAlreadyModeratorException)
 from services.carts import CartsService
 from services.users import UsersService
 from utils.dependencies import UOWDep
@@ -67,7 +67,6 @@ class UserUseCase(AbstractUserUseCase):
         async with self.uow:
             if not await UsersService.user_is_moderator(self.uow, user_id):
                 raise AccessForbiddenException
-            await UsersService.get_user_info(self.uow, id=target_user_id)
             if await UsersService.user_is_moderator(self.uow, target_user_id):
                 raise UserIsAlreadyModeratorException
             await UsersService.change_user_info(

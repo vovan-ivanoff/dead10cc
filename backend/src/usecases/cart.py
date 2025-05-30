@@ -39,11 +39,10 @@ class CartUseCase(AbstractCartUseCase):
             self, user_id: int, product_id: int, count: int
     ):
         async with self.uow:
-            updated = await CartsService.add_product(self.uow, user_id, product_id, count)
+            await CartsService.add_product(self.uow, user_id, product_id, count)
             await NotesService.add_note(self.uow, user_id, product_id, ADDED_TO_CART)
 
             await self.uow.commit()
-            return updated
 
     async def delete_product(
             self, user_id: int, target_user_id: int, product_id: int, count: int

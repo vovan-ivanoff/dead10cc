@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import pickle
 from flask import Flask, jsonify, abort, request
+
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
 
@@ -71,27 +72,17 @@ def get_model_rec(sku: int, n: int = 10) -> List[int]:
 app = Flask(__name__)
 
 
-@app.route('/recommendation', methods=['POST'])
-def get_recommendations():
+@app.route('/recommendation/<int:count>', methods=['POST'])
+def get_recommendations(count: int):
     if not request.json or 'interesting_products' not in request.json:
         abort(400)
     recommended = []
     skus = request.json['interesting_products']
     skus_count = len(skus)
-    recs = dict()
     for sku in skus:
-        recs[sku] = get_model_rec(sku, 5)
-        for (key, val) in recs.items():
-            if key == sku:
-                continue
-            recs[sku] = [item for item in recs.get(sku) if item not in val]
+        recommended.extend(get_model_rec(sku, (count + skus_count - 1) // skus_count))
 
-    for idx in range(5):
-        for sku in skus:
-            if len(recs[sku]) > idx:
-                recommended.append(recs[sku][idx])
-
-    result = json.dumps({"recommended": recommended}, ensure_ascii=True, indent=4)
+    result = json.dumps({"recommended": recommended[:count]}, ensure_ascii=True, indent=4)
     return result, 201
 
 

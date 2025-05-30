@@ -50,16 +50,6 @@ async def get(
     finally:
         return await product_case.get_info(user_id, product_id)
 
-@router.get("/get_by_article/{article}")
-async def get(
-        product_case: ProductCase,
-        article: int,
-):
-    user_id: int | None = None
-    try:
-        user_id = get_current_user_id()
-    finally:
-        return await product_case.get_info_by_article(user_id, article)
 
 @router.post("/")
 async def add(

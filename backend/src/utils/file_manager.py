@@ -10,9 +10,9 @@ from schemas.exceptions import (AccessForbiddenException, BadFileException,
 class FileManager:
     @staticmethod
     async def upload_my_avatar(avatar: UploadFile, user_id: int):
-        if avatar.content_type not in ["image/jpg", "image/jpeg"]:
+        if avatar.content_type != "image/jpg":
             raise BadFileException
-        with open(f"../resources/avatars/avatar_{user_id}.jpg", "wb") as file:
+        with open(f"../resources/avatar_{user_id}.jpg", "wb") as file:
             file.write(await avatar.read())
 
     @staticmethod
@@ -38,7 +38,7 @@ class FileManager:
         if not await user_case.is_moderator(user_id):
             raise AccessForbiddenException
 
-        if poster.content_type not in ["image/jpg", "image/jpeg"]:
+        if poster.content_type != "image/jpg":
             raise BadFileException
         with open(f"../resources/products/{product_id}_preview.jpg", "wb") as file:
             file.write(await poster.read())
@@ -50,7 +50,7 @@ class FileManager:
         if not await user_case.is_moderator(user_id):
             raise AccessForbiddenException
 
-        if poster.content_type not in ["image/jpg", "image/jpeg"]:
+        if poster.content_type != "image/jpg":
             raise BadFileException
 
         for i in range(20):
