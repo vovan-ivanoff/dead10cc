@@ -35,15 +35,14 @@ export const addToCart = async (productId: number, count: number = 1): Promise<b
   }
 };
 
-export const deleteFromCart = async (productId: number): Promise<boolean> => {
+export const deleteFromCart = async (productId: number, count: number): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/carts/${productId}`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/carts/${productId}/${count}`, {
       method: 'DELETE',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ count: 0 }),
+      }
     });
 
     return response.ok;
@@ -53,20 +52,19 @@ export const deleteFromCart = async (productId: number): Promise<boolean> => {
   }
 };
 
-export const removeFromCart = async (productId: number, count: number = 1): Promise<boolean> => {
+export const clearCart = async (): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/carts/${productId}`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/carts`, {
       method: 'DELETE',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ count }),
+      }
     });
 
     return response.ok;
   } catch (error) {
-    console.error('Error removing from cart:', error);
+    console.error('Error clearing cart:', error);
     return false;
   }
-}; 
+};

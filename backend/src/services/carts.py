@@ -45,8 +45,8 @@ class CartsService:
             products[key] = products.get(key, 0) - count
             if products[key] < 1:
                 del products[key]
-
-        await uow.carts.update_by_id(user_id, products=products)
+        cart = await uow.carts.update_by_id(user_id, products=products)
+        return CartInfoSchema(**cart.dict())
 
     @staticmethod
     async def clear_cart(

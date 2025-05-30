@@ -58,9 +58,10 @@ class CartUseCase(AbstractCartUseCase):
             self, user_id: int, product_id: int, count: int
     ):
         async with self.uow:
-            await CartsService.delete_product(self.uow, user_id, product_id, count)
+            updated = await CartsService.delete_product(self.uow, user_id, product_id, count)
 
             await self.uow.commit()
+            return updated
 
     async def clear(
             self, user_id: int, target_user_id: int

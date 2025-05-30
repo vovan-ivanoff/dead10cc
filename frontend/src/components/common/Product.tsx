@@ -5,9 +5,9 @@ import {
     PieChart,
 } from "lucide-react";
 import React from "react";
-
 import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/AdminButton";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/Tabs";
@@ -17,7 +17,26 @@ import Container from "./Container";
 import { Product } from "@/types/product";
 import { addToCart } from "@/api/cart";
 import { trackUserAction } from "@/api/recomendations";
-import { AddToCartModal } from "@/components/ui/AddToCartModal";
+
+// Функция для склонения слова "оценка"
+const getRatingWord = (count: number): string => {
+    const lastDigit = count % 10;
+    const lastTwoDigits = count % 100;
+
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+        return 'оценок';
+    }
+
+    if (lastDigit === 1) {
+        return 'оценка';
+    }
+
+    if (lastDigit >= 2 && lastDigit <= 4) {
+        return 'оценки';
+    }
+
+    return 'оценок';
+};
 
 // Заготовка для изображения-заглушки
 const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAyIiBoZWlnaHQ9IjUyNCIgdmlld0JveD0iMCAwIDQwMiA1MjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMiIgaGVpZ2h0PSI1MjQiIGZpbGw9IiNFNUU3RUIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM2QjZCNkIiPk5vIGltYWdlPC90ZXh0Pjwvc3ZnPg==';
@@ -27,46 +46,35 @@ interface ProductPageProps {
 }
 
 export default function ProductPage({ product }: ProductPageProps) {
+    const router = useRouter();
     const [liked, setLiked] = useState(false);
     const [isAddingToCart, setIsAddingToCart] = useState(false);
     const [imageError, setImageError] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState<{ id: number; name: string } | null>(null);
+    const [isInCart, setIsInCart] = useState(false);
 
     const handleImageError = () => {
         setImageError(true);
     };
 
     const handleAddToCart = async () => {
-        try {
-            setSelectedProduct({
-                id: Number(product.id),
-                name: product.title || 'Unknown Product'
-            });
-            setIsModalOpen(true);
-        } catch (error) {
-            console.error('Error preparing product for cart:', error);
+        if (isInCart) {
+            window.location.href = '/cart';
+            return;
         }
-    };
 
-    const handleConfirmAddToCart = async () => {
-        if (!selectedProduct) return;
-        
         setIsAddingToCart(true);
         
         try {
-            // Добавляем товар в корзину
-            const success = await addToCart(Number(selectedProduct.id));
+            const success = await addToCart(Number(product.id));
             
             if (success) {
-                // Отслеживаем действие пользователя
-                await trackUserAction(Number(selectedProduct.id), 'ADDED_TO_CART');
+                await trackUserAction(Number(product.id), 'ADDED_TO_CART');
+                setIsInCart(true);
             }
         } catch (error) {
             console.error('Error adding product to cart:', error);
         } finally {
             setIsAddingToCart(false);
-            setIsModalOpen(false);
         }
     };
 
@@ -75,7 +83,7 @@ export default function ProductPage({ product }: ProductPageProps) {
             <div className="w-full max-w-[1400px]">
                 <main className="mt-2 mb-6">
                     <div className="mb-6 flex items-center">
-                        <Button variant="ghost" className="mr-4 p-0">
+                        <Button variant="ghost" className="mr-4 p-0" onClick={() => router.back()}>
                             <ArrowLeftIcon className="h-[30px] w-[34px] text-gray-500" />
                         </Button>
                         <span className="text-xs font-medium text-gray-500 mt-1">
@@ -100,16 +108,16 @@ export default function ProductPage({ product }: ProductPageProps) {
 
                     <div className="grid grid-cols-12 gap-4">
                         <div className="col-span-4">
-                            <div className="relative h-[524px] rounded-[15px] overflow-hidden">
+                            <div className="relative w-[402px] h-[524px] rounded-[15px] overflow-hidden">
                                 <Image
                                     src={imageError ? placeholderImage : product.image}
                                     alt={product.seller}
-                                    width={402}
-                                    height={524}
-                                    className="object-contain rounded-2xl"
+                                    fill
+                                    style={{ objectFit: 'contain' }}
+                                    className="rounded-2xl"
                                     onError={handleImageError}
                                 />
-                                <div className="bottom-4 right-4 flex items-center gap-2 px-2 py-1 w-fit bg-white rounded-xl shadow-sm">
+                                <div className="absolute bottom-4 right-4 flex items-center gap-2 px-2 py-1 w-fit bg-white rounded-xl shadow-sm">
                                     <Image
                                         src="/assets/icons/filter-search.svg"
                                         alt="filter"
@@ -140,10 +148,10 @@ export default function ProductPage({ product }: ProductPageProps) {
                                     className="mr-1"
                                 />
                                 <span className="mt-1.5 mr-6 text-md font-medium">
-                                    5.0
+                                    {product.rating}
                                 </span>
                                 <span className="mt-1.5 text-md font-medium">
-                                    10 оценок
+                                    {product.reviews} {getRatingWord(product.reviews)}
                                     <span className="ml-1 text-[#605f5f]">&gt;</span>
                                 </span>
                             </div>
@@ -153,7 +161,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                 <h3 className="ml-1 font-medium">{product.description}</h3>
                             </div>
 
-                            <div className="mt-4 text-sm font-medium text-[#605f5f]">
+                            {/* <div className="mt-4 text-sm font-medium text-[#605f5f]">
                                 Таблица размеров &gt;
                             </div>
 
@@ -165,7 +173,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                 >
                                     <span className="mt-1 text-md font-medium">50-52</span>
                                 </Button>
-                            </div>
+                            </div> */}
 
                             <div className="mt-6">
                                 <div className="grid grid-cols-2 gap-x-2 gap-y-3 text-xs">
@@ -239,10 +247,18 @@ export default function ProductPage({ product }: ProductPageProps) {
                                     <button 
                                         disabled={isAddingToCart}
                                         onClick={handleAddToCart}
-                                        className="mt-2 w-full h-11 p-2 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)] disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className={`mt-2 w-full h-11 p-2 text-white rounded-[10px] transition-all ${
+                                            isInCart 
+                                                ? 'bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)] hover:brightness-110' 
+                                                : 'bg-[#1B2429] hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)]'
+                                        } disabled:opacity-50 disabled:cursor-not-allowed`}
                                     >
                                         <h3 className="mt-0.5">
-                                            {isAddingToCart ? 'Добавление...' : 'Добавить в корзину'}
+                                            {isAddingToCart 
+                                                ? 'Добавление...' 
+                                                : isInCart 
+                                                    ? 'В корзине' 
+                                                    : 'Добавить в корзину'}
                                         </h3>
                                     </button>
 
@@ -281,7 +297,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                                 className="mr-1"
                                             />
                                             <span className="mt-1.5 mr-6 text-md font-medium">
-                                                5.0
+                                                {product.rating}
                                             </span>
                                         </div>
 
@@ -322,13 +338,6 @@ export default function ProductPage({ product }: ProductPageProps) {
                     </div>
                 </main>
             </div>
-
-            <AddToCartModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onConfirm={handleConfirmAddToCart}
-                productName={selectedProduct?.name || 'Unknown Product'}
-            />
         </Container>
     );
 }

@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { addToCart } from "@/api/cart";
 import { trackUserAction } from "@/api/recomendations";
-import { AddToCartModal } from "@/components/ui/AddToCartModal";
 import { findProductByArticle } from "@/api/admin/products";
 
 interface ProductListProps {
@@ -23,13 +22,12 @@ interface ProductListProps {
 }
 
 // Заготовка для изображения-заглушки
-const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM2QjZCNkIiPk5vIGltYWdlPC90ZXh0Pjwvc3ZnPg==';
+const placeholderImage = '/assets/images/pictures/default.jpg';
 
 const ProductList: React.FC<ProductListProps> = ({ products }) => {
-  const [selectedProduct, setSelectedProduct] = useState<{ id: number | string; name: string } | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
+  const [inCartProducts, setInCartProducts] = useState<Set<string>>(new Set());
 
   const handleImageError = (src: string) => {
     setFailedImages(prev => new Set(prev).add(src));
@@ -46,12 +44,14 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
   const getProductId = (id: number | string): string => {
     console.log('Original product ID:', id);
     if (typeof id === 'string') {
-      // Извлекаем article из формата content_article_page_index
+      // Извлекаем article из формата type_article_page_index
       const parts = id.split('_');
-      if (parts.length >= 2 && parts[0] === 'content' && parts[1]) {
-        const result = parts[1];
-        console.log('Extracted article ID:', result);
-        return result;
+      if (parts.length >= 2 && parts[0] && ['content', 'base', 'collaborative', 'guest'].includes(parts[0])) {
+        const articleId = parts[1];
+        if (typeof articleId === 'string') {
+          console.log('Extracted article ID:', articleId);
+          return articleId;
+        }
       }
       console.log('Using original string ID:', id);
       return id;
@@ -66,8 +66,15 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
   };
 
   const handleAddToCart = async (e: React.MouseEvent, product: ProductListProps['products'][0]) => {
-    e.preventDefault(); // Предотвращаем переход по ссылке
+    e.preventDefault();
     
+    const productId = getProductId(product.id);
+    
+    if (inCartProducts.has(productId)) {
+      window.location.href = '/cart';
+      return;
+    }
+
     try {
       let article: number;
       
@@ -86,6 +93,8 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
         throw new Error('Invalid article number');
       }
 
+      setIsLoading(prev => ({ ...prev, [productId]: true }));
+
       // Ищем товар по артикулу
       const foundProducts = await findProductByArticle(article);
       
@@ -96,36 +105,19 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
           throw new Error('Product not found');
         }
 
-        // Открываем модальное окно для подтверждения
-        setSelectedProduct({
-          id: productToAdd.id,
-          name: productToAdd.title
-        });
-        setIsModalOpen(true);
-      }
-    } catch (error) {
-      console.error('Error preparing product for cart:', error);
-    }
-  };
-
-  const handleConfirmAddToCart = async () => {
-    if (!selectedProduct) return;
-    
-    setIsLoading(true);
-    
-    try {
-      // Добавляем товар в корзину
-      const success = await addToCart(Number(selectedProduct.id));
-      
-      if (success) {
-        // Отслеживаем действие пользователя
-        await trackUserAction(Number(selectedProduct.id), 'ADDED_TO_CART');
+        // Добавляем товар в корзину
+        const success = await addToCart(Number(productToAdd.id));
+        
+        if (success) {
+          // Отслеживаем действие пользователя
+          await trackUserAction(Number(productToAdd.id), 'ADDED_TO_CART');
+          setInCartProducts(prev => new Set(prev).add(productId));
+        }
       }
     } catch (error) {
       console.error('Error adding product to cart:', error);
     } finally {
-      setIsLoading(false);
-      setIsModalOpen(false);
+      setIsLoading(prev => ({ ...prev, [productId]: false }));
     }
   };
 
@@ -133,71 +125,78 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
     <Container>
       <div className="w-full max-w-[1400px]">
         <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {products && products.length > 0 ? products.map((product) => (
-            <Link
-              key={product.id}
-              href={`/product/${getProductId(product.id)}`}
-              className="p-4 bg-white rounded-xl hover:shadow-lg transition-all"
-              style={{ width: 'var(--card-width)' }}
-            >
-              <div className="w-[190px] h-[250px] mx-auto mb-4 bg-gray-300 rounded-[10px] flex items-center justify-center overflow-hidden relative">
-                <Image
-                  src={getSafeImageSrc(product.preview, product.image)}
-                  alt={getSafeString(product.title, product.name || 'Product')}
-                  fill
-                  style={{ objectFit: 'contain' }}
-                  className="rounded-[10px]"
-                  unoptimized={process.env.NODE_ENV !== 'production'}
-                  priority={false}
-                  onError={() => handleImageError(product.preview || product.image || '')}
-                />
-              </div>
-
-              <p className="text-xl font-bold text-black hover:bg-gradient-to-r from-[#6A11CB] to-[#2575FC] hover:bg-clip-text hover:text-transparent">
-                {product.price}₽
-              </p>
-
-              <h3 className="text-[15px] font-Hauss truncate">
-                <span className="font-book text-black">
-                  {getSafeString(product.seller, product.author)}
-                </span>
-                {product.seller || product.author ? ' / ' : ''}
-                <span className="text-gray-600">
-                  {getSafeString(product.title, product.name)}
-                </span>
-              </h3>
-
-              <div className="flex items-center mb-2">
-                <div className="flex space-x-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <span key={i} className={`text-xl ${i < Math.round(product.rating) ? 'text-yellow-500' : 'text-gray-300'}`}>
-                      ★
-                    </span>
-                  ))}
+          {products && products.length > 0 ? products.map((product) => {
+            const productId = getProductId(product.id);
+            const isInCart = inCartProducts.has(productId);
+            
+            return (
+              <Link
+                key={product.id}
+                href={`/product/${productId}`}
+                className="p-4 bg-white rounded-xl hover:shadow-lg transition-all"
+                style={{ width: 'var(--card-width)' }}
+              >
+                <div className="w-[190px] h-[250px] mx-auto mb-4 bg-white rounded-[10px] flex items-center justify-center overflow-hidden relative">
+                  <Image
+                    src={getSafeImageSrc(product.preview, product.image)}
+                    alt={getSafeString(product.title, product.name || 'Product')}
+                    fill
+                    style={{ objectFit: 'contain' }}
+                    className="rounded-[10px]"
+                    unoptimized={process.env.NODE_ENV !== 'production'}
+                    priority={false}
+                    onError={() => handleImageError(product.preview || product.image || '')}
+                  />
                 </div>
-                <span className="ml-1 text-sm text-gray-500">
-                  ({product.reviews || 0})
-                </span>
-              </div>
-              <button 
-                onClick={(e) => handleAddToCart(e, product)}
-                disabled={isLoading}
-                className="w-full py-2 bg-[#1B2429] text-white rounded-[10px] transition-all hover:bg-gradient-to-r from-[#6A11CB] to-[#2575FC] disabled:opacity-50 disabled:cursor-not-allowed">
-                {isLoading ? 'Добавление...' : 'Добавить в корзину'}
-              </button>
-            </Link>
-          )) : (
+
+                <p className="text-xl font-bold text-black hover:bg-gradient-to-r from-[#6A11CB] to-[#2575FC] hover:bg-clip-text hover:text-transparent">
+                  {product.price}₽
+                </p>
+
+                <h3 className="text-[15px] font-Hauss truncate">
+                  <span className="font-book text-black">
+                    {getSafeString(product.seller, product.author)}
+                  </span>
+                  {product.seller || product.author ? ' / ' : ''}
+                  <span className="text-gray-600">
+                    {getSafeString(product.title, product.name)}
+                  </span>
+                </h3>
+
+                <div className="flex items-center mb-2">
+                  <div className="flex space-x-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className={`text-xl ${i < Math.round(product.rating) ? 'text-yellow-500' : 'text-gray-300'}`}>
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  <span className="ml-1 text-sm text-gray-500">
+                    ({product.reviews || 0})
+                  </span>
+                </div>
+                <button 
+                  onClick={(e) => handleAddToCart(e, product)}
+                  disabled={isLoading[productId]}
+                  className={`w-full py-2 text-white rounded-[10px] transition-all ${
+                    isInCart 
+                      ? 'bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)] hover:brightness-110' 
+                      : 'bg-[#1B2429] hover:bg-gradient-to-r from-[#6A11CB] to-[#2575FC]'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {isLoading[productId] 
+                    ? 'Добавление...' 
+                    : isInCart 
+                      ? 'В корзине' 
+                      : 'Добавить в корзину'}
+                </button>
+              </Link>
+            );
+          }) : (
             <div className="col-span-full text-center py-10">Товары не найдены</div>
           )}
         </div>
       </div>
-
-      <AddToCartModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleConfirmAddToCart}
-        productName={selectedProduct?.name || 'Unknown Product'}
-      />
     </Container>
   );
 };

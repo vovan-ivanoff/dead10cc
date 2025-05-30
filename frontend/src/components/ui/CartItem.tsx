@@ -5,7 +5,7 @@ import { DeleteFromCartModal } from "./DeleteFromCartModal";
 import { deleteFromCart } from "@/api/cart";
 
 // Заготовка для изображения-заглушки
-const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNFNUU3RUIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM2QjZCNkIiPk5vIGltYWdlPC90ZXh0Pjwvc3ZnPg==';
+const placeholderImage = '/assets/images/pictures/default.jpg';
 
 type CartItemProps = {
     id: number;
@@ -40,6 +40,7 @@ export const CartItem: FC<CartItemProps> = ({
     const [liked, setLiked] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
 
     const handleIncrease = () => {
         onIncrease();
@@ -52,7 +53,8 @@ export const CartItem: FC<CartItemProps> = ({
     };
 
     const handleDelete = async () => {
-        const success = await deleteFromCart(id);
+        setIsVisible(false);
+        const success = await deleteFromCart(id, 0);
         if (success && onDelete) {
             onDelete();
         }
@@ -69,6 +71,10 @@ export const CartItem: FC<CartItemProps> = ({
     const totalDiscounted = Math.round(discountedPrice * quantity);
     const totalOriginal = Math.round(crossedOutPrice * quantity);
 
+    if (!isVisible) return null;
+
+    const imageSrc = !image || imageError ? placeholderImage : image;
+
     return (
         <>
             <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-[20px] shadow-md">
@@ -77,11 +83,11 @@ export const CartItem: FC<CartItemProps> = ({
                         type="checkbox"
                         checked={selected}
                         onChange={onSelect}
-                        className="w-5 h-5 rounded border-gray-300 text-[#2575FC] focus:ring-[#2575FC] flex-shrink-0"
+                        className="mt-1 w-6 h-6 text-[#6A11CB] accent-[#6A11CB] flex-shrink-0"
                     />
                     <div className="relative w-[120px] h-[120px] rounded-[10px] overflow-hidden flex-shrink-0">
                         <Image
-                            src={imageError ? placeholderImage : image}
+                            src={imageSrc}
                             alt={title}
                             fill
                             className="object-cover"
