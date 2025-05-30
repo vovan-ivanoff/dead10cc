@@ -2,23 +2,33 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-RUN yarn global add yarn
+RUN if [ "$(uname -s)" = "Linux" ] || [ "$(uname -s)" = "Darwin" ]; then \
+      apk add --no-cache curl unzip && \
+      npm install -g bun; \
+    else \
+      curl -fsSL https://bun.sh/install | bash; \
+    fi
 
-COPY package.json yarn.lock ./
+COPY package.json bun.lockb ./
 
-RUN yarn install
+RUN bun install
 
-RUN yarn add --dev @types/node
+RUN bun add --dev @types/node
 
 COPY . .
 
-RUN yarn build
+RUN bunx next build
 
 FROM node:18-alpine
 
 WORKDIR /app
 
-RUN yarn global add yarn
+RUN if [ "$(uname -s)" = "Linux" ] || [ "$(uname -s)" = "Darwin" ]; then \
+      apk add --no-cache curl unzip && \
+      npm install -g bun; \
+    else \
+      curl -fsSL https://bun.sh/install | bash; \
+    fi
 
 COPY --from=builder /app /app
 
@@ -27,4 +37,4 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 EXPOSE 3000
 
-CMD ["yarn", "start"]
+CMD ["bunx", "next", "start"]
