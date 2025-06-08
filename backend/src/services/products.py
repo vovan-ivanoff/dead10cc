@@ -1,9 +1,12 @@
 from typing import List, Iterator
 
 from pydantic import BaseModel
+from watchfiles import awatch
 
-from schemas.products import ProductAddSchema, ProductInfoSchema
+from schemas.exceptions import InvalidData
+from schemas.products import ProductAddSchema, ProductInfoSchema, ProductSchema
 from utils.unit_of_work import AbstractUOW
+from fastapi import Response
 
 
 class ProductsService:
@@ -30,23 +33,21 @@ class ProductsService:
     ) -> List[BaseModel]:
         return await uow.products.find_all(**filter_by)
 
-    @staticmethod
-    async def get_iterator(
-            uow: AbstractUOW,
-            size: int,
-            **filter_by
-    ) -> Iterator:
-        return await uow.products.get_iter(size)
 
     @staticmethod
-    async def get_next_page(
-            iterator: Iterator
+    async def get_page(
+            uow: AbstractUOW,
+            page_index: int,
+            page_size: int,
+            **filter_by
     ) -> List[BaseModel]:
-        try:
-            page = next(iterator)
-        except StopIteration:
-            return []
-        return [row[0].to_read_model() for row in page]
+
+        return await uow.products.get_page(page_index, page_size, **filter_by)
+
+    @staticmethod
+    def reset_paging(response: Response):
+        response.delete_cookie("SnaplyPaging")
+
 
     @staticmethod
     async def get_product_info(
@@ -54,6 +55,7 @@ class ProductsService:
             **field
     ) -> ProductInfoSchema:
         return ProductInfoSchema(**(await uow.products.find_one(**field)).dict())
+
 
     @staticmethod
     async def delete_product(
@@ -68,4 +70,16 @@ class ProductsService:
             product_id: int,
             **data
     ):
-        await uow.products.update_by_id(product_id, **data)
+
+        return await uow.products.update_by_id(product_id, **data)
+
+    @staticmethod
+    async def find(
+            uow: AbstractUOW,
+            query: str
+    ):
+        products = await uow.products.find_all()
+        found = []
+        for word in query.split():
+            found.extend([product for product in products if (word.strip(",.;'\" ").lower() in product.__repr__()) and (product not in found)])
+        return found

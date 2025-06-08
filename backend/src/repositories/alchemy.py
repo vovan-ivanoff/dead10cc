@@ -38,4 +38,5 @@ class SqlAlchemyRepo(AbstractRepo):
 
     async def update_by_id(self, model_id: int, **data):
         stmt = update(self.model).where(self.model.id == model_id).values(**data)
-        await self.session.execute(stmt)
+        result = await self.session.execute(stmt)
+        return result.scalar_one()

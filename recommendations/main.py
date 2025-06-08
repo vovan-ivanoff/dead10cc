@@ -1,3 +1,5 @@
+import json
+
 import pandas as pd
 import pickle
 from flask import Flask, jsonify, abort, request
@@ -72,15 +74,16 @@ app = Flask(__name__)
 
 @app.route('/recommendation/<int:count>', methods=['POST'])
 def get_recommendations(count: int):
-    if not request.json or 'skus' not in request.json:
+    if not request.json or 'interesting_products' not in request.json:
         abort(400)
     recommended = []
-    skus = request.json['skus']
+    skus = request.json['interesting_products']
     skus_count = len(skus)
     for sku in skus:
-        recommended.extend(get_model_rec(sku, (count + skus_count) // skus_count))
+        recommended.extend(get_model_rec(sku, (count + skus_count - 1) // skus_count))
 
-    return jsonify({'recommended': recommended[:count]}), 201
+    result = json.dumps({"recommended": recommended[:count]}, ensure_ascii=True, indent=4)
+    return result, 201
 
 
 app.run(port=5100, host='0.0.0.0')

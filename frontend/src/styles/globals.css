@@ -1,13 +1,39 @@
+@import 'normalize.css/normalize.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body, html {
+svg {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: 100%;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .safari-flex-fix {
+    transform: translateZ(0);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
   background: white;
+  -webkit-font-smoothing: antialiased;
 }
 
 html {
   scroll-behavior: smooth;
+  background: white;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 input::placeholder {
@@ -131,7 +157,12 @@ input::placeholder {
   --search-max-width: 930px;
   --search-min-width: 280px;
   --header-height: clamp(var(--header-min-height), 10vh, var(--header-max-height));
-  --card-width: calc(190px + 2 * 1rem);
+  --card-min-width: 140px;
+  --card-max-width: 220px;
+  --card-width: clamp(var(--card-min-width), 17vw, var(--card-max-width));
+  --footer-min-width: 320px;
+  --footer-max-width: 1230px;
+  --footer-content-width: clamp(var(--footer-min-width), 80vw, var(--footer-max-width));
 }
 
 .fixed {

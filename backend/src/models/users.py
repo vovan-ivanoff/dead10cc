@@ -13,7 +13,7 @@ class Users(Base):
     email: Mapped[str] = mapped_column(String(30), nullable=True)
     name: Mapped[str] = mapped_column(String(30), nullable=True)
     hashed_password: Mapped[str] = mapped_column(nullable=True)
-    is_moderator: Mapped[bool] = mapped_column(nullable=False, default=False)
+    is_moderator: Mapped[bool] = mapped_column(nullable=False, default=True)
 
     def to_read_model(self) -> UserSchema:
         return UserSchema(

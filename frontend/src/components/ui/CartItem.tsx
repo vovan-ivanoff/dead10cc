@@ -1,13 +1,18 @@
-import { FC, useState, useEffect } from "react";
+import { FC, useState } from "react";
 import { Minus, Plus, Heart, Trash } from "lucide-react";
 import Image from "next/image";
+import { DeleteFromCartModal } from "./DeleteFromCartModal";
+import { deleteFromCart } from "@/api/cart";
+
+// Заготовка для изображения-заглушки
+const placeholderImage = '/assets/images/pictures/default.jpg';
 
 type CartItemProps = {
+    id: number;
     image: string;
     title: string;
     description: string;
     price: number;
-    oldPrice: number;
     delivery?: string;
     cancelNote?: string;
     quantity?: number;
@@ -15,9 +20,12 @@ type CartItemProps = {
     onDecrease: () => void;
     selected: boolean;
     onSelect: () => void;
+    className?: string;
+    onDelete?: () => void;
 };
 
 export const CartItem: FC<CartItemProps> = ({
+    id,
     image,
     title,
     description,
@@ -27,85 +35,130 @@ export const CartItem: FC<CartItemProps> = ({
     onDecrease,
     selected,
     onSelect,
+    onDelete,
 }) => {
     const [liked, setLiked] = useState(false);
-    const [localQuantity, setLocalQuantity] = useState(quantity);
-
-    useEffect(() => {
-        setLocalQuantity(quantity);
-    }, [quantity]);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [imageError, setImageError] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
 
     const handleIncrease = () => {
-        setLocalQuantity((q) => q + 1);
         onIncrease();
     };
 
     const handleDecrease = () => {
-        setLocalQuantity((q) => Math.max(1, q - 1));
-        onDecrease();
+        if (quantity > 1) {
+            onDecrease();
+        }
+    };
+
+    const handleDelete = async () => {
+        setIsVisible(false);
+        const success = await deleteFromCart(id, 0);
+        if (success && onDelete) {
+            onDelete();
+        }
+        setIsDeleteModalOpen(false);
+    };
+
+    const handleImageError = () => {
+        setImageError(true);
     };
 
     const discountedPrice = price - 0.03 * price;
     const crossedOutPrice = price;
 
+    const totalDiscounted = Math.round(discountedPrice * quantity);
+    const totalOriginal = Math.round(crossedOutPrice * quantity);
+
+    if (!isVisible) return null;
+
+    const imageSrc = !image || imageError ? placeholderImage : image;
+
     return (
-        <div className="flex gap-4 p-4 justify-between items-stretch max-w-[1000px] h-[180px]">
-            <div className="relative w-[140px] h-[140px]">
-                <input
-                    type="checkbox"
-                    checked={selected}
-                    onChange={onSelect}
-                    className="absolute top-1 left-1 w-6 h-6 text-purple-600 accent-purple-600"
-                />
-                <Image
-                    src={image}
-                    alt={title}
-                    width={140}
-                    height={140}
-                    className="object-contain rounded"
-                />
-            </div>
-
-            <div className="flex flex-col justify-between flex-1 py-3 w-[600px]">
-                <div>
-                    <h3 className="text-lg font-[570]">{title}</h3>
-                    <h3 className="text-sm font-medium text-gray-400">{description}</h3>
-                </div>
-                <div className="flex gap-2">
-                    <h3 className="text-sm font-medium text-gray-400">Завтра</h3>
-                    <h3 className="text-sm font-medium text-green-700">Бесплатный отказ</h3>
-                </div>
-                <div className="flex gap-3">
-                    <Heart
-                        onClick={() => setLiked(!liked)}
-                        className={`cursor-pointer transition-all w-6 h-6 ${liked
-                            ? "text-purple-500 fill-current"
-                            : "text-gray-400 fill-none hover:text-purple-500"
-                            }`}
+        <>
+            <div className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-[20px] shadow-md">
+                <div className="flex gap-4 flex-1 min-w-0">
+                    <input
+                        type="checkbox"
+                        checked={selected}
+                        onChange={onSelect}
+                        className="mt-1 w-6 h-6 text-[#6A11CB] accent-[#6A11CB] flex-shrink-0"
                     />
-                    <Trash className="hover:text-gray-600 transition-all" />
+                    <div className="relative w-[120px] h-[120px] rounded-[10px] overflow-hidden flex-shrink-0">
+                        <Image
+                            src={imageSrc}
+                            alt={title}
+                            fill
+                            className="object-cover"
+                            onError={handleImageError}
+                        />
+                    </div>
+
+                    <div className="flex flex-col justify-between flex-1 min-w-0">
+                        <div>
+                            <h3 className="text-lg font-[570] line-clamp-2">{title}</h3>
+                            <h3 className="text-sm font-medium text-gray-400 line-clamp-2">{description}</h3>
+                        </div>
+                        <div className="flex gap-2">
+                            <h3 className="text-sm font-medium text-gray-400">Завтра</h3>
+                            <h3 className="text-sm font-medium text-green-700">Бесплатный отказ</h3>
+                        </div>
+                        <div className="flex gap-3">
+                            <Heart
+                                onClick={() => setLiked(!liked)}
+                                className={`cursor-pointer transition-all w-6 h-6 ${liked
+                                    ? "text-[#2575FC] fill-current"
+                                    : "text-[#6A11CB] hover:text-[#2575FC] fill-none"
+                                    }`}
+                            />
+                            <Trash 
+                                onClick={() => setIsDeleteModalOpen(true)}
+                                className="hover:text-red-600 transition-all cursor-pointer" 
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-4 flex-shrink-0 w-[200px]">
+                    <div className="flex flex-col items-end">
+                        <h3 className="text-sm font-medium text-transparent bg-clip-text bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)]">
+                            С SL кошельком
+                        </h3>
+                        <div className="flex gap-3 items-end">
+                            <h3 className="text-md font-semibold text-transparent bg-clip-text bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)]">
+                                {totalDiscounted} ₽
+                            </h3>
+                            <h3 className="text-sm font-medium text-gray-400 line-through mt-1.5">
+                                {totalOriginal} ₽
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 justify-center">
+                        <button
+                            onClick={handleDecrease}
+                            className="p-1 rounded text-gray-400 hover:bg-gray-100"
+                        >
+                            <Minus size={16} />
+                        </button>
+                        <h3 className="w-6 min-w-[24px] text-center tabular-nums">{quantity}</h3>
+                        <button
+                            onClick={handleIncrease}
+                            className="p-1 rounded text-gray-400 hover:bg-gray-100"
+                        >
+                            <Plus size={16} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div className="flex items-center gap-2 mt-2">
-                <button onClick={handleDecrease} className="p-1 rounded text-gray-400 hover:bg-gray-100">
-                    <Minus size={16} />
-                </button>
-                <h3 className="mt-1.5">{localQuantity}</h3>
-                <button onClick={handleIncrease} className="p-1 rounded text-gray-400 hover:bg-gray-100">
-                    <Plus size={16} />
-                </button>
-            </div>
-
-            <div className="flex flex-col justify-center items-center">
-                <h3 className="text-sm font-medium text-purple-600">С WB кошельком</h3>
-                <div className="flex justify-center gap-1 items-center">
-                    <h3 className="text-md font-semibold text-purple-600">{discountedPrice * localQuantity} ₽</h3>
-                    <h3 className="text-sm font-medium text-gray-400 line-through mt-1.5">
-                        {(crossedOutPrice * localQuantity).toFixed(2)} ₽
-                    </h3>
-                </div>
-            </div>
-        </div>
+            <DeleteFromCartModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDelete}
+                productName={title}
+            />
+        </>
     );
 };

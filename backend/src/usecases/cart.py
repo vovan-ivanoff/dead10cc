@@ -3,7 +3,7 @@ from schemas.actions import ADDED_TO_CART
 from schemas.carts import CartInfoSchema
 from schemas.exceptions import (AccessForbiddenException)
 from services.carts import CartsService
-from services.stats import UsersService as NotesService
+from services.stats import NotesService
 from services.users import UsersService
 from utils.dependencies import UOWDep
 
@@ -58,9 +58,10 @@ class CartUseCase(AbstractCartUseCase):
             self, user_id: int, product_id: int, count: int
     ):
         async with self.uow:
-            await CartsService.delete_product(self.uow, user_id, product_id, count)
+            updated = await CartsService.delete_product(self.uow, user_id, product_id, count)
 
             await self.uow.commit()
+            return updated
 
     async def clear(
             self, user_id: int, target_user_id: int

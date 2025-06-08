@@ -4,7 +4,7 @@ import requests
 from fastapi import APIRouter, Depends
 
 from services.auth.dependencies import get_current_user_id
-from usecases.dependencies import NoteCase
+from usecases.dependencies import NoteCase, ProductCase
 
 router = APIRouter(
     prefix="/recommendations",
@@ -12,49 +12,22 @@ router = APIRouter(
 )
 
 
-@router.get("/statistics")
-async def get_notes(
-        note_case: NoteCase,
-        user_id: int = Depends(get_current_user_id),
-):
-    return await note_case.get_list(user_id)
-
-
-@router.get("/statistics/{note_id}")
-async def get_note_info(
-        note_case: NoteCase,
-        note_id: int,
-        user_id: int = Depends(get_current_user_id),
-):
-    return await note_case.get_info(user_id, note_id)
-
-
-@router.get("/{product_id}/statistics")
-async def get_notes_by_product(
-        note_case: NoteCase,
-        product_id: int,
-        user_id: int = Depends(get_current_user_id),
-):
-    return await note_case.get_list(user_id, product_id=product_id)
-
-
-@router.get("/{user_id}/products")
-async def get_products_by_user(
-        note_case: NoteCase,
-        user_id: int = Depends(get_current_user_id),
-):
-    return await note_case.get_products_by_user(user_id)
-
-
 @router.get("/")
 async def get_recommendation(
-        count: int,
+        page_index: int,
+        page_size: int,
         note_case: NoteCase,
+        product_case: ProductCase,
         user_id: int = Depends(get_current_user_id)
 ):
-    products = {"skus": await note_case.get_products_by_user(user_id)}
-    products = json.dumps(products, ensure_ascii=True, indent=4)
-    response = requests.post(f"http://recommender:5100/recommendation/{count}", data=products,
-                             headers={"Content-Type": "application/json"})
+    amount = (page_index + 1) * page_size
+    statistics = await note_case.get_statistics(user_id)
 
-    return response.content
+    data = json.dumps(statistics, ensure_ascii=True, indent=4)
+    model_response = requests.post(f"http://recommender:5100/recommendation/{amount}", data=data,
+                             headers={"Content-Type": "application/json"})
+    recommendation = json.loads(model_response.content)
+
+    response = {"content": await product_case.find_list(page_index, page_size, article=recommendation["recommended"]),
+                "collaborative": await product_case.find_list(page_index, page_size, article=[pr["article"] for pr in statistics["relevant_products"]])}  # по-хорошему бы переделать ато две сессии в бдшку
+    return response

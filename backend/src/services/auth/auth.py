@@ -28,10 +28,3 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, settings.ALGORITHM)
     return encoded_jwt
-
-
-async def authenticate_user(email: EmailStr, password: str):
-    user = await UsersRepo.find_one(email=email)
-    if not user or not verify_password(password, user.hashed_password):
-        return None
-    return user

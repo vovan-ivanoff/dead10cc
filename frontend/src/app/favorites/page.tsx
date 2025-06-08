@@ -7,6 +7,7 @@ import Footer from "../../components/common/Footer";
 import '../../styles/globals.css';
 import FavoritesPage from "@/components/common/Favorites";
 
+
 export default function Favorites() {
   const [productList, setProductList] = useState([]);
 

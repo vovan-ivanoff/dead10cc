@@ -52,6 +52,14 @@ services:
     depends_on:
       - fastapi_app
 
+
+
 volumes:
   postgres_data1:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./testdata
+
   model_data:
