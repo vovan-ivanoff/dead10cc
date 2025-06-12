@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { findProductByArticle } from "@/api/admin/products";
 import { Product } from "@/types/product";
-import { checkAuth } from "@/api/auth";
 
 interface LocalProduct {
     id: number;
@@ -72,44 +71,40 @@ export default function ProductDetail() {
             setLoading(true);
             setError(null);
             try {
-                // Проверяем авторизацию
-                const user = await checkAuth();
+                // Извлекаем article из ID
+                const article = typeof productId === 'string' 
+                    ? parseInt(productId.split('_')[1] || productId, 10)
+                    : Number(productId);
                 
-                if (user) {
-                    // Если пользователь авторизован, получаем данные с сервера
-                    console.log('Fetching product with article:', productId);
-                    // Извлекаем article из ID
-                    const article = typeof productId === 'string' 
-                        ? parseInt(productId.split('_')[1] || productId, 10)
-                        : Number(productId);
-                    console.log('Extracted article:', article);
+                try {
+                    // Пробуем получить данные с сервера
                     const response = await findProductByArticle(article);
-                    // Получаем первый элемент из массива, так как API возвращает массив
                     const productData = Array.isArray(response) ? response[0] : response;
                     if (productData) {
                         const transformedProduct = transformApiProduct(productData);
                         console.log('Received product data from API:', transformedProduct);
                         setProduct(transformedProduct);
-                    } else {
-                        setError("Товар не найден");
+                        return;
                     }
+                } catch (error) {
+                    console.log('Failed to fetch from API, trying local data', error);
+                }
+
+                // Если не удалось получить данные с сервера, пробуем локальные данные
+                console.log('Fetching product with ID from local data:', productId);
+                const response = await fetch("/data/data.json");
+                const localProducts: LocalProduct[] = await response.json();
+                const localProduct = localProducts.find(p => p.id === Number(productId));
+                
+                if (localProduct) {
+                    const transformedProduct = transformLocalProduct(localProduct);
+                    console.log('Found local product:', transformedProduct);
+                    setProduct(transformedProduct);
                 } else {
-                    // Если пользователь не авторизован, получаем данные из локального JSON
-                    console.log('Fetching product with ID from local data:', productId);
-                    const response = await fetch("/data/data.json");
-                    const localProducts: LocalProduct[] = await response.json();
-                    const localProduct = localProducts.find(p => p.id === Number(productId));
-                    
-                    if (localProduct) {
-                        const transformedProduct = transformLocalProduct(localProduct);
-                        console.log('Found local product:', transformedProduct);
-                        setProduct(transformedProduct);
-                    } else {
-                        setError("Товар не найден");
-                    }
+                    setError("Товар не найден");
                 }
             } catch (error) {
-                console.error('Error fetching product:', error);
+                console.error('Error loading product:', error);
                 setError("Ошибка при загрузке товара");
             } finally {
                 setLoading(false);

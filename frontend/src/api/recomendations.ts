@@ -11,13 +11,16 @@ interface UserAction {
 
 export const trackUserAction = async (productId: number, action: UserAction['action']) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/recommendations/${productId}/statistics`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/statistics`, {
       method: 'POST',
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ action }),
+      body: JSON.stringify({ 
+        product_id: productId,
+        action: action === 'ADDED_TO_CART' ? 1 : action === 'VIEWED' ? 0 : 2
+      }),
     });
     return response.ok;
   } catch (error) {

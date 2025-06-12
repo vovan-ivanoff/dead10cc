@@ -24,19 +24,19 @@ async def add_product(
         count: int = 1,
         user_id: int = Depends(get_current_user_id)
 ):
-    await cart_case.add_product_my(user_id, product_id, count)
-    return {"status": "OK"}
+    return await cart_case.add_product_my(user_id, product_id, count)
 
 
-@router.delete("/{product_id}/{count}")
+
+@router.patch("/delete/{product_id}")
 async def delete_product(
         cart_case: CartCase,
         product_id: int,
-        count: int,
+        count: int = 0,
         user_id: int = Depends(get_current_user_id)
 ):
-    await cart_case.delete_product_my(user_id, product_id, count)
-    return {"status": "OK"}
+    """при count = 0 удаляется фулл товар"""
+    return await cart_case.delete_product_my(user_id, product_id, count)
 
 
 @router.delete("/")

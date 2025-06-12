@@ -25,13 +25,13 @@ class ProductUseCase(AbstractProductUseCase):
 
         return products_list
 
-    async def get_page(self, page_index: int, page_size: int, **filter_by) -> List[BaseModel]:
+    async def get_page(self, page_index: int, page_size: int, offs: int = 0, **filter_by) -> List[BaseModel]:
         async with self.uow:
-            products_page = await ProductsService.get_page(self.uow, page_index, page_size, **filter_by)
+            products_page = await ProductsService.get_page(self.uow, page_index, page_size, offs, **filter_by)
 
         return products_page
 
-    async def get_info(self, user_id: int | None, product_id: int) -> ProductInfoSchema:
+    async def get_info(self, user_id: int | None, product_id: int) -> ProductSchema:
         async with self.uow:
             product = await ProductsService.get_product_info(self.uow, id=product_id)
 
@@ -39,6 +39,15 @@ class ProductUseCase(AbstractProductUseCase):
                 await NotesService.add_note(self.uow, user_id, product_id, VIEWED)
             await self.uow.commit()
 
+        return product
+
+    async def get_info_by_article(self, user_id: int | None, article: int) -> ProductSchema:
+        async with self.uow:
+            product = await ProductsService.get_product_info(self.uow, article=article)
+            await self.uow.commit()
+
+            if not user_id is None:
+                await NotesService.add_note(self.uow, user_id, product.id, VIEWED)
         return product
 
     async def find_list(self, page_index: int, page_size: int, **field) -> List[BaseModel] | Dict[str, str]:

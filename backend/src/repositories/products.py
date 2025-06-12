@@ -10,8 +10,8 @@ from repositories.alchemy import SqlAlchemyRepo
 class ProductsRepo(SqlAlchemyRepo):
     model = Products
 
-    async def get_page(self, page_index: int, page_size: int, **filter_by) -> List[BaseModel]:
-        stmt = select(self.model).filter_by(**filter_by).offset(page_index * page_size).limit(page_size)
+    async def get_page(self, page_index: int, page_size: int, offs: int, **filter_by) -> List[BaseModel]:
+        stmt = select(self.model).filter_by(**filter_by).offset(offs + page_index * page_size).limit(page_size)
         result = await self.session.execute(stmt)
         result = [row[0].to_read_model() for row in result.all()]
         return result

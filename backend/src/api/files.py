@@ -38,7 +38,7 @@ async def delete_preview(
     return {"status": "ok"}
 
 
-@router.get("/image{image_id}/{product_id}")
+@router.get("/image/{image_id}/{product_id}", response_class=Response)
 async def get_image(
         product_id: int,
         image_id: int
@@ -57,7 +57,7 @@ async def upload_image(
     return {"status": "ok"}
 
 
-@router.delete("/image/{product_id}/{image_id}")
+@router.delete("/image/{image_id}/{product_id}")
 async def delete_image(
         product_id: int,
         image_id: int,

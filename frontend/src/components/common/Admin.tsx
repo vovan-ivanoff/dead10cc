@@ -175,12 +175,51 @@ export default function AdminProductsPage() {
     setError(null);
     try {
       if (editId !== null) {
-        const updated = await updateProduct(editId, formData as ProductUpdate);
-        setProducts(products.map(p => p.id === editId ? updated : p));
+        const currentProduct = displayedProducts.find(p => p.id === editId);
+        if (!currentProduct) {
+          throw new Error('Товар не найден');
+        }
+
+        const updatedData: ProductUpdate = {
+          id: editId,
+          article: currentProduct.article,
+          title: currentProduct.title,
+          price: Number(formData.price),
+          tags: currentProduct.tags,
+          seller: currentProduct.seller,
+          rating: currentProduct.rating,
+          reviews: currentProduct.reviews,
+          description: currentProduct.description,
+        };
+
+        console.log('Измененные данные:', updatedData);
+        const updated = await updateProduct(editId, updatedData);
+        
+        setProducts(prevProducts => {
+          const index = prevProducts.findIndex(p => p.id === editId);
+          if (index === -1) {
+            return [...prevProducts, updated];
+          }
+          const newProducts = [...prevProducts];
+          newProducts[index] = updated;
+          return newProducts;
+        });
+
+        setDisplayedProducts(prevProducts => {
+          const index = prevProducts.findIndex(p => p.id === editId);
+          if (index === -1) {
+            return [...prevProducts, updated];
+          }
+          const newProducts = [...prevProducts];
+          newProducts[index] = updated;
+          return newProducts;
+        });
+        
         setEditId(null);
       } else {
         const created = await createProduct(formData as ProductCreate);
-        setProducts([...products, created]);
+        setProducts(prevProducts => [...prevProducts, created]);
+        setDisplayedProducts(prevProducts => [...prevProducts, created]);
       }
       setFormData({
         title: '',

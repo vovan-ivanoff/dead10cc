@@ -1,6 +1,7 @@
 import random
 import time
 import secrets
+import string
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 
@@ -11,6 +12,12 @@ from variables.gl import phone_verification_codes
 
 router = APIRouter(prefix="/phone_auth", tags=["Phone_Auth"])
 
+def generate_secure_code(length: int = 6) -> str:
+    """Генерирует криптографически стойкий код подтверждения."""
+    # Используем только цифры для кода
+    digits = string.digits
+    # Используем secrets.choice вместо random.choice для криптографической стойкости
+    return ''.join(secrets.choice(digits) for _ in range(length))
 
 @router.get("/phone/info")
 async def get_phone_user_info(
@@ -22,18 +29,15 @@ async def get_phone_user_info(
 
 @router.post("/phone/send_code", response_model=PhoneAuthResponse)
 async def send_phone_code(request: PhoneAuthRequest, user_case: UserCase):
-    # Генерируем криптографически стойкий код
-    code = ''.join([str(secrets.randbelow(10)) for _ in range(6)])
-    
-    # Добавляем временную метку и ограничение попыток
+    code = generate_secure_code()
+
+    print(f"Sending code {code} to phone {request.country_code}{request.phone}")
+
     phone_verification_codes[request.phone] = {
         "code": code,
         "timestamp": time.time(),
-        "attempts": 0,
-        "used": False  # Флаг использования кода
+        "attempts": 0
     }
-
-    print(f"Sending code {code} to phone {request.country_code}{request.phone}")
 
     return {
         "success": True,
@@ -53,9 +57,6 @@ async def verify_phone_code(
     if not stored_code:
         raise HTTPException(status_code=400, detail="No verification code requested for this phone")
 
-    if stored_code["used"]:
-        raise HTTPException(status_code=400, detail="This code has already been used")
-
     if stored_code["attempts"] >= 3:
         raise HTTPException(status_code=400, detail="Too many attempts, please request a new code")
 
@@ -63,12 +64,11 @@ async def verify_phone_code(
         phone_verification_codes[request.phone]["attempts"] += 1
         raise HTTPException(status_code=400, detail="Invalid verification code")
 
-    if time.time() - stored_code["timestamp"] > 300:  # 5 минут
+    if time.time() - stored_code["timestamp"] > 300:
         raise HTTPException(status_code=400, detail="Verification code expired")
 
     try:
         await user_case.auth_by_phone(request.phone, response)
-        phone_verification_codes[request.phone]["used"] = True  # Отмечаем код как использованный
         del phone_verification_codes[request.phone]
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

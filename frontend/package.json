@@ -14,7 +14,6 @@
     "@radix-ui/react-tabs": "^1.1.8",
     "@types/jwt-decode": "^3.1.0",
     "@types/next": "^9.0.0",
-    "@types/node": "^22.15.18",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.6.2",
@@ -34,14 +33,15 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/bun": "latest",
-    "@types/react": "^19",
+    "@types/node": "^22.15.30",
+    "@types/react": "^19.1.6",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "^15.2.4",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   },
   "engines": {
     "bun": ">=1.0.0"

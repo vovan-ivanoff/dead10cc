@@ -25,6 +25,11 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
+    volumes:
+      - ./backend:/usr/src
+    environment:
+      - PYTHONPATH=/usr/src
+      - WATCHFILES_FORCE_POLLING=true
 
   recommender:
     container_name: "recommender"
@@ -46,13 +51,13 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - /app/.next
     environment:
       - NODE_ENV=development
-    command: sh -c "npm install && npm run dev"
+      - WATCHPACK_POLLING=true
+    command: sh -c "bun install && bunx next dev"
     depends_on:
       - fastapi_app
-
-
 
 volumes:
   postgres_data1:

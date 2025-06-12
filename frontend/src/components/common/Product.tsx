@@ -41,6 +41,28 @@ const getRatingWord = (count: number): string => {
 // Заготовка для изображения-заглушки
 const placeholderImage = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAyIiBoZWlnaHQ9IjUyNCIgdmlld0JveD0iMCAwIDQwMiA1MjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwMiIgaGVpZ2h0PSI1MjQiIGZpbGw9IiNFNUU3RUIiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZpbGw9IiM2QjZCNkIiPk5vIGltYWdlPC90ZXh0Pjwvc3ZnPg==';
 
+// Функция для безопасной обработки URL изображений
+const getSafeImageUrl = (url: string): string => {
+    try {
+        // Если URL уже закодирован или это data URL, возвращаем как есть
+        if (url.startsWith('data:') || url.startsWith('http')) {
+            return url;
+        }
+        
+        // Если это локальный путь, добавляем префикс
+        if (url.startsWith('/')) {
+            return url;
+        }
+
+        // Для остальных случаев кодируем URL
+        const encodedUrl = encodeURIComponent(url);
+        return `/_next/image?url=${encodedUrl}&w=1080&q=75`;
+    } catch (error) {
+        console.error('Error processing image URL:', error);
+        return placeholderImage;
+    }
+};
+
 interface ProductPageProps {
     product: Product & { article?: string | number };
 }
@@ -110,12 +132,15 @@ export default function ProductPage({ product }: ProductPageProps) {
                         <div className="col-span-4">
                             <div className="relative w-[402px] h-[524px] rounded-[15px] overflow-hidden">
                                 <Image
-                                    src={imageError ? placeholderImage : product.image}
+                                    src={imageError ? placeholderImage : getSafeImageUrl(product.image)}
                                     alt={product.seller}
                                     fill
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     style={{ objectFit: 'contain' }}
                                     className="rounded-2xl"
                                     onError={handleImageError}
+                                    unoptimized={product.image.startsWith('data:')}
+                                    priority
                                 />
                                 <div className="absolute bottom-4 right-4 flex items-center gap-2 px-2 py-1 w-fit bg-white rounded-xl shadow-sm">
                                     <Image
@@ -124,6 +149,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                         width={15}
                                         height={15}
                                         className="object-contain"
+                                        style={{ width: '15px', height: '15px' }}
                                     />
                                     <h3 className="text-sm font-medium text-gray-800 mt-1">Похожие</h3>
                                 </div>
@@ -222,6 +248,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                     width={20}
                                     height={20}
                                     className="mr-2"
+                                    style={{ width: 'auto', height: 'auto' }}
                                 />
                                 <span className="mt-1 text-sm font-medium">Есть примерка</span>
                             </div>
@@ -287,6 +314,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                                 width={20}
                                                 height={20}
                                                 className="mr-2"
+                                                style={{ width: 'auto', height: 'auto' }}
                                             />
                                             <span className="text-[13px] font-medium mt-1 mr-2">{product.seller}</span>
                                             <Image
@@ -311,6 +339,7 @@ export default function ProductPage({ product }: ProductPageProps) {
                                                     width={8}
                                                     height={8}
                                                     className="object-contain mt-0.5"
+                                                    style={{ width: 'auto', height: 'auto' }}
                                                 />
                                             </div>
                                         </div>

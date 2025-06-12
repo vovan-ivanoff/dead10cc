@@ -93,18 +93,18 @@ const Header: React.FC = () => {
                   src="/assets/images/logos/logo.svg"
                   alt="Логотип"
                   width={160}
-                  height={1}
+                  height={40}
                   className="logo-image logo-default"
-                  style={{ height: 'auto' }}
+                  style={{ width: '160px', height: '40px' }}
                   priority
                 />
                 <Image
                   src="/assets/images/logos/logosyh.svg"
                   alt="Логотип"
                   width={160}
-                  height={1}
+                  height={40}
                   className="logo-image logo-hover"
-                  style={{ height: 'auto' }}
+                  style={{ width: '160px', height: '40px' }}
                   priority
                 />
               </Link>

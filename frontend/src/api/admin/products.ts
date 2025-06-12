@@ -196,6 +196,7 @@ export const updateProduct = async (
 ): Promise<Product> => {
   try {
     const preparedData = await prepareProductData(productData);
+    console.log('Отправляемые данные:', preparedData);
 
     const response = await fetch(`${API_BASE_URL}${PUBLIC_PREFIX}/products/${id}`, {
       method: 'PATCH',
@@ -206,7 +207,11 @@ export const updateProduct = async (
       body: JSON.stringify(preparedData),
     });
 
-    if (!response.ok) throw new Error('Failed to update product');
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Ошибка сервера:', errorData);
+      throw new Error(errorData.detail || 'Failed to update product');
+    }
     return await response.json();
   } catch (error) {
     console.error('Error updating product:', error);
@@ -271,8 +276,21 @@ const prepareProductData = async (
     imageBase64 = image;
   }
 
+  // Удаляем undefined и null значения и преобразуем числовые поля
+  const cleanedData = Object.fromEntries(
+    Object.entries(otherData)
+      .filter(([, value]) => value !== undefined && value !== null)
+      .map(([key, value]) => {
+        // Преобразуем числовые поля
+        if (['price', 'article', 'rating', 'reviews'].includes(key)) {
+          return [key, Number(value)];
+        }
+        return [key, value];
+      })
+  );
+
   return {
-    ...otherData,
+    ...cleanedData,
     ...(imageBase64 ? { image: imageBase64 } : {}),
   };
 };

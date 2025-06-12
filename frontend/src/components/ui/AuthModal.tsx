@@ -81,8 +81,20 @@ const AuthModal: React.FC<AuthModalProps> = ({
     '+995': '000 00 00 00',
   };
 
+  // Максимальное и минимальное количество цифр для каждого кода страны
+  const phoneLengths: { [key: string]: { min: number, max: number } } = {
+    '+7': { min: 10, max: 10 },    // Россия, Казахстан
+    '+374': { min: 8, max: 8 },    // Армения
+    '+375': { min: 9, max: 9 },    // Беларусь
+    '+996': { min: 9, max: 9 },    // Киргизия
+    '+998': { min: 9, max: 9 },    // Узбекистан
+    '+995': { min: 9, max: 9 },    // Грузия
+  };
+
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPhone(e.target.value.replace(/\D/g, ''));
+    const digits = e.target.value.replace(/\D/g, '');
+    const { max } = phoneLengths[selectedCountry.code] || { max: 10 };
+    setPhone(digits.slice(0, max));
     setAuthError(null);
   };
 
@@ -113,6 +125,14 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const handleGetCodeClick = async () => {
     if (!isAgreed) return setAuthError('Пожалуйста, согласитесь с правилами');
     if (!phone) return setAuthError('Пожалуйста, введите номер телефона');
+
+    const { min, max } = phoneLengths[selectedCountry.code] || { min: 10, max: 10 };
+    if (phone.length < min) {
+      return setAuthError(`Номер телефона должен содержать минимум ${min} цифр`);
+    }
+    if (phone.length > max) {
+      return setAuthError(`Номер телефона должен содержать максимум ${max} цифр`);
+    }
 
     setIsLoading(true);
     setAuthError(null);

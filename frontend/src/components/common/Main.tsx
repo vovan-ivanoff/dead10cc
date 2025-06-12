@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Container from "./Container";
 import Link from "next/link";
 import Image from "next/image";
@@ -28,35 +28,82 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({});
   const [inCartProducts, setInCartProducts] = useState<Set<string>>(new Set());
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
 
   const handleImageError = (src: string) => {
     setFailedImages(prev => new Set(prev).add(src));
   };
 
-  const getSafeImageSrc = (preview?: string, image?: string) => {
+  const getSafeImageSrc = useCallback((preview?: string, image?: string, productId?: number | string) => {
     const imgSrc = preview || image;
     if (!imgSrc || failedImages.has(imgSrc)) {
       return placeholderImage;
     }
-    return imgSrc;
-  };
+    
+    try {
+      // Если это абсолютный URL или data URL, возвращаем как есть
+      if (imgSrc.startsWith('http') || imgSrc.startsWith('data:')) {
+        return imgSrc;
+      }
+      
+      // Если это локальный путь, добавляем префикс
+      if (imgSrc.startsWith('/')) {
+        return imgSrc;
+      }
+
+      // Для остальных случаев используем эндпоинт для получения превью
+      let article: number;
+      if (typeof productId === 'string') {
+        // Если ID - строка формата type_article_page_index, берем article
+        const parts = productId.split('_');
+        if (parts.length >= 2 && parts[0] && ['content', 'base', 'collaborative', 'guest'].includes(parts[0]) && parts[1]) {
+          article = parseInt(parts[1]);
+        } else {
+          // Если формат не соответствует ожидаемому, пробуем использовать всю строку
+          article = parseInt(productId);
+        }
+      } else if (typeof productId === 'number') {
+        // Если ID - число, используем его как article
+        article = productId;
+      } else {
+        // Если ID не определен, возвращаем заглушку
+        return placeholderImage;
+      }
+
+      if (isNaN(article)) {
+        return placeholderImage;
+      }
+
+      return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/files/preview/${article}`;
+    } catch (error) {
+      console.error('Error processing image URL:', error);
+      return placeholderImage;
+    }
+  }, [failedImages]);
+
+  // Загружаем URL изображений при монтировании компонента
+  useEffect(() => {
+    const loadImageUrls = async () => {
+      const urls: Record<string, string> = {};
+      for (const product of products) {
+        const url = await getSafeImageSrc(product.preview, product.image, product.id);
+        urls[product.id.toString()] = url;
+      }
+      setImageUrls(urls);
+    };
+
+    loadImageUrls();
+  }, [products, getSafeImageSrc]);
 
   const getProductId = (id: number | string): string => {
-    console.log('Original product ID:', id);
     if (typeof id === 'string') {
       // Извлекаем article из формата type_article_page_index
       const parts = id.split('_');
-      if (parts.length >= 2 && parts[0] && ['content', 'base', 'collaborative', 'guest'].includes(parts[0])) {
-        const articleId = parts[1];
-        if (typeof articleId === 'string') {
-          console.log('Extracted article ID:', articleId);
-          return articleId;
-        }
+      if (parts.length >= 2 && parts[0] && ['content', 'base', 'collaborative', 'guest'].includes(parts[0]) && parts[1]) {
+        return parts[1];
       }
-      console.log('Using original string ID:', id);
       return id;
     }
-    console.log('Using numeric ID:', id.toString());
     return id.toString();
   };
 
@@ -79,14 +126,24 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
       let article: number;
       
       if (typeof product.id === 'string') {
+        // Если ID - строка, пробуем получить артикул из неё
         const parts = product.id.split('_');
-        if (parts.length >= 2 && parts[0] === 'content' && parts[1]) {
+        if (parts.length >= 2 && parts[0] && ['content', 'base', 'collaborative', 'guest'].includes(parts[0]) && parts[1]) {
+          // Используем второй элемент как артикул
           article = parseInt(parts[1]);
         } else {
-          throw new Error('Invalid product ID format');
+          // Если формат не соответствует ожидаемому, пробуем использовать всю строку
+          const parsedId = parseInt(product.id);
+          if (isNaN(parsedId)) {
+            throw new Error('Invalid article number');
+          }
+          article = parsedId;
         }
-      } else {
+      } else if (typeof product.id === 'number') {
+        // Если ID - число, используем его как артикул
         article = product.id;
+      } else {
+        throw new Error('Invalid article number');
       }
 
       if (isNaN(article)) {
@@ -128,6 +185,7 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
           {products && products.length > 0 ? products.map((product) => {
             const productId = getProductId(product.id);
             const isInCart = inCartProducts.has(productId);
+            const imageUrl = imageUrls[product.id.toString()] || placeholderImage;
             
             return (
               <Link
@@ -138,13 +196,14 @@ const ProductList: React.FC<ProductListProps> = ({ products }) => {
               >
                 <div className="w-[190px] h-[250px] mx-auto mb-4 bg-white rounded-[10px] flex items-center justify-center overflow-hidden relative">
                   <Image
-                    src={getSafeImageSrc(product.preview, product.image)}
+                    src={imageUrl}
                     alt={getSafeString(product.title, product.name || 'Product')}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     style={{ objectFit: 'contain' }}
                     className="rounded-[10px]"
                     unoptimized={process.env.NODE_ENV !== 'production'}
-                    priority={false}
+                    priority={true}
                     onError={() => handleImageError(product.preview || product.image || '')}
                   />
                 </div>

@@ -32,9 +32,9 @@ RUN if [ "$(uname -s)" = "Linux" ] || [ "$(uname -s)" = "Darwin" ]; then \
 
 COPY --from=builder /app /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 ENV NEXT_TELEMETRY_DISABLED=1
 
 EXPOSE 3000
 
-CMD ["bunx", "next", "start"]
+CMD ["bunx", "next", "dev"]

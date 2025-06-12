@@ -116,9 +116,6 @@ export default function Home() {
           collaborativeItems = response.collaborative;
         }
 
-        const contentEnded = contentItems.length === 0;
-        const collaborativeEnded = collaborativeItems.length === 0;
-
         const newProducts: Product[] = [...contentItems, ...collaborativeItems].map(
           (p: RawProduct, i: number) => ({
             id: `${isProductArray(response.content) ? "content" : "collab"}_${p.article}_${currentPageIndex}_${i}`,
@@ -132,7 +129,8 @@ export default function Home() {
           })
         );
 
-        if (contentEnded && collaborativeEnded && Array.isArray(response.base)) {
+        // Добавляем товары из base, если они есть
+        if (Array.isArray(response.base) && response.base.length > 0) {
           const baseProducts: Product[] = response.base.map((p: RawProduct, i: number) => ({
             id: `base_${p.article}_${baseOffsetRef.current + i}`,
             title: p.title,
