@@ -12,9 +12,17 @@ AUTH_DATA=OWUzYWI3NDQtMGQ4Zi00NDJjLWFkNjEtODJjY2Y2OTc4ZDE3OjZkZThmNWZhLTRlYmMtND
 EOF
 cd ..
 
+# Скачиваем образы заранее
+docker pull postgres:16
+docker pull python:3.12
+docker pull python:3.12.2
+docker pull node:lts-alpine
+
+# Запускаем контейнеры
 docker compose up -d --build
 
 sleep 10
 
-start http://localhost:8080/docs
-start http://localhost:3000
+# Открываем браузер с документацией API и фронтендом
+open http://localhost:8080/docs
+open http://localhost:3000

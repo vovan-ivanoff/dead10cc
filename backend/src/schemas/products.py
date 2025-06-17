@@ -12,6 +12,17 @@ class ProductSchema(BaseModel):
     reviews: int
     description: str | None
 
+    def __repr__(self) -> str:
+        seller = ''
+        if not self.seller is None:
+            seller = self.seller
+
+        description = ''
+        if not self.description is None:
+            description = self.description
+
+        return f"{self.article} {self.title.lower()} {seller.lower()} {" ".join(self.tags).lower()} {description.lower()}"
+
 
 class ProductInfoSchema(BaseModel):
     article: int

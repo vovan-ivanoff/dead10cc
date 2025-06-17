@@ -34,3 +34,10 @@ class AbstractUserUseCase(ABC):
 
     @abstractmethod
     async def make_moderator(self, user_id, target_user_id): ...
+
+    @abstractmethod
+    async def get_info_by_phone(self, phone: str): ...
+
+    @abstractmethod
+    async def auth_by_phone(self, phone: str, response: Response): ...
+

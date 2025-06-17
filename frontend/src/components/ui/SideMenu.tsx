@@ -116,9 +116,10 @@ const SideMenu: React.FC<SideMenuProps> = ({ onClose, isOpen }) => {
                 <Image
                   src={item.icon}
                   alt={item.name}
-                  width={17}
-                  height={17}
+                  width={24}
+                  height={24}
                   className="side-menu-icon"
+                  style={{ width: 'auto', height: 'auto' }}
                 />
                 <span className="side-menu-text">{item.name}</span>
               </Link>

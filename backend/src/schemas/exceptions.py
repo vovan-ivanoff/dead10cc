@@ -1,4 +1,5 @@
 from fastapi import HTTPException, status
+from sympy.categories.baseclasses import Class
 
 
 class BException(HTTPException):
@@ -7,6 +8,11 @@ class BException(HTTPException):
 
     def __init__(self):
         super().__init__(status_code=self.status_code, detail=self.detail)
+
+
+class InvalidData(BException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "invalid data. Check if you misspelled a field"
 
 
 class UserAlreadyExistException(BException):
@@ -18,6 +24,13 @@ class UnauthorizedException(BException):
     status_code = status.HTTP_401_UNAUTHORIZED
     detail = "Не авторизован"
 
+class UserDoesNotExistException(BException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "Пользователь с таким id не существует"
+
+class ProductDoesNotExistException(BException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    detail = "Товар не существует"
 
 class IncorrectEmailOrPasswordException(BException):
     status_code = status.HTTP_401_UNAUTHORIZED

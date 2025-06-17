@@ -1,30 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Profile } from '../../api/auth';
+import { checkAuth, Profile } from '../../api/auth';
 import '../../styles/righticons.css';
 
 interface RightIconsProps {
   handleLoginClick: () => void;
-  onProfileUpdate?: (profile: Profile | null) => void;
 }
 
-const RightIcons: React.FC<RightIconsProps> = ({ 
-  handleLoginClick
-}) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+const RightIcons: React.FC<RightIconsProps> = ({ handleLoginClick }) => {
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => { 
-    const token = localStorage.getItem('authToken');
-    setIsAuthenticated(!!token);
-    
-    const handleStorageChange = () => {
-      const newToken = localStorage.getItem('authToken');
-      setIsAuthenticated(!!newToken);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const user = await checkAuth();
+        setProfile(user);
+      } catch {
+        setProfile(null);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    fetchProfile();
   }, []);
+
+  if (loading) return null;
 
   return (
     <div className="right-icons">
@@ -32,7 +34,7 @@ const RightIcons: React.FC<RightIconsProps> = ({
         <span className="icon-label">Адреса</span>
       </Link>
 
-      {isAuthenticated ? (
+      {profile ? (
         <Link href="/profile" className="right-icon-item">
           <span className="icon-label">Профиль</span>
         </Link>

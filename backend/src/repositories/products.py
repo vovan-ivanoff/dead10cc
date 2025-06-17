@@ -1,5 +1,6 @@
-from typing import Iterator, Sequence
+from typing import List
 
+from pydantic import BaseModel
 from sqlalchemy import select, Row
 
 from models.products import Products
@@ -9,11 +10,8 @@ from repositories.alchemy import SqlAlchemyRepo
 class ProductsRepo(SqlAlchemyRepo):
     model = Products
 
-    async def get_iter(self, size: int, **filter_by) -> Iterator[Sequence[Row]]:
-        stmt = select(self.model).filter_by(**filter_by)
+    async def get_page(self, page_index: int, page_size: int, offs: int, **filter_by) -> List[BaseModel]:
+        stmt = select(self.model).filter_by(**filter_by).offset(offs + page_index * page_size).limit(page_size)
         result = await self.session.execute(stmt)
-        self.session.expunge_all()
-
-        iterator = result.partitions(size)
-
-        return iterator
+        result = [row[0].to_read_model() for row in result.all()]
+        return result

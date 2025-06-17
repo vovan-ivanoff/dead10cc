@@ -1,19 +1,24 @@
 export interface ProductBase {
   id: number;
-  name: string;
+  article: number;
+  title: string;
   description: string;
   price: number;
-  oldPrice: number;
-  author: string;
+  seller: string;
+  rating: number;
+  reviews: number;
+  tags: string[];
+  preview?: string;
 }
 
 export interface Product extends ProductBase {
   image: string;
 }
 
-export interface ProductForm extends ProductBase {
+export interface ProductForm extends Omit<ProductBase, 'id'> {
   image: File | string;
 }
 
-export type ProductCreate = Omit<ProductForm, 'id'>;
+export type ProductCreate = Omit<ProductForm, 'article' | 'rating' | 'reviews' | 'id'>;
+
 export type ProductUpdate = Partial<ProductForm> & { id: number };

@@ -8,7 +8,7 @@ class CartsService:
             uow: AbstractUOW,
             user_id: int
     ):
-        await uow.carts.add_one(user_id=user_id, products=dict())
+        await uow.carts.add_one(id=user_id, user_id=user_id, products=dict())
 
     @staticmethod
     async def get_cart(
@@ -28,7 +28,8 @@ class CartsService:
         key = str(product_id)
         products = (await uow.carts.find_one(user_id=user_id)).products
         products[key] = products.get(key, 0) + count
-        await uow.carts.update_by_id(user_id, products=products)
+        cart = await uow.carts.update_by_id(user_id, products=products)
+        return CartInfoSchema(**cart.dict())
 
     @staticmethod
     async def delete_product(
@@ -45,8 +46,8 @@ class CartsService:
             products[key] = products.get(key, 0) - count
             if products[key] < 1:
                 del products[key]
-
-        await uow.carts.update_by_id(user_id, products=products)
+        cart = await uow.carts.update_by_id(user_id, products=products)
+        return CartInfoSchema(**cart.dict())
 
     @staticmethod
     async def clear_cart(

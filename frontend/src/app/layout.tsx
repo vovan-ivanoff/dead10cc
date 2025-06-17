@@ -33,7 +33,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={hauss.variable}>
-      <body>{children}</body>
+      <body cz-shortcut-listen="true" suppressHydrationWarning>
+        {children}
+      </body>
     </html>
   )
 }

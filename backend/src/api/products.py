@@ -4,7 +4,6 @@ from schemas.products import ProductAddSchema
 from services.auth.dependencies import get_current_user_id
 from usecases.dependencies import ProductCase, UserCase
 from utils.file_manager import FileManager as Fm
-from variables.gl import iterators
 
 router = APIRouter(
     prefix="/products",
@@ -19,41 +18,56 @@ async def get_list(
     return await product_case.get_list()
 
 
-@router.get("/get_page")
-async def get_page(
+@router.post("/find")
+async def find_product(
         product_case: ProductCase,
-        user_id: int = Depends(get_current_user_id),
+        filter_by: dict
 ):
-    page = await product_case.get_page(user_id, iterators)
+    return await product_case.get_list(**filter_by)
+
+
+@router.get("/find/{query}")
+async def find_product(
+        product_case: ProductCase,
+        query: str,
+):
+    return await product_case.find(query)
+
+
+@router.post("/get_page")
+async def get_page(
+        page_index: int,
+        page_size: int,
+        product_case: ProductCase,
+        filter_by: dict
+):
+    page = await product_case.get_page(page_index, page_size, **filter_by)
     if len(page) == 0:
         return {"pages": "reached end"}
     return page
-
-
-@router.delete("/reset_paging")
-async def reset_paging(
-        user_id: int = Depends(get_current_user_id),
-):
-    del iterators[user_id]
-    return {"status": "OK"}
 
 
 @router.get("/{product_id}")
 async def get(
         product_case: ProductCase,
         product_id: int,
-        user_id: int = Depends(get_current_user_id)
 ):
-    return await product_case.get_info(user_id, product_id)
+    user_id: int | None = None
+    try:
+        user_id = get_current_user_id()
+    finally:
+        return await product_case.get_info(user_id, product_id)
 
-
-@router.get("/find/{article}")
+@router.get("/get_by_article/{article}")
 async def get(
         product_case: ProductCase,
         article: int,
 ):
-    return await product_case.get_info(article)
-
+    user_id: int | None = None
+    try:
+        user_id = get_current_user_id()
+    finally:
+        return await product_case.get_info_by_article(user_id, article)
 
 @router.post("/")
 async def add(
@@ -72,8 +86,7 @@ async def edit_info(
         changes: dict,
         user_id: int = Depends(get_current_user_id),
 ):
-    await product_case.edit_info(user_id, product_id, **changes)
-    return {"status": "OK"}
+    return await product_case.edit_info(user_id, product_id, **changes)
 
 
 @router.delete("/{product_id}")
@@ -95,61 +108,3 @@ async def create_review(
 ):
     await product_case.add_review(user_id, product_id, mark)
     return {"status": "OK"}
-
-
-@router.get("/preview/{product_id}")
-async def get_preview(
-        product_id: int
-):
-    return Response(content=await Fm.get_preview(product_id), media_type="image/jpg")
-
-
-@router.post("/preview/{product_id}")
-async def upload_preview(
-        preview: UploadFile,
-        product_id: int,
-        user_case: UserCase,
-        user_id: int = Depends(get_current_user_id)
-):
-    await Fm.upload_preview(product_id, preview, user_case, user_id)
-    return {"status": "ok"}
-
-
-@router.delete("/preview/{product_id}")
-async def delete_preview(
-        product_id: int,
-        user_case: UserCase,
-        user_id: int = Depends(get_current_user_id)
-):
-    await Fm.delete_preview(product_id, user_case, user_id)
-    return {"status": "ok"}
-
-
-@router.get("/image{image_id}/{product_id}")
-async def get_image(
-        product_id: int,
-        image_id: int
-):
-    return Response(content=await Fm.get_image(product_id, image_id), media_type="image/jpg")
-
-
-@router.post("/image/{product_id}")
-async def upload_image(
-        image: UploadFile,
-        product_id: int,
-        user_case: UserCase,
-        user_id: int = Depends(get_current_user_id)
-):
-    await Fm.upload_image(product_id, image, user_case, user_id)
-    return {"status": "ok"}
-
-
-@router.delete("/image/{product_id}/{image_id}")
-async def delete_image(
-        product_id: int,
-        image_id: int,
-        user_case: UserCase,
-        user_id: int = Depends(get_current_user_id)
-):
-    await Fm.delete_image(product_id, image_id, user_case, user_id)
-    return {"status": "ok"}

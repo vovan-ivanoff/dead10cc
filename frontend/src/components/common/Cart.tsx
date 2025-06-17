@@ -4,16 +4,22 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { CartItem } from '../ui/CartItem';
 import Image from 'next/image';
 import Container from './Container';
-import { Pencil } from 'lucide-react';
+import { PieChart, Trash2 } from 'lucide-react';
+import { addToCart, deleteFromCart, clearCart } from '@/api/cart';
+import { trackUserAction } from '@/api/recomendations';
+import { ClearCartModal } from '../ui/ClearCartModal';
+
+// Заготовка для изображения-заглушки
+const placeholderImage = '/assets/images/pictures/default.jpg';
 
 interface Product {
     id: number;
-    name: string;
+    title: string;
     description: string;
-    price: number | string;
-    oldPrice: number | string;
+    price: number;
     image: string;
-    author: string;
+    seller: string;
+    quantity: number;
 }
 
 interface ProductListProps {
@@ -24,34 +30,86 @@ export default function CartPage({ products }: ProductListProps) {
     const [quantities, setQuantities] = useState<Record<number, number>>({});
     const [selectedItems, setSelectedItems] = useState<Record<number, boolean>>({});
     const [paymentOption, setPaymentOption] = useState('upon-receipt');
+    const [productList, setProductList] = useState(products);
+    const [imageErrors] = useState<Record<number, boolean>>({});
+    const [isClearModalOpen, setIsClearModalOpen] = useState(false);
 
     const normalizedProducts = useMemo(() => {
-        return products.map(p => ({
+        return productList.map(p => ({
             ...p,
             price: Math.floor(Number(p.price)),
-            oldPrice: Math.floor(Number(p.oldPrice)),
         }));
-    }, [products]);
+    }, [productList]);
 
     useEffect(() => {
-        const initialQuantities = Object.fromEntries(normalizedProducts.map(p => [p.id, 1]));
+        const initialQuantities = Object.fromEntries(normalizedProducts.map(p => [p.id, p.quantity]));
         const initialSelections = Object.fromEntries(normalizedProducts.map(p => [p.id, true]));
         setQuantities(initialQuantities);
         setSelectedItems(initialSelections);
     }, [normalizedProducts]);
 
-    const handleIncrease = (id: number) => {
-        setQuantities(prev => ({
-            ...prev,
-            [id]: (prev[id] || 1) + 1,
-        }));
+    const getImageSrc = (product: Product) => {
+        if (!product.image || imageErrors[product.id]) {
+            return placeholderImage;
+        }
+        return product.image;
     };
 
-    const handleDecrease = (id: number) => {
-        setQuantities(prev => ({
-            ...prev,
-            [id]: Math.max(1, (prev[id] || 1) - 1),
-        }));
+    const handleIncrease = async (id: number) => {
+        try {
+            const success = await addToCart(id, 1);
+            if (success) {
+                setQuantities(prev => ({
+                    ...prev,
+                    [id]: (prev[id] || 1) + 1,
+                }));
+                await trackUserAction(id, 'ADDED_TO_CART');
+            }
+        } catch (error) {
+            console.error('Error increasing quantity:', error);
+        }
+    };
+
+    const handleDecrease = async (id: number) => {
+        try {
+            const currentQuantity = quantities[id] || 1;
+            if (currentQuantity > 1) {
+                const success = await deleteFromCart(id, 1);
+                if (success) {
+                    setQuantities(prev => ({
+                        ...prev,
+                        [id]: currentQuantity - 1,
+                    }));
+                }
+            }
+        } catch (error) {
+            console.error('Error decreasing quantity:', error);
+        }
+    };
+
+    const handleDelete = async (id: number) => {
+        try {
+            console.log('Cart: Начало удаления товара:', id);
+            const success = await deleteFromCart(id, 0);
+            console.log('Cart: Результат удаления:', success);
+            if (success) {
+                console.log('Cart: Обновление состояния');
+                setProductList(prev => prev.filter(p => p.id !== id));
+                setQuantities(prev => {
+                    const newQuantities = { ...prev };
+                    delete newQuantities[id];
+                    return newQuantities;
+                });
+                setSelectedItems(prev => {
+                    const newSelectedItems = { ...prev };
+                    delete newSelectedItems[id];
+                    return newSelectedItems;
+                });
+                console.log('Cart: Состояние обновлено');
+            }
+        } catch (error) {
+            console.error('Error deleting item:', error);
+        }
     };
 
     const handleSelect = (id: number) => {
@@ -65,7 +123,8 @@ export default function CartPage({ products }: ProductListProps) {
         return value.toLocaleString('ru-RU', {
             style: 'currency',
             currency: 'RUB',
-            minimumFractionDigits: 2,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
         });
     };
 
@@ -75,228 +134,167 @@ export default function CartPage({ products }: ProductListProps) {
         return total + product.price * qty;
     }, 0);
 
-    const subtotal1 = normalizedProducts.reduce((total, product) => {
+    const saleCount = Math.round(0.03 * subtotal);
+    const total = subtotal - saleCount;
+    const totalCount = normalizedProducts.reduce((total, product) => {
         if (!selectedItems[product.id]) return total;
-        const qty = quantities[product.id] || 1;
-        return total + product.oldPrice * qty;
-    }, 0);
-
-    const total = subtotal - 0.03 * subtotal;
-    const saleCount = 0.03 * subtotal;
-
-    const today = new Date();
-    const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
-
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-
-    const dayAfterTomorrow = new Date(today);
-    dayAfterTomorrow.setDate(today.getDate() + 2);
-
-    const formattedTomorrow = tomorrow.toLocaleDateString('ru-RU', options);
-    const formattedDayAfter = dayAfterTomorrow.toLocaleDateString('ru-RU', options);
-
-    const selectedCount = normalizedProducts.reduce((count, product) => {
-        if (!selectedItems[product.id]) return count;
-        return count + (quantities[product.id] || 1);
-    }, 0);
-
-    const totalCount = normalizedProducts.reduce((count, product) => {
-        return count + (quantities[product.id] || 1);
+        return total + (quantities[product.id] || 1);
     }, 0);
 
     const getProductWord = (count: number) => {
-        const mod10 = count % 10;
-        const mod100 = count % 100;
+        const lastDigit = count % 10;
+        const lastTwoDigits = count % 100;
 
-        if (mod10 === 1 && mod100 !== 11) return 'товар';
-        if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return 'товара';
+        if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+            return 'товаров';
+        }
+
+        if (lastDigit === 1) {
+            return 'товар';
+        }
+
+        if (lastDigit >= 2 && lastDigit <= 4) {
+            return 'товара';
+        }
+
         return 'товаров';
+    };
+
+    const handleClearCart = async () => {
+        try {
+            const success = await clearCart();
+            if (success) {
+                setProductList([]);
+                setQuantities({});
+                setSelectedItems({});
+            }
+        } catch (error) {
+            console.error('Error clearing cart:', error);
+        }
+        setIsClearModalOpen(false);
     };
 
     return (
         <Container>
-            <div className="flex items-start">
-                {/* Левая колонка */}
-                <div className="flex flex-col flex-1 gap-4">
-                    {/* Корзина */}
-                    <div className="bg-white p-4 rounded-[20px] shadow-md">
-                        <div className="flex gap-4">
-                            <h2 className="text-2xl font-semibold mb-2 p-2">Корзина</h2>
-                            <h3 className="py-3 text-gray-400">{totalCount} {getProductWord(totalCount)}</h3>
-                        </div>
-                        <div className="space-y-4">
-                            {normalizedProducts.map((product) => (
-                                <CartItem
-                                    key={product.id}
-                                    image={product.image}
-                                    title={product.name}
-                                    description={product.description}
-                                    price={product.price}
-                                    oldPrice={product.oldPrice}
-                                    quantity={quantities[product.id] || 1}
-                                    onIncrease={() => handleIncrease(product.id)}
-                                    onDecrease={() => handleDecrease(product.id)}
-                                    selected={selectedItems[product.id] ?? true}
-                                    onSelect={() => handleSelect(product.id)}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Доставка */}
-                    <div className="bg-white p-4 rounded-[20px] shadow-md relative">
-                        <h2 className="text-xl font-semibold mb-2 p-2">Доставка</h2>
-                        <div className="px-2">
-                            <p className="text-base font-medium mb-1">Пункт выдачи: Москва, Волоколамское ш., д. 4</p>
-                            <p className="text-sm text-gray-500 mb-4">Доставка: {formattedTomorrow} — {formattedDayAfter}</p>
-
-                            <div className="flex flex-wrap gap-2">
+            <div className="w-full max-w-[1400px] px-4">
+                <div className="flex flex-col lg:flex-row items-start gap-8">
+                    <div className="flex flex-col w-full lg:flex-1 gap-6">
+                        <div className="bg-white p-5 rounded-[20px] shadow-md w-full">
+                            <div className="flex gap-4 flex-wrap items-center justify-between">
+                                <div className="flex gap-4 flex-wrap items-center">
+                                    <h2 className="text-2xl font-semibold mb-2 p-2">Корзина</h2>
+                                    <h3 className="py-3 text-gray-400">{totalCount} {getProductWord(totalCount)}</h3>
+                                </div>
+                                {totalCount > 0 && (
+                                    <button
+                                        onClick={() => setIsClearModalOpen(true)}
+                                        className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 transition-colors"
+                                    >
+                                        <Trash2 size={20} />
+                                        <span>Очистить корзину</span>
+                                    </button>
+                                )}
+                            </div>
+                            <div className="space-y-6 w-full">
                                 {normalizedProducts.map((product) => (
-                                    <div key={product.id} className="w-16 h-16 relative">
-                                        <Image
-                                            src={product.image}
-                                            alt={product.name}
-                                            fill
-                                            className="object-cover rounded-xl border"
-                                        />
-                                    </div>
+                                    <CartItem
+                                        key={product.id}
+                                        id={product.id}
+                                        image={getImageSrc(product)}
+                                        title={product.title}
+                                        description={product.description}
+                                        price={product.price}
+                                        quantity={quantities[product.id] || 1}
+                                        onIncrease={() => handleIncrease(product.id)}
+                                        onDecrease={() => handleDecrease(product.id)}
+                                        selected={selectedItems[product.id] ?? false}
+                                        onSelect={() => handleSelect(product.id)}
+                                        onDelete={() => handleDelete(product.id)}
+                                    />
                                 ))}
                             </div>
                         </div>
-                        <Pencil size={18} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
                     </div>
 
-                    {/* Способ оплаты и Мои данные */}
-                    <div className="flex gap-4">
-                        {/* Способ оплаты */}
-                        <div className="relative flex-1 bg-white p-4 rounded-[20px] shadow-md min-w-0">
-                            <h2 className="text-xl font-semibold mb-2 p-2">Способ оплаты</h2>
-                            <div className="px-2">
-                                <div className="flex justify-between items-center">
-                                    <label className="flex items-center gap-2">
-                                        <Image
-                                            src="/assets/icons/cash.svg"
-                                            alt="cash"
-                                            width={27}
-                                            height={22}
-                                            className="object-contain mb-1.5"
-                                        />
-                                        <h3 className="ml-2">WB кошелек</h3>
-                                    </label>
-                                    <div className="flex w-[50px] h-[25px] rounded-2xl bg-green-100 justify-center items-center mb-1.5">
-                                        <h3 className="text-green-600 font-medium">-3%</h3>
-                                    </div>
+                    <div className="w-full lg:w-[380px] xl:w-[420px] bg-white p-6 rounded-[20px] shadow-md flex flex-col lg:sticky lg:top-[100px] self-start">
+                        <div>
+                            <h2 className="text-xl font-medium mb-2">Доставка в пункт выдачи</h2>
+                            <p className="text-md text-gray-500 mb-1">Москва, Волоколамское ш., д. 4</p>
+                            <p className="text-md text-gray-500 mb-4">Ближайшая завтра</p>
+                            <div className="flex justify-between flex-wrap gap-2">
+                                <h3 className="font-medium mb-2">Оплата SL Кошельком</h3>
+                                <div className="flex w-[50px] h-[25px] rounded-2xl bg-green-100 justify-center items-center mb-1.5">
+                                    <h3 className="text-green-600 font-medium">-3%</h3>
                                 </div>
                             </div>
-                            <Pencil size={18} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer" />
-                        </div>
+                            <div className="flex gap-2 mb-4 bg-gray-200 rounded-[15px] p-1">
+                                <button
+                                    onClick={() => setPaymentOption('upon-receipt')}
+                                    className={`flex-1 py-1 rounded-[10px] font-medium transition ${paymentOption === 'upon-receipt'
+                                        ? 'bg-white text-black shadow'
+                                        : 'text-gray-600'
+                                        }`}
+                                >
+                                    При получении
+                                </button>
+                                <button
+                                    onClick={() => setPaymentOption('now')}
+                                    className={`flex-1 py-1 rounded-[10px] font-medium transition ${paymentOption === 'now'
+                                        ? 'bg-white text-black shadow'
+                                        : 'text-gray-600'
+                                        }`}
+                                >
+                                    Сразу
+                                </button>
+                            </div>
 
-                        {/* Мои данные */}
-                        <div className="relative flex-1 bg-white p-4 rounded-[20px] shadow-md min-w-0">
-                            <h2 className="text-xl font-semibold mb-2 p-2">Мои данные</h2>
-                            <div className="px-2">
-                                <div className="flex items-center gap-2 mt-2">
-                                    <Image
-                                        src="/assets/icons/user_cart.svg"
-                                        alt="avatar"
-                                        width={25}
-                                        height={25}
-                                        className="object-contain mb-2 opacity-15"
-                                    />
-                                    <h3 className="ml-2">Имя</h3>
-                                    <h3 className="ml-2">+7 800 555-35-35</h3>
-                                </div>
+                            <div className="flex justify-between mb-2">
+                                <span>Товары, {totalCount} шт.</span>
+                                <span className="font-medium">{formatPrice(subtotal)}</span>
+                            </div>
+                            <div className="flex justify-between mb-4">
+                                <span>Скидка SL Кошелька</span>
+                                <span className="text-transparent bg-clip-text bg-[linear-gradient(105deg,_#6A11CB_0%,_#2575FC_100%)]">{formatPrice(saleCount)}</span>
+                            </div>
+
+                            <div className="flex justify-between font-semibold text-lg mb-4">
+                                <span>Итого</span>
+                                <span>{formatPrice(total)}</span>
+                            </div>
+
+                            <div className="flex gap-2">
+                                <PieChart className="w-[27px] h-[27px] text-current flex-shrink-0 self-center" />
+                                <h3 className="font-medium mt-1.5">Частями</h3>
+                                <Image
+                                    src="/assets/icons/control.svg"
+                                    alt="control"
+                                    width={8}
+                                    height={8}
+                                    className="object-contain mt-0.5"
+                                />
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                {/* Правая колонка — Итого */}
-                <div className="w-[420px] ml-6 bg-white p-6 rounded-[20px] shadow-md flex flex-col sticky top-[100px] self-start">
-                    <div>
-                        <h2 className="text-xl font-medium mb-2">Доставка в пункт выдачи</h2>
-                        <p className="text-md text-gray-500 mb-1">Москва, Волоколамское ш., д. 4</p>
-                        <p className="text-md text-gray-500 mb-4">Ближайшая завтра</p>
-                        <div className="flex justify-between">
-                            <h3 className="font-medium mb-2">Оплата WB Кошельком</h3>
-                            <div className="flex w-[50px] h-[25px] rounded-2xl bg-green-100 justify-center items-center mb-1.5">
-                                <h3 className="text-green-600 font-medium">-3%</h3>
-                            </div>
-                        </div>
-                        <div className="flex gap-2 mb-4 bg-gray-200 rounded-[15px] p-1">
-                            <button
-                                onClick={() => setPaymentOption('upon-receipt')}
-                                className={`flex-1 py-1 rounded-[10px] font-medium transition ${paymentOption === 'upon-receipt'
-                                    ? 'bg-white text-black shadow'
-                                    : 'text-gray-600'
-                                    }`}
-                            >
-                                При получении
-                            </button>
-                            <button
-                                onClick={() => setPaymentOption('now')}
-                                className={`flex-1 py-1 rounded-[10px] font-medium transition ${paymentOption === 'now'
-                                    ? 'bg-white text-black shadow'
-                                    : 'text-gray-600'
-                                    }`}
-                            >
-                                Сразу
-                            </button>
-                        </div>
-
-                        <div className="flex justify-between mb-2">
-                            <span>Товары, {selectedCount} шт.</span>
-                            <span className="font-medium">{formatPrice(subtotal1)}</span>
-                        </div>
-                        <div className="flex justify-between mb-2">
-                            <span>Моя скидка</span>
-                            <span className="text-gray-500">{formatPrice(subtotal1 - subtotal)}</span>
-                        </div>
-                        <div className="flex justify-between mb-4">
-                            <span>Скидка WB Кошелька</span>
-                            <span className="text-purple-600">{formatPrice(saleCount)}</span>
-                        </div>
-
-                        <div className="flex justify-between font-semibold text-lg mb-4">
-                            <span>Итого</span>
-                            <span>{formatPrice(total)}</span>
-                        </div>
-
-                        <div className="flex gap-2">
-                            <Image
-                                src="/assets/icons/dolki.svg"
-                                alt="avatar"
-                                width={27}
-                                height={27}
-                                className="object-contain"
+                        <button className="bg-[#1B2429] hover:bg-[linear-gradient(105deg,#6A11CB_0%,#2575FC_100%)] text-white py-2 rounded-[10px] transition mt-4">
+                            Заказать
+                        </button>
+                        <div className="flex mt-4 gap-2">
+                            <input
+                                type="checkbox"
+                                className="mt-1 w-6 h-6 text-[#6A11CB] accent-[#6A11CB] flex-shrink-0"
                             />
-                            <h3 className="font-medium mt-1.5">Частями</h3>
-                            <Image
-                                src="/assets/icons/control.svg"
-                                alt="control"
-                                width={20}
-                                height={20}
-                                className="object-contain mt-0.5"
-                            />
+                            <p className="text-xs text-gray-500">
+                                Соглашаюсь с <a href="#" className="underline">правилами пользования торговой площадкой и возврата</a>
+                            </p>
                         </div>
-                    </div>
-                    <button className="bg-[#A232E8] hover:bg-[#AF4DFD] text-white py-2 rounded-[14px] transition mt-4">
-                        Заказать
-                    </button>
-                    <div className="flex mt-4">
-                        <input
-                            type="checkbox"
-                            className="mt-1 w-6 h-6 text-purple-600 accent-purple-600"
-                        />
-                        <p className="text-xs text-gray-500">
-                            Соглашаюсь с <a href="#" className="underline">правилами пользования торговой площадкой и возврата</a>
-                        </p>
                     </div>
                 </div>
             </div>
+
+            <ClearCartModal
+                isOpen={isClearModalOpen}
+                onClose={() => setIsClearModalOpen(false)}
+                onConfirm={handleClearCart}
+            />
         </Container>
-
-
     );
 }

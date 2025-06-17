@@ -17,6 +17,7 @@ __pycache__
 /.next/
 /out/
 /build
+/dbdata
 .DS_Store
 *.pem
 npm-debug.log*
@@ -38,3 +39,4 @@ next-env.d.ts
 /frontend/.vercel
 /frontend/*.tsbuildinfo
 /frontend/next-env.d.ts
+/frontend/yarn.lock
